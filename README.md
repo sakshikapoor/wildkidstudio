@@ -1,89 +1,83 @@
-# Wild Kid Studio
+# WildKid Studio
 
-We design and build digital products that are simple, thoughtful and built to last.
+An AI first studio. We design and build MVPs, internal tools and AI systems.
 
-Wild Kid Studio is a design and development consultancy founded by two makers with backgrounds in product design and engineering. We partner with startups and growing companies to turn ideas into polished digital products, from concept to launch.
+We're a two person team combining senior product design and engineering. With experience across Stripe, Flipkart and early stage startups, we work directly with founders and product teams to take ideas from concept to production.
+
+## What We Do
+
+### MVPs
+From idea to a shipped product in weeks. We handle product strategy, UX, UI and engineering to help you launch faster.
+
+### Internal Tools
+Dashboards, admin panels and operational software that simplify complex workflows and improve team productivity.
+
+### AI Systems
+AI powered products, workflows and internal tools designed for real world use. From strategy and UX to production ready implementation.
 
 ## Services
 
-### Product Design
-- UX strategy
+### Design
+- Product strategy
 - User research
-- Wireframing
-- UI design
+- UX & UI design
 - Design systems
 - Interactive prototypes
 - Design audits
 
-### Development
+### Engineering
 - Frontend development
+- Backend development
 - React
 - React Native
 - TypeScript
-- Responsive web applications
-- Design system implementation
-- Performance optimization
-
-### Product Consulting
-- MVP planning
-- Product strategy
-- UX reviews
-- Design and engineering collaboration
+- Node.js
+- AI integrations
+- Production deployment
 
 ## How We Work
 
-We work closely with founders and product teams to understand the problem before jumping into solutions. Every project is a collaboration where design and engineering happen together, resulting in products that are intuitive, scalable and production ready.
+Every project is led by the two of us from start to finish. No handoffs. No account managers. Just direct collaboration with experienced designers and engineers who build the product together.
 
-## Industries
+## Engagement Models
 
-- SaaS
-- AI
-- Ecommerce
-- Fintech
-- Logistics
-- Defence
-- Education
+### Sprint
+A focused 1 to 2 week engagement for a feature, workflow or design audit.
 
-## Tools & Technologies
+### Build
+A fixed scope engagement to design and build an MVP from idea to launch.
 
-### Design
+### Retainer
+Ongoing design and engineering support for teams that need continuous product development.
+
+## Selected Work
+
+- Multi supplier B2B marketplace
+- Mission control interface for autonomous naval vessels
+- AI powered shopping assistant for Flipkart
+- BookSkim, our AI native EPUB reader
+
+## Tech
+
+**Design**
 - Figma
 - FigJam
-- Adobe Creative Suite
 - Rive
 - Spline
-- Procreate
+- Adobe Creative Suite
 
-### Development
+**Engineering**
 - React
 - React Native
 - TypeScript
-- JavaScript
+- Node.js
 - HTML
 - CSS
 - Tailwind CSS
-- Node.js
 - Git
-
-## Why Wild Kid Studio?
-
-- End to end product expertise
-- Strong balance of design and engineering
-- Small team with direct communication
-- Fast iterations and thoughtful execution
-- Pixel perfect implementation
-- Product first mindset
-
-## Process
-
-Discovery → Strategy → Design → Build → Launch → Iterate
 
 ## Contact
 
-Have an idea or a product you'd like to build?
+🌐 https://wildkidstudio.vercel.app/
 
-**Email:** wildkidstudio@duck.com
-
----
-
-Built with curiosity and craftsmanship.
+📧 wildkidstudio@duck.com
