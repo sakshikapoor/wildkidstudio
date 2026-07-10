@@ -78,6 +78,6 @@ Ongoing design and engineering support for teams that need continuous product de
 
 ## Contact
 
-🌐 https://wildkidstudio.vercel.app/
+🌐 https://wildkidstudio.in/
 
-📧 wildkidstudio@duck.com
+📧 hello@wildkidstudio.in
