@@ -276,9 +276,8 @@ header {
 
 .hero-note {
   max-width: 28rem;
-  margin: 3rem auto 0;
-  padding-top: 1.7rem;
-  border-top: 1px solid var(--hairline);
+  justify-self: center;
+  padding-top: 2.5rem;
 }
 .hero-note .eyebrow {
   margin-bottom: 0.55rem;
