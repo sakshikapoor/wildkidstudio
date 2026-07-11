@@ -1,0 +1,53 @@
+// Reset and base element styles.
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+}
+
+// Seamless paper tile, scrolls with the page.
+// Plain --bone color is the fallback.
+body {
+    background-color: var(--bone);
+    background-image: url("../assets/paper-texture.jpg");
+    background-size: 512px 880px;
+    background-repeat: repeat;
+    color: var(--ink);
+    font-family: "Source Serif 4", Georgia, serif;
+    font-size: 1.02rem;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+main {
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+a {
+    color: inherit;
+}
+
+a:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 4px;
+}

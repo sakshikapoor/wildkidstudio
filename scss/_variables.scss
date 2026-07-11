@@ -1,0 +1,10 @@
+// Design tokens, exposed as CSS custom properties so they stay
+// available at runtime (e.g. to JS and inline styles).
+:root {
+    --bone: #f1eae1;
+    --ink: #3b382f;
+    --ink-soft: #6a665a;
+    --hairline: rgba(59, 56, 48, 0.16);
+    --rust: #92492f;
+    --measure: 46rem;
+}

@@ -1,0 +1,36 @@
+// Type scale and text styles.
+
+.eyebrow {
+    font-family: "EB Garamond", serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    text-indent: 0.42em;
+    color: var(--ink-soft);
+    text-align: center;
+}
+
+h1,
+h2 {
+    font-family: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+}
+
+h2 {
+    font-size: 1.85rem;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+}
+
+h3 {
+    font-family: "EB Garamond", serif;
+    font-weight: 500;
+    font-size: 1.35rem;
+    text-align: center;
+}
+
+p {
+    color: var(--ink-soft);
+}

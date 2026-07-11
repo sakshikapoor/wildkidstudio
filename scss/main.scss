@@ -1,0 +1,9 @@
+// WildKid Studio — main stylesheet.
+// Compile with: npx sass scss/main.scss css/main.css
+
+@use "variables";
+@use "base";
+@use "typography";
+@use "components";
+@use "sections";
+@use "animations";

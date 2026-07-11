@@ -1,0 +1,13 @@
+// Scroll-reveal transitions. Toggled by the IntersectionObserver in main.js;
+// the reduced-motion override lives in _base.scss.
+
+.reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 700ms ease, transform 700ms ease;
+}
+
+.reveal.in {
+    opacity: 1;
+    transform: none;
+}
