@@ -20,7 +20,7 @@ const principles = [
 ---
 
 <section class="principles" id="principles">
-  <p class="eyebrow" data-reveal="up">[4] OUR PRINCIPLES</p>
+  <p class="eyebrow" data-reveal="up"><span class="eyebrow__tag">[4]</span> OUR PRINCIPLES</p>
 
   <div class="principles__list">
     {
@@ -66,40 +66,22 @@ const principles = [
     overflow: clip;
     color: var(--white);
     background: var(--band-box);
+    // Colour only, matching the service chips: black on hover, nothing moves.
     transition:
-      transform var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-inout),
       background-color var(--dur-fast) var(--ease-inout);
 
-    // A mint edge wipes down the left side on hover, and the row nudges with
-    // it — enough to feel live without moving the reading line.
-    &::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: u(4);
-      height: 100%;
-      background: var(--mint);
-      transform: scaleY(0);
-      transform-origin: top center;
-      transition: transform var(--dur-base) var(--ease-out);
-    }
-
     &:hover {
-      transform: translateX(u(8));
-      background: var(--forest);
-    }
-
-    &:hover::before {
-      transform: scaleY(1);
+      color: var(--white);
+      background: #000000;
     }
   }
 
   .principle__name {
     flex-shrink: 0;
-    width: u(250);
+    width: u(320);
     font-family: var(--font-display);
-    font-size: u(24);
+    font-size: u(30);
     font-weight: 400;
     line-height: normal;
   }
@@ -112,13 +94,8 @@ const principles = [
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .principle,
-    .principle::before {
+    .principle {
       transition: none;
-    }
-
-    .principle:hover {
-      transform: none;
     }
   }
 

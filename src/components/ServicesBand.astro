@@ -108,19 +108,22 @@ const services = [
       padding: u(10);
       font-family: var(--font-mono);
       font-size: u(18);
+      text-transform: uppercase;
       line-height: normal;
       // Every label sits on one line; the longest sets the shared width.
       white-space: nowrap;
       color: var(--forest);
       background: var(--mint);
+      // Colour only — nothing moves, so the display type beside it stays the
+      // one animated thing in this band.
       transition:
-        transform var(--dur-fast) var(--ease-out),
+        color var(--dur-fast) var(--ease-inout),
         background-color var(--dur-fast) var(--ease-inout),
         opacity var(--dur-base) var(--ease-out);
 
       &:hover {
-        transform: translateX(u(10));
-        background: var(--white);
+        color: var(--white);
+        background: #000000;
       }
     }
   }
@@ -128,10 +131,6 @@ const services = [
   @media (prefers-reduced-motion: reduce) {
     .band__list li {
       transition: none;
-    }
-
-    .band__list li:hover {
-      transform: none;
     }
   }
 
