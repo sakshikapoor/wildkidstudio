@@ -1,0 +1,109 @@
+---
+interface Props {
+  title: string;
+  /** Duration or capacity line, e.g. "1–2 weeks". */
+  meta: string;
+  /** Direction the card enters from. See _motion.scss. */
+  reveal?: 'up' | 'left' | 'right';
+  /** Position in a staggered group of cards. */
+  delay?: number;
+}
+
+const { title, meta, reveal = 'up', delay = 0 } = Astro.props;
+---
+
+<article class="offer" data-reveal={reveal} style={`--i: ${delay}`}>
+  <div class="offer__head">
+    <h3 class="offer__title">{title}</h3>
+    <p class="offer__meta">{meta}</p>
+  </div>
+  <p class="offer__body"><slot /></p>
+</article>
+
+<style lang="scss">
+  @use "../styles/util" as *;
+
+  .offer {
+    display: flex;
+    flex-direction: column;
+    gap: u(30);
+    align-items: flex-start;
+  }
+
+  .offer__head {
+    display: flex;
+    flex-direction: column;
+    gap: u(5);
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  // The rule under the title draws itself once the card has landed.
+  .offer__head {
+    position: relative;
+    padding-bottom: u(12);
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 1px;
+      background: var(--sage);
+      opacity: 0.35;
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform var(--dur-slow) var(--ease-out) 240ms;
+    }
+  }
+
+  .offer[data-revealed] .offer__head::after,
+  :global(html:not(.js)) .offer .offer__head::after {
+    transform: scaleX(1);
+  }
+
+  .offer__title {
+    font-family: var(--font-display);
+    font-size: u(40);
+    font-weight: 400;
+    line-height: normal;
+    color: var(--forest);
+    white-space: nowrap;
+  }
+
+  .offer__meta {
+    font-size: u(18);
+    font-weight: 700;
+    line-height: normal;
+    color: var(--sage);
+  }
+
+  .offer__body {
+    font-size: u(18);
+    line-height: normal;
+    color: #000000;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .offer__head::after {
+      transform: scaleX(1);
+      transition: none;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .offer {
+      gap: 20px;
+    }
+
+    .offer__title {
+      font-size: 26px;
+    }
+
+    .offer__meta,
+    .offer__body {
+      font-size: 17px;
+    }
+  }
+</style>

@@ -1,0 +1,694 @@
+---
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+
+// The mockups come from the curated "consumer phone mockups" and "driver phone
+// mockups" sections in the Figma file. The category icons are sliced out of
+// public/assets/categories.svg — see the labels below for the sheet's order.
+import consumer1 from '../../assets/work/instasupply/consumer-1.png';
+import consumer2 from '../../assets/work/instasupply/consumer-2.png';
+import consumer3 from '../../assets/work/instasupply/consumer-3.png';
+import consumer4 from '../../assets/work/instasupply/consumer-4.png';
+import consumer5 from '../../assets/work/instasupply/consumer-5.png';
+import consumer6 from '../../assets/work/instasupply/consumer-6.png';
+import driver1 from '../../assets/work/instasupply/driver-1.png';
+import driver2 from '../../assets/work/instasupply/driver-2.png';
+import driver3 from '../../assets/work/instasupply/driver-3.png';
+import driver4 from '../../assets/work/instasupply/driver-4.png';
+import driver5 from '../../assets/work/instasupply/driver-5.png';
+import driver6 from '../../assets/work/instasupply/driver-6.png';
+
+
+// The mockups come from the curated "consumer phone mockups" and "driver phone
+// mockups" sections in the Figma file. The category icons are sliced out of
+// public/assets/categories.svg — see the labels below for the sheet's order.
+import consumer1 from '../../assets/work/instasupply/consumer-1.png';
+import consumer2 from '../../assets/work/instasupply/consumer-2.png';
+import consumer3 from '../../assets/work/instasupply/consumer-3.png';
+import consumer4 from '../../assets/work/instasupply/consumer-4.png';
+import consumer5 from '../../assets/work/instasupply/consumer-5.png';
+import consumer6 from '../../assets/work/instasupply/consumer-6.png';
+import driver1 from '../../assets/work/instasupply/driver-1.png';
+import driver2 from '../../assets/work/instasupply/driver-2.png';
+import driver3 from '../../assets/work/instasupply/driver-3.png';
+import driver4 from '../../assets/work/instasupply/driver-4.png';
+import driver5 from '../../assets/work/instasupply/driver-5.png';
+import driver6 from '../../assets/work/instasupply/driver-6.png';
+import ilDig from '../../assets/work/instasupply/illustrations/il-dig.png';
+import ilA from '../../assets/work/instasupply/illustrations/il-a.png';
+import ilB from '../../assets/work/instasupply/illustrations/il-b.png';
+import ilC from '../../assets/work/instasupply/illustrations/il-c.png';
+import ilD from '../../assets/work/instasupply/illustrations/il-d.png';
+import ilE from '../../assets/work/instasupply/illustrations/il-e.png';
+import ilDriver from '../../assets/work/instasupply/illustrations/il-driver.png';
+import ilProposal from '../../assets/work/instasupply/illustrations/il-proposal.png';
+import ilSign from '../../assets/work/instasupply/illustrations/il-sign.png';
+
+// Figures come from the research write-up at sakshikapoor.com/multi-seller.
+const facts = [
+  { figure: '85%', label: 'of contractors buy from more than one supplier' },
+  { figure: '90%', label: 'of those purchases still happen at the counter' },
+  { figure: '70+', label: 'contractors and suppliers interviewed and tested with' },
+];
+
+const decisions = [
+  {
+    title: 'One cart per supplier',
+    body: 'Each supplier keeps its own cart, subtotal and delivery fee, all visible at once. An accordion with checkboxes tested worse — it hid the thing contractors were actually optimising for.',
+  },
+  {
+    title: 'Shopping stays inside a store',
+    body: 'After the first item, browsing narrows to that supplier’s catalogue. A second item then consolidates a delivery instead of opening another one.',
+  },
+  {
+    title: 'Two apps, one system',
+    body: 'The consumer and driver apps share tokens, components and icons. The driver app only changes what the road demands: larger targets, status-led colour, one action per screen.',
+  },
+];
+
+// The semantic layer, taken from the design system frame in the Figma file.
+const semantics = [
+  { role: 'Primary', token: 'neutral/900', hex: '#1D1D1D', use: 'Every primary action' },
+  { role: 'Secondary', token: 'blue/500', hex: '#3256FE', use: 'Links, selection, in progress' },
+  { role: 'Success', token: 'green/500', hex: '#019831', use: 'Online, delivered' },
+  { role: 'Warning', token: 'orange/500', hex: '#FE8002', use: 'Queued, closing soon' },
+  { role: 'Failure', token: 'red/500', hex: '#E40100', use: 'Closed, errors' },
+  { role: 'Info', token: 'cyan/500', hex: '#00ABFC', use: 'Notices, tips' },
+];
+
+const spacing = [4, 8, 12, 16, 20, 24, 28, 32];
+
+const typeScale = [
+  { name: 'Display', size: 38 },
+  { name: 'Heading 1', size: 24 },
+  { name: 'Heading 2', size: 20 },
+  { name: 'Heading 3', size: 18 },
+  { name: 'Body Large', size: 16 },
+  { name: 'Body', size: 14 },
+  { name: 'Caption', size: 12 },
+];
+
+const consumerScreens = [
+  { src: consumer1, alt: 'Home with deliveries in progress' },
+  { src: consumer2, alt: 'Store landing page' },
+  { src: consumer3, alt: 'Suppliers near you' },
+  { src: consumer4, alt: 'Category browse' },
+  { src: consumer5, alt: 'Search and browse results' },
+  { src: consumer6, alt: 'Expanded delivery cart' },
+];
+
+const driverScreens = [
+  { src: driver1, alt: 'Driver offline' },
+  { src: driver2, alt: 'Incoming delivery request' },
+  { src: driver3, alt: 'Order accepted alongside an ongoing delivery' },
+  { src: driver4, alt: 'Driving towards the supplier' },
+  { src: driver5, alt: 'Delivery in progress' },
+  { src: driver6, alt: 'Delivered, payout pending' },
+];
+
+// The 24 isometric category icons, in the order they appear on the sheet.
+const categoryIcons = Object.entries(
+  import.meta.glob<ImageMetadata>('../../assets/work/instasupply/categories/*.png', {
+    eager: true,
+    import: 'default',
+  }),
+)
+  .sort(([a], [b]) => a.localeCompare(b))
+  .map(([, src]) => src);
+
+const categoryLabels = [
+  'First aid', 'Turf', 'Tool box', 'Appliances',
+  'Cable', 'Offers', 'Timber', 'Power tools',
+  'Kitchen', 'Paint', 'Pavers', 'Cleaning',
+  'Decor', 'Roofing', 'Doors', 'Storage',
+  'Adhesives', 'Plumbing', 'Bricks', 'Drywall',
+  'Windows', 'HVAC', 'Hose', 'Extras',
+];
+
+---
+
+<article class="cs">
+  <section class="cs-brief">
+    <p class="eyebrow" data-reveal="up">[1] THE BRIEF</p>
+    <div class="cs-brief__body">
+      <p class="cs-lede" data-reveal="up" style="--i: 1">
+        InstaSupply is an ecommerce platform for contractors in Canada buying building materials.
+        A single job pulls from several specialist suppliers, so the product had to make ordering
+        from all of them feel lighter than driving to each one.
+      </p>
+      <dl class="cs-facts">
+        {
+          facts.map((fact, i) => (
+            <div class="cs-fact" data-reveal="up" style={`--i: ${i}`}>
+              <dt>{fact.figure}</dt>
+              <dd>{fact.label}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <section class="cs-decisions">
+    <p class="eyebrow" data-reveal="up">[2] THE CALLS WE MADE</p>
+    <div class="cs-decisions__grid">
+      {
+        decisions.map((decision, i) => (
+          <div class="cs-decision" data-reveal="up" style={`--i: ${i}`}>
+            <h3>{decision.title}</h3>
+            <p>{decision.body}</p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="cs-system">
+    <p class="eyebrow" data-reveal="up">[3] THE SYSTEM</p>
+
+    <div class="cs-block">
+      <div class="cs-block__head" data-reveal="up">
+        <h3 class="cs-block__title">Colour</h3>
+        <p class="cs-block__note">
+          Neutral does the work. Colour is reserved for meaning — a status, never a decoration.
+          Each hue ships as a nine-step ramp so states have somewhere to go, and the product
+          photography carries the colour on the page.
+        </p>
+      </div>
+      <ul class="cs-swatches">
+        {
+          semantics.map((swatch, i) => (
+            <li class="cs-swatch" data-reveal="up" style={`--i: ${i}`}>
+              <span class="cs-swatch__chip" style={`background: ${swatch.hex}`} />
+              <span class="cs-swatch__role">{swatch.role}</span>
+              <span class="cs-swatch__token">{swatch.token} · {swatch.hex}</span>
+              <span class="cs-swatch__use">{swatch.use}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="cs-block">
+      <div class="cs-block__head" data-reveal="up">
+        <h3 class="cs-block__title">Spacing</h3>
+        <p class="cs-block__note">
+          A 4px base unit, and nothing off it. Four and eight hold a component together,
+          sixteen and twenty-four separate them, and the screen gutter never moves off sixteen.
+        </p>
+      </div>
+      <ul class="cs-spacing">
+        {
+          spacing.map((step, i) => (
+            <li class="cs-step" data-reveal="left" style={`--i: ${i}`}>
+              <span class="cs-step__label">{step}px</span>
+              <span class="cs-step__bar" style={`--w: ${step}`} />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="cs-block">
+      <div class="cs-block__head" data-reveal="up">
+        <h3 class="cs-block__title">Type</h3>
+        <p class="cs-block__note">
+          SF Pro, set in seven steps and four weights. A system face was the deliberate choice:
+          nothing to download, and it stays legible on a cracked phone in daylight — which is
+          where most of this product is actually read.
+        </p>
+      </div>
+      <ul class="cs-type">
+        {
+          typeScale.map((step, i) => (
+            <li class="cs-type__row" data-reveal="up" style={`--i: ${i}`}>
+              <span class="cs-type__sample" style={`--size: ${step.size}`}>{step.name}</span>
+              <span class="cs-type__size">{step.size}px</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="cs-cats">
+    <p class="eyebrow" data-reveal="up">[4] CATEGORY ICONS</p>
+    <p class="cs-cats__note" data-reveal="up" style="--i: 1">
+      Twenty-four isometric icons, one per aisle, drawn on a single axonometric
+      grid so a catalogue that spans plumbing to plasterboard still looks like
+      one shop.
+    </p>
+
+    {/* One tile size, one gap, same distance between icons in every row. */}
+    <div class="cs-cats__grid">
+        {
+          categoryIcons.map((icon, i) => (
+            <div class="cs-cat" data-reveal="scale" style={`--i: ${i % 8}`}>
+              <Image src={icon} alt={`${categoryLabels[i] ?? 'Category'} icon`} widths={[120, 240]} formats={['webp']} />
+            </div>
+          ))
+        }
+    </div>
+  </section>
+
+  <section class="cs-apps">
+    <div class="cs-apps__head">
+      <p class="eyebrow" data-reveal="up">[5] TWO APPS</p>
+      <h2 class="section-title" data-reveal="up" style="--i: 1">CONSUMER &amp; DRIVER</h2>
+    </div>
+
+    <div class="cs-app">
+      <h3 class="cs-app__name" data-reveal="up">Consumer</h3>
+      <div class="cs-phones">
+        {
+          consumerScreens.map((screen, i) => (
+            <div class="cs-phone" data-reveal="up" style={`--i: ${i % 3}`}>
+              <Image src={screen.src} alt={screen.alt} widths={[330, 660]} formats={['webp']} />
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="cs-app">
+      <h3 class="cs-app__name" data-reveal="up">Driver</h3>
+      <div class="cs-phones">
+        {
+          driverScreens.map((screen, i) => (
+            <div class="cs-phone" data-reveal="up" style={`--i: ${i % 3}`}>
+              <Image src={screen.src} alt={screen.alt} widths={[330, 660]} formats={['webp']} />
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</article>
+
+<style lang="scss">
+  @use "../../styles/util" as *;
+
+  // Every section in the case study shares the page's gutter and rhythm.
+  .cs section {
+    position: relative;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    gap: u(50);
+    align-items: flex-start;
+    padding: u(100) u(100);
+  }
+
+  // --- Brief ------------------------------------------------------------
+  .cs-brief {
+    padding-top: u(70);
+  }
+
+  .cs-brief__body {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: u(80);
+    width: 100%;
+  }
+
+  .cs-lede {
+    width: u(680);
+    font-size: u(24);
+    line-height: 1.3;
+    color: var(--body);
+  }
+
+  .cs-facts {
+    display: flex;
+    flex-direction: column;
+    gap: u(30);
+    width: u(400);
+  }
+
+  .cs-fact {
+    display: flex;
+    flex-direction: column;
+    gap: u(5);
+
+    dt {
+      font-family: var(--font-display);
+      font-size: u(40);
+      line-height: normal;
+      color: var(--ink);
+    }
+
+    dd {
+      margin: 0;
+      font-size: u(18);
+      line-height: 1.3;
+      color: var(--sage);
+    }
+  }
+
+  // --- Decisions --------------------------------------------------------
+  .cs-decisions {
+    background: var(--showreel);
+  }
+
+  .cs-decisions__grid {
+    display: flex;
+    gap: u(30);
+    width: 100%;
+  }
+
+  .cs-decision {
+    display: flex;
+    flex-direction: column;
+    gap: u(15);
+    flex: 1 1 0;
+    padding: u(30);
+    background: var(--white);
+
+    h3 {
+      font-family: var(--font-display);
+      font-size: u(24);
+      font-weight: 400;
+      line-height: normal;
+      color: var(--forest);
+    }
+
+    p {
+      font-size: u(18);
+      line-height: 1.35;
+      color: var(--body);
+    }
+  }
+
+  // --- System -----------------------------------------------------------
+  .cs-system {
+    gap: u(70);
+  }
+
+  .cs-block {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: u(80);
+    width: 100%;
+  }
+
+  .cs-block__head {
+    width: u(400);
+  }
+
+  .cs-block__title {
+    font-family: var(--font-display);
+    font-size: u(40);
+    font-weight: 400;
+    line-height: normal;
+    color: var(--ink);
+  }
+
+  .cs-block__note {
+    margin-top: u(15);
+    font-size: u(18);
+    line-height: 1.35;
+    color: var(--body);
+  }
+
+  // Colour: two columns of swatch rows.
+  .cs-swatches {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: u(20) u(30);
+    width: u(680);
+    padding: 0;
+    list-style: none;
+  }
+
+  .cs-swatch {
+    display: grid;
+    grid-template-columns: u(48) 1fr;
+    grid-template-rows: auto auto auto;
+    column-gap: u(15);
+    align-items: center;
+  }
+
+  .cs-swatch__chip {
+    grid-row: 1 / 4;
+    width: u(48);
+    height: u(48);
+    // Matches the 8px component radius in the app.
+    border-radius: u(8);
+  }
+
+  .cs-swatch__role {
+    font-size: u(18);
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--ink);
+  }
+
+  .cs-swatch__token {
+    font-size: u(14);
+    line-height: 1.3;
+    color: var(--sage);
+  }
+
+  .cs-swatch__use {
+    font-size: u(14);
+    line-height: 1.3;
+    color: var(--body);
+  }
+
+  // Spacing: bars drawn at their true value.
+  .cs-spacing {
+    display: flex;
+    flex-direction: column;
+    gap: u(12);
+    width: u(680);
+    padding: 0;
+    list-style: none;
+  }
+
+  .cs-step {
+    display: flex;
+    align-items: center;
+    gap: u(20);
+  }
+
+  .cs-step__label {
+    width: u(30);
+    font-size: u(14);
+    color: var(--sage);
+    text-align: right;
+  }
+
+  .cs-step__bar {
+    height: u(16);
+    // The bar is the step itself, scaled up so 4px is still visible.
+    width: calc(var(--w) * #{u(8)});
+    background: #3256fe;
+  }
+
+  // Type: the scale set at its own size.
+  .cs-type {
+    display: flex;
+    flex-direction: column;
+    gap: u(16);
+    width: u(680);
+    padding: 0;
+    list-style: none;
+  }
+
+  .cs-type__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: u(20);
+    padding-bottom: u(12);
+    border-bottom: 1px solid rgba(32, 32, 32, 0.12);
+  }
+
+  .cs-type__sample {
+    font-family: -apple-system, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    font-size: u(var(--size));
+    line-height: 1.1;
+    color: var(--ink);
+  }
+
+  .cs-type__size {
+    font-size: u(14);
+    color: var(--sage);
+  }
+
+  // --- Category icons ---------------------------------------------------
+  .cs-cats {
+    gap: u(40);
+    overflow: clip;
+    background: var(--showreel);
+  }
+
+  .cs-cats__note {
+    width: u(680);
+    font-size: u(18);
+    line-height: 1.35;
+    color: var(--body);
+  }
+
+  .cs-cats__grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: u(16);
+    width: 100%;
+    margin-top: u(10);
+  }
+
+  .cs-cat {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    padding: u(18);
+    background: var(--white);
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  }
+
+  // --- The apps ---------------------------------------------------------
+  .cs-apps {
+    gap: u(70);
+    background: var(--white);
+  }
+
+  .cs-apps__head {
+    display: flex;
+    flex-direction: column;
+    gap: u(20);
+  }
+
+  .cs-app {
+    display: flex;
+    flex-direction: column;
+    gap: u(30);
+    width: 100%;
+  }
+
+  .cs-app__name {
+    font-family: var(--font-display);
+    font-size: u(24);
+    font-weight: 400;
+    line-height: normal;
+    color: var(--forest);
+  }
+
+  // Six screens per app, three to a row. The captions are gone on purpose —
+  // the screens carry the argument by now.
+  .cs-phones {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: u(50) u(60);
+    width: 100%;
+  }
+
+  .cs-phone {
+    align-self: start;
+    overflow: hidden;
+    border-radius: u(24);
+    background: var(--white);
+    box-shadow: 0 u(2) u(24) rgba(10, 10, 10, 0.12);
+
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .cs section {
+      gap: 32px;
+      padding: 56px 24px;
+    }
+
+    .cs-brief__body,
+    .cs-block,
+    .cs-decisions__grid {
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .cs-lede,
+    .cs-facts,
+    .cs-block__head,
+    .cs-swatches,
+    .cs-spacing,
+    .cs-type,
+    .cs-cats__note {
+      width: 100%;
+    }
+
+    .cs-lede {
+      font-size: 17px;
+    }
+
+    .cs-fact dt {
+      font-size: 28px;
+    }
+
+    .cs-fact dd,
+    .cs-decision p,
+    .cs-block__note,
+    .cs-cats__note {
+      font-size: 15px;
+    }
+
+    .cs-decision h3,
+    .cs-app__name {
+      font-size: 20px;
+    }
+
+    .cs-block__title {
+      font-size: 26px;
+    }
+
+    .cs-cats__grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 0;
+    }
+
+    .cs-cat {
+      padding: 10px;
+    }
+
+    .cs-swatches {
+      grid-template-columns: 1fr;
+    }
+
+    .cs-swatch__chip {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+    }
+
+    .cs-step__bar {
+      width: calc(var(--w) * 4px);
+    }
+
+    .cs-type__sample {
+      font-size: calc(var(--size) * 0.8px);
+    }
+
+    // Two phones to a row on a handset.
+    .cs-phones {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .cs-phone {
+      border-radius: 16px;
+    }
+  }
+</style>

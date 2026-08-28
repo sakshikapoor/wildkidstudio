@@ -1,0 +1,82 @@
+---
+import '../styles/main.scss';
+import Motion from '../components/Motion.astro';
+
+interface Props {
+  /** Browser tab + og:title. */
+  title?: string;
+  /** Meta description + og:description. */
+  description?: string;
+  /** Social share image, relative to site root. */
+  ogImage?: string;
+}
+
+const {
+  title = 'WildKid Studio',
+  description = 'A two person studio. We design and build MVPs, internal tools and AI systems.',
+  ogImage = '/assets/ogimage.png',
+} = Astro.props;
+
+// Absolute URLs — social scrapers do not resolve relative paths.
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImageUrl = new URL(ogImage, Astro.site);
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!--
+      Set before the stylesheet so the reveal system's hidden state applies on
+      the first paint. Without scripting the class never lands and every
+      [data-reveal] element renders normally.
+    -->
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+
+    <link rel="icon" type="image/png" href="/assets/favicon.png" />
+    <link rel="apple-touch-icon" href="/assets/favicon.png" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Open Graph (Facebook, LinkedIn, Slack, iMessage) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="WildKid Studio" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="WildKid Studio" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <!--
+      Anonymous Pro comes from Google Fonts. BBH Bartle is not served by any
+      webfont CDN — it is self-hosted from public/fonts/, declared in
+      src/styles/_fonts.scss.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <slot />
+    <Motion />
+  </body>
+</html>

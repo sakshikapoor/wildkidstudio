@@ -1,0 +1,413 @@
+---
+import { Image } from 'astro:assets';
+
+// The Figma file holds two things: an aesthetics board and the final screens,
+// every state drawn twice — once dark, once light.
+import newProfileDark from '../../assets/work/allenati/new-profile-dark.png';
+import newProfileLight from '../../assets/work/allenati/new-profile-light.png';
+import scheduledDark from '../../assets/work/allenati/scheduled-dark.png';
+import scheduledLight from '../../assets/work/allenati/scheduled-light.png';
+import nothingDark from '../../assets/work/allenati/nothing-scheduled-dark.png';
+import nothingLight from '../../assets/work/allenati/nothing-scheduled-light.png';
+import restDark from '../../assets/work/allenati/rest-day-dark.png';
+import restLight from '../../assets/work/allenati/rest-day-light.png';
+import doneDark from '../../assets/work/allenati/workout-done-dark.png';
+import doneLight from '../../assets/work/allenati/workout-done-light.png';
+import ongoingDark from '../../assets/work/allenati/workout-ongoing-dark.png';
+import ongoingLight from '../../assets/work/allenati/workout-ongoing-light.png';
+import emptyDark from '../../assets/work/allenati/strength-empty-dark.png';
+import emptyLight from '../../assets/work/allenati/strength-empty-light.png';
+import addedDark from '../../assets/work/allenati/strength-added-dark.png';
+import addedLight from '../../assets/work/allenati/strength-added-light.png';
+import glassDark from '../../assets/work/allenati/glass-dark.png';
+import glassLight from '../../assets/work/allenati/glass-light.png';
+
+import moodRunner from '../../assets/work/allenati/mood/runner.png';
+import moodResistance from '../../assets/work/allenati/mood/resistance.png';
+import moodLeap from '../../assets/work/allenati/mood/leap.png';
+import moodHandstand from '../../assets/work/allenati/mood/handstand.png';
+import moodReading from '../../assets/work/allenati/mood/reading.png';
+import moodCool from '../../assets/work/allenati/mood/gradient-cool.png';
+import moodWarm from '../../assets/work/allenati/mood/gradient-warm.png';
+import moodRowing from '../../assets/work/allenati/mood/rowing.png';
+
+const facts = [
+  { label: 'Platform', value: 'iPhone' },
+  { label: 'Modes', value: 'Dark and light' },
+  { label: 'Surface', value: 'Liquid glass' },
+];
+
+const mood = [
+  { src: moodRunner, alt: 'Motion-blurred runner' },
+  { src: moodCool, alt: 'Cool mesh gradient' },
+  { src: moodResistance, alt: 'Athlete on resistance bands, long exposure' },
+  { src: moodLeap, alt: 'Silhouetted leap against orange' },
+  { src: moodWarm, alt: 'Warm mesh gradient' },
+  { src: moodHandstand, alt: 'Handstand in water, long exposure' },
+  { src: moodRowing, alt: 'Rowing under warm light, long exposure' },
+  { src: moodReading, alt: 'Reading in bed under coloured light' },
+];
+
+// Each state, dark first. The names are the ones on the Figma board.
+const states = [
+  { name: 'New profile', dark: newProfileDark, light: newProfileLight },
+  { name: 'Scheduled for today', dark: scheduledDark, light: scheduledLight },
+  { name: 'Nothing scheduled', dark: nothingDark, light: nothingLight },
+  { name: 'Rest day', dark: restDark, light: restLight },
+  { name: 'Workout ongoing', dark: ongoingDark, light: ongoingLight },
+  { name: 'Workout done', dark: doneDark, light: doneLight },
+  { name: 'Strength day, empty', dark: emptyDark, light: emptyLight },
+  { name: 'Strength day, filled', dark: addedDark, light: addedLight },
+];
+---
+
+<article class="al">
+  <section class="al-brief">
+    <p class="eyebrow" data-reveal="up">[1] THE BRIEF</p>
+    <div class="al-brief__body">
+      <p class="al-lede" data-reveal="up" style="--i: 1">
+        Allenati is a workout and wellness app for iPhone. The brief was a feeling rather than a
+        feature list: it should behave like a music app. You open it, something is already queued,
+        and starting is one tap — training, recovery, recipes and ambient sound all sitting in the
+        same library.
+      </p>
+      <dl class="al-facts">
+        {
+          facts.map((fact, i) => (
+            <div class="al-fact" data-reveal="up" style={`--i: ${i}`}>
+              <dt>{fact.label}</dt>
+              <dd>{fact.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <section class="al-mood">
+    <p class="eyebrow eyebrow--light" data-reveal="up">[2] THE AESTHETIC</p>
+    <p class="al-mood__note" data-reveal="up" style="--i: 1">
+      Motion-blurred bodies, saturated colour against black, and soft mesh-gradient light. The
+      board is deliberately closer to a listening app than a fitness tracker — energy and mood,
+      not charts and streaks. Every frame on it is generated, not shot: its job was to fix the
+      feeling before any interface existed.
+    </p>
+    <div class="al-mood__grid">
+      {
+        mood.map((item, i) => (
+          <div class="al-mood__tile" data-reveal="scale" style={`--i: ${i % 4}`}>
+            <Image src={item.src} alt={item.alt} widths={[320, 640]} formats={['webp']} />
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="al-glass">
+    <div class="al-glass__head">
+      <p class="eyebrow" data-reveal="up">[3] LIQUID GLASS</p>
+      <p class="al-glass__note" data-reveal="up" style="--i: 1">
+        Navigation floats rather than sits. The tab bar is a frosted pill tinted by whatever
+        scrolls beneath it, which is why the same component reads teal on a training day and
+        near-white on a light-mode rest day.
+      </p>
+    </div>
+    <div class="al-glass__pair">
+      <div class="al-glass__shot" data-reveal="up">
+        <Image src={glassDark} alt="Floating glass tab bar, dark mode" widths={[560, 1120]} formats={['webp']} />
+      </div>
+      <div class="al-glass__shot" data-reveal="up" style="--i: 1">
+        <Image src={glassLight} alt="Floating glass tab bar, light mode" widths={[560, 1120]} formats={['webp']} />
+      </div>
+    </div>
+  </section>
+
+  <section class="al-states">
+    <div class="al-states__head">
+      <p class="eyebrow" data-reveal="up">[4] EVERY STATE, TWICE</p>
+      <h2 class="section-title" data-reveal="up" style="--i: 1">DARK &amp; LIGHT</h2>
+      <p class="al-states__note" data-reveal="up" style="--i: 2">
+        The background is never a flat surface. Each state carries its own gradient — and the
+        pair had to hold the same mood in both modes.
+      </p>
+    </div>
+
+    <div class="al-states__grid">
+      {
+        states.map((state, i) => (
+          <div class="al-state" data-reveal="up" style={`--i: ${i % 2}`}>
+            <p class="al-state__name">{state.name}</p>
+            <div class="al-state__pair">
+              <div class="al-phone al-phone--dark">
+                <Image src={state.dark} alt={`${state.name}, dark mode`} widths={[300, 600]} formats={['webp']} />
+              </div>
+              <div class="al-phone al-phone--light">
+                <Image src={state.light} alt={`${state.name}, light mode`} widths={[300, 600]} formats={['webp']} />
+              </div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+</article>
+
+<style lang="scss">
+  @use "../../styles/util" as *;
+
+  .al section {
+    position: relative;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    gap: u(50);
+    align-items: flex-start;
+    padding: u(100);
+  }
+
+  // --- Brief ------------------------------------------------------------
+  .al-brief {
+    padding-top: u(70);
+  }
+
+  .al-brief__body {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: u(80);
+    width: 100%;
+  }
+
+  .al-lede {
+    width: u(680);
+    font-size: u(24);
+    line-height: 1.3;
+    color: var(--body);
+  }
+
+  .al-facts {
+    display: flex;
+    flex-direction: column;
+    gap: u(24);
+    width: u(400);
+  }
+
+  .al-fact {
+    display: flex;
+    flex-direction: column;
+    gap: u(4);
+    font-size: u(18);
+    line-height: 1.3;
+
+    dt {
+      font-weight: 700;
+      color: var(--sage);
+    }
+
+    dd {
+      margin: 0;
+      color: var(--ink);
+    }
+  }
+
+  // --- Aesthetic --------------------------------------------------------
+  //
+  // The reference board is the one place the page goes dark; the imagery was
+  // collected against black and falls apart on white.
+  .al-mood {
+    background: var(--ink);
+  }
+
+  .al-mood__note {
+    width: u(680);
+    font-size: u(18);
+    line-height: 1.35;
+    color: var(--mint-soft);
+  }
+
+  .eyebrow--light {
+    color: var(--white);
+  }
+
+  .al-mood__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: u(20);
+    width: 100%;
+  }
+
+  .al-mood__tile {
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    background: #000000;
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  // --- Liquid glass -----------------------------------------------------
+  .al-glass__head {
+    display: flex;
+    flex-direction: column;
+    gap: u(20);
+  }
+
+  .al-glass__note {
+    width: u(680);
+    font-size: u(18);
+    line-height: 1.35;
+    color: var(--body);
+  }
+
+  .al-glass__pair {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: u(30);
+    width: 100%;
+  }
+
+  // The crops are the foot of a screen, so only the lower corners are round.
+  .al-glass__shot {
+    overflow: hidden;
+    border-radius: 0 0 u(24) u(24);
+
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  // --- States -----------------------------------------------------------
+  .al-states {
+    gap: u(70);
+    background: var(--showreel);
+  }
+
+  .al-states__head {
+    display: flex;
+    flex-direction: column;
+    gap: u(20);
+  }
+
+  .al-states__note {
+    width: u(680);
+    font-size: u(18);
+    line-height: 1.35;
+    color: var(--body);
+  }
+
+  .al-states__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: u(70) u(60);
+    width: 100%;
+  }
+
+  .al-state {
+    display: flex;
+    flex-direction: column;
+    gap: u(20);
+  }
+
+  // The state name is a label, not a caption — it says which pair you are
+  // looking at and nothing more.
+  .al-state__name {
+    font-family: var(--font-mono);
+    font-size: u(16);
+    font-weight: 700;
+    line-height: normal;
+    color: var(--forest);
+    text-transform: uppercase;
+  }
+
+  .al-state__pair {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: u(20);
+    align-items: start;
+  }
+
+  .al-phone {
+    overflow: hidden;
+    border-radius: u(24);
+
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  .al-phone--dark {
+    box-shadow: 0 u(2) u(24) rgba(10, 10, 10, 0.35);
+  }
+
+  .al-phone--light {
+    box-shadow: 0 u(2) u(24) rgba(10, 10, 10, 0.12);
+  }
+
+  @media (max-width: 900px) {
+    .al section {
+      gap: 32px;
+      padding: 56px 24px;
+    }
+
+    .al-brief__body {
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .al-lede,
+    .al-facts,
+    .al-mood__note,
+    .al-glass__note,
+    .al-states__note {
+      width: 100%;
+    }
+
+    .al-lede {
+      font-size: 17px;
+    }
+
+    .al-fact,
+    .al-mood__note,
+    .al-glass__note,
+    .al-states__note {
+      font-size: 15px;
+    }
+
+    .al-mood__grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .al-glass__pair {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    // One state per row on a handset; the pair still sits side by side so the
+    // comparison survives.
+    .al-states__grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    .al-state__pair {
+      gap: 12px;
+    }
+
+    .al-phone {
+      border-radius: 14px;
+    }
+
+    .al-state__name {
+      font-size: 13px;
+    }
+  }
+</style>

@@ -1,0 +1,152 @@
+---
+import ArrowIcon from './ArrowIcon.astro';
+import { bookingUrl } from '../data/site';
+---
+
+<section class="cta" id="contact">
+  {/*
+    A slow-breathing wash behind the closing panel. Purely decorative, and the
+    only continuous animation on the page.
+  */}
+  <div class="cta__glow" aria-hidden="true"></div>
+
+  <div class="cta__head">
+    <p class="cta__intro" data-reveal="up">
+      Fixed-scope engagements. Transparent pricing. Weekly working sessions.<br />
+      You see the work in progress, not just the polished reveal.
+    </p>
+    <h2 class="cta__headline" data-reveal="up" style="--i: 1">
+      Tell us what you're building
+    </h2>
+  </div>
+
+  <a
+    class="btn btn--hero-light"
+    href={bookingUrl}
+    target="_blank"
+    rel="noopener"
+    data-reveal="up"
+    style="--i: 2"
+  >
+    <span>Book Intro Call</span>
+    <ArrowIcon />
+  </a>
+
+  <a class="cta__email" href="mailto:hello@wildkidstudio.in" data-reveal="up" style="--i: 3">
+    hello@wildkidstudio.in
+  </a>
+</section>
+
+<style lang="scss">
+  @use "../styles/util" as *;
+
+  .cta {
+    position: relative;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    gap: u(80);
+    align-items: center;
+    justify-content: center;
+    min-height: u(749);
+    padding: u(150) u(100);
+    overflow: clip;
+    background: var(--ink);
+  }
+
+  @keyframes cta-drift {
+    0%,
+    100% {
+      transform: translate3d(-8%, -6%, 0) scale(1);
+    }
+    50% {
+      transform: translate3d(8%, 6%, 0) scale(1.15);
+    }
+  }
+
+  .cta__glow {
+    position: absolute;
+    inset: -20%;
+    z-index: -1;
+    background: radial-gradient(
+      45% 45% at 50% 50%,
+      rgba(209, 253, 249, 0.16) 0%,
+      rgba(209, 253, 249, 0) 70%
+    );
+    animation: cta-drift 18s var(--ease-inout) infinite;
+    pointer-events: none;
+  }
+
+  .cta__head {
+    display: flex;
+    flex-direction: column;
+    gap: u(30);
+    align-items: center;
+    width: 100%;
+    text-align: center;
+  }
+
+  .cta__intro {
+    font-size: u(18);
+    line-height: 1.3;
+    color: var(--mint-soft);
+  }
+
+  .cta__headline {
+    font-family: var(--font-display);
+    font-size: u(44);
+    font-weight: 400;
+    line-height: normal;
+    color: var(--white);
+  }
+
+  .cta__email {
+    padding: u(10) u(15);
+    font-family: var(--font-mono);
+    font-size: u(18);
+    font-weight: 700;
+    line-height: normal;
+    text-align: center;
+    color: var(--white);
+    text-decoration: none;
+    transition: color 200ms ease;
+
+    &:hover {
+      color: var(--mint);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cta__glow {
+      animation: none;
+    }
+
+    .cta__email {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .cta {
+      gap: 40px;
+      min-height: 420px;
+      padding: 80px 24px;
+    }
+
+    .cta__head {
+      gap: 20px;
+    }
+
+    .cta__intro {
+      font-size: 15px;
+    }
+
+    .cta__headline {
+      font-size: 28px;
+    }
+
+    .cta__email {
+      font-size: 15px;
+    }
+  }
+</style>

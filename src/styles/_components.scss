@@ -1,0 +1,115 @@
+@use "util" as *;
+
+// Shared pieces used across sections. Astro's <style> blocks are scoped per
+// component, so anything shared lives here.
+
+// Numbered section label, e.g. "[2] HOW WE ENGAGE".
+//
+// `normal` is deliberate: Anonymous Pro's natural line box is exactly 1em, so
+// this matches the 24px height Figma reports. Setting 1.2 here adds 4.8px to
+// every section that carries an eyebrow.
+.eyebrow {
+    font-family: var(--font-mono);
+    font-size: u(24);
+    line-height: normal;
+    color: var(--ink);
+}
+
+// Section heading in the display face, e.g. "SHOWREEL".
+.section-title {
+    font-family: var(--font-display);
+    font-size: u(44);
+    font-weight: 400;
+    line-height: normal;
+    color: var(--ink);
+}
+
+.btn {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    line-height: normal;
+    text-decoration: none;
+    transition:
+        background-color 200ms ease,
+        color 200ms ease;
+}
+
+// Hero button: black block, 24px type, 10px padding all round, arrow on the
+// right with a 10px gap.
+.btn--hero {
+    display: inline-flex;
+    gap: u(5);
+    align-items: center;
+    justify-content: center;
+    padding: u(10);
+    font-size: u(24);
+    background: #000000;
+    color: var(--white);
+
+    &:hover {
+        background: var(--band-box);
+    }
+}
+
+// Same geometry as .btn--hero, inverted for the dark closing section.
+.btn--hero-light {
+    display: inline-flex;
+    gap: u(10);
+    align-items: center;
+    justify-content: center;
+    padding: u(10);
+    font-size: u(24);
+    background: var(--white);
+    color: var(--ink);
+
+    &:hover {
+        background: var(--mint);
+    }
+}
+
+// Nav / footer button: 18px type, 15px horizontal padding.
+.btn--dark {
+    padding: u(10) u(15);
+    font-size: u(18);
+    background: var(--ink);
+    color: var(--white);
+
+    &:hover {
+        background: var(--band-box);
+    }
+}
+
+.btn--light {
+    padding: u(10) u(15);
+    font-size: u(18);
+    background: var(--white);
+    color: var(--ink);
+
+    &:hover {
+        background: var(--mint);
+    }
+}
+
+@media (max-width: 900px) {
+    .eyebrow {
+        font-size: 16px;
+    }
+
+    .section-title {
+        font-size: 28px;
+    }
+
+    .btn--hero,
+    .btn--hero-light {
+        gap: 8px;
+        padding: 10px;
+        font-size: 17px;
+    }
+
+    .btn--dark,
+    .btn--light {
+        padding: 10px 15px;
+        font-size: 15px;
+    }
+}

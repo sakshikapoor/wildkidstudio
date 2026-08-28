@@ -1,0 +1,30 @@
+@use "util" as *;
+
+body {
+    background: var(--white);
+    color: var(--body);
+    font-family: var(--font-mono);
+    font-size: u(24);
+    // Figma's default is auto leading; the few blocks set to 1.2 or 1.3 in
+    // the design declare it themselves.
+    line-height: normal;
+}
+
+a {
+    color: inherit;
+}
+
+// The design frame. The tree artwork is positioned against this box, so it
+// caps at the design width and centres beyond it.
+.page {
+    position: relative;
+    max-width: 1512px;
+    margin: 0 auto;
+    overflow-x: clip;
+}
+
+@media (max-width: 900px) {
+    body {
+        font-size: 17px;
+    }
+}

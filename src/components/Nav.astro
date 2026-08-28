@@ -1,0 +1,138 @@
+---
+const links = [
+  { label: 'Services', href: '/#services' },
+  { label: 'Process', href: '/#engage' },
+  { label: 'Contact', href: '/#contact' },
+  { label: 'About', href: '/about' },
+];
+---
+
+<header class="nav" data-nav>
+  <a class="nav__logo" href="/">WK</a>
+  <nav class="nav__links" aria-label="Primary">
+    {links.map((link) => <a href={link.href}><span>{link.label}</span></a>)}
+  </nav>
+  <a class="btn btn--dark" href="mailto:hello@wildkidstudio.in">hello@wildkidstudio.in</a>
+</header>
+
+<style lang="scss">
+  @use "../styles/util" as *;
+
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: u(24);
+    padding: u(20) u(100);
+    background: var(--white);
+    backdrop-filter: blur(2px);
+    // Set by Motion.astro once the page leaves the top: the bar tightens and
+    // picks up a hairline, so it reads as floating over the content.
+    transition:
+      padding var(--dur-fast) var(--ease-inout),
+      box-shadow var(--dur-fast) var(--ease-inout),
+      background-color var(--dur-fast) var(--ease-inout);
+  }
+
+  .nav.is-scrolled {
+    padding-top: u(12);
+    padding-bottom: u(12);
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow: 0 1px 0 rgba(10, 10, 10, 0.08);
+  }
+
+  // The mark shifts to the studio's mid-green on hover — the same green the
+  // buttons move to.
+  .nav__logo {
+    transition: color var(--dur-fast) var(--ease-inout);
+
+    &:hover {
+      color: var(--band-box);
+    }
+  }
+
+  // Matched to the email button's width so the links land dead centre.
+  .nav__logo {
+    width: u(247);
+    padding: u(10) 0;
+    font-family: var(--font-display);
+    font-size: u(16);
+    line-height: normal;
+    color: var(--logo-green);
+    text-decoration: none;
+  }
+
+  .nav__links {
+    display: flex;
+    gap: u(40);
+    align-items: center;
+    font-size: u(18);
+    line-height: normal;
+    color: #000000;
+
+    // A rule wipes in from the left on hover and out to the right on
+    // release, so the link has a direction rather than just a state.
+    a {
+      position: relative;
+      text-decoration: none;
+
+      span {
+        display: inline-block;
+        transition: transform var(--dur-fast) var(--ease-out);
+      }
+
+      &::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: u(-4);
+        width: 100%;
+        height: 1px;
+        background: currentColor;
+        transform: scaleX(0);
+        transform-origin: right center;
+        transition: transform var(--dur-fast) var(--ease-inout);
+      }
+
+      &:hover span {
+        transform: translateY(u(-2));
+      }
+
+      &:hover::after {
+        transform: scaleX(1);
+        transform-origin: left center;
+      }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav,
+    .nav__links a span,
+    .nav__links a::after {
+      transition: none;
+    }
+
+    .nav__links a:hover span {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .nav {
+      gap: 16px;
+      padding: 16px 24px;
+    }
+
+    .nav__logo {
+      width: auto;
+      font-size: 16px;
+    }
+
+    .nav__links {
+      display: none;
+    }
+  }
+</style>

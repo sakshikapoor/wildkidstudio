@@ -1,0 +1,37 @@
+// Design tokens, taken from the Figma file (wildkid-studio-v2, node 98:32).
+// The design uses raw hex — there are no Figma variables to map — so these
+// names are ours.
+:root {
+    // Neutrals
+    --white: #ffffff;
+    --ink: #0a0a0a; // headings, dark section backgrounds
+    --body: #202020; // body copy
+
+    // Greens
+    --logo-green: #00352e; // "WK" mark in the nav
+    --band: rgba(29, 80, 75, 0.9); // "ship the next big idea" band
+    --band-box: #34625d; // panel behind the engagement list
+    --mint: #d1fdf9; // display type on the band
+    --mint-soft: #c4f4f0; // body copy on the band
+    --forest: #0c342e; // offer headings
+    --sage: #34625d; // offer subtitles
+    --showreel: #bcd1d9; // showreel section background
+
+    // Type
+    //
+    // BBH Bartle is not a webfont — see _fonts.scss. The fallbacks are wide,
+    // heavy faces so the layout holds its shape if the file is missing.
+    --font-display: "BBH Bartle", "Arial Black", "Helvetica Neue", Impact, sans-serif;
+    --font-mono: "Anonymous Pro", ui-monospace, "SF Mono", Menlo, monospace;
+
+    // One design pixel. See _util.scss.
+    --u: 1px;
+}
+
+// Below the design width the frame scales proportionally, so the tree
+// artwork stays in the same relationship to the copy it flanks.
+@media (max-width: 1512px) {
+    :root {
+        --u: calc(100vw / 1512);
+    }
+}

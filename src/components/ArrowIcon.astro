@@ -1,0 +1,38 @@
+---
+// arrow-top-right, exported from Figma (node 124:405). The export hard-codes
+// a white fill; using currentColor instead lets the same icon sit in the
+// black hero button and the white footer button.
+---
+
+<svg
+  class="arrow-icon"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  aria-hidden="true"
+>
+  <path
+    fill-rule="evenodd"
+    clip-rule="evenodd"
+    d="M19 6.414L5.707 19.707L4.293 18.293L17.586 5H10V3H21V14H19V6.414Z"
+    fill="currentColor"></path>
+</svg>
+
+<style lang="scss">
+  @use "../styles/util" as *;
+
+  .arrow-icon {
+    flex-shrink: 0;
+    width: u(24);
+    height: u(24);
+  }
+
+  @media (max-width: 900px) {
+    .arrow-icon {
+      width: 18px;
+      height: 18px;
+    }
+  }
+</style>

@@ -1,0 +1,168 @@
+@use "util" as *;
+
+// Shared motion system.
+//
+// One easing curve and one duration scale for the whole site, so every
+// entrance, hover and parallax reads as the same hand. Sections opt in by
+// tagging elements with `data-reveal`; the observer in Motion.astro flips
+// them to `data-revealed` once they enter the viewport.
+:root {
+    // Decelerating curve — fast off the mark, long settle. Used for anything
+    // that enters the frame.
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    // Symmetric curve for state changes that go both ways (hover in/out).
+    --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+
+    --dur-fast: 260ms;
+    --dur-base: 640ms;
+    --dur-slow: 1000ms;
+
+    // Gap between items in a staggered group.
+    --stagger: 80ms;
+}
+
+// Reveal-on-scroll
+//
+// The hidden state only applies once JS has confirmed it can un-hide things
+// (the `js` class is set by an inline script in <head>). Without scripting the
+// page renders fully visible, and there is no flash of hidden content because
+// the class lands before first paint.
+.js [data-reveal] {
+    will-change: opacity, transform;
+    opacity: 0;
+    transition:
+        opacity var(--dur-base) var(--ease-out),
+        transform var(--dur-base) var(--ease-out);
+    // Items in a group set `--i` to their index; the group animates in order.
+    transition-delay: calc(var(--i, 0) * var(--stagger));
+}
+
+.js [data-reveal="up"] {
+    transform: translate3d(0, u(40), 0);
+}
+
+.js [data-reveal="left"] {
+    transform: translate3d(u(-40), 0, 0);
+}
+
+.js [data-reveal="right"] {
+    transform: translate3d(u(40), 0, 0);
+}
+
+.js [data-reveal="scale"] {
+    transform: scale(0.96);
+}
+
+// For type and images: a wipe rather than a slide, so the frame stays put and
+// the content rises into it. The clip lives on the wrapper and the movement on
+// its single child — clipping the observed element itself would collapse its
+// intersection rect to nothing, and the observer would never fire.
+.js [data-reveal="mask"] {
+    overflow: hidden;
+    opacity: 1;
+
+    > * {
+        display: block;
+        transform: translate3d(0, 105%, 0);
+        transition: transform var(--dur-slow) var(--ease-out);
+        transition-delay: calc(var(--i, 0) * var(--stagger));
+    }
+}
+
+.js [data-revealed] {
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+}
+
+.js [data-reveal="mask"][data-revealed] > * {
+    transform: none;
+}
+
+// Micro-interactions on the shared components
+//
+// The arrow leans in the direction it points when its button is hovered.
+.btn {
+    transition:
+        background-color var(--dur-fast) var(--ease-inout),
+        color var(--dur-fast) var(--ease-inout),
+        transform var(--dur-fast) var(--ease-out);
+
+    .arrow-icon {
+        transition: transform var(--dur-fast) var(--ease-out);
+    }
+
+    &:hover {
+        transform: translateY(u(-2));
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+
+    &:hover .arrow-icon {
+        transform: translate3d(u(3), u(-3), 0);
+    }
+}
+
+// Section labels get a rule that draws itself out from the text once the
+// section arrives.
+.eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: u(12);
+
+    &::after {
+        content: "";
+        width: u(60);
+        height: 1px;
+        background: currentColor;
+        transform: scaleX(0);
+        transform-origin: left center;
+        transition: transform var(--dur-slow) var(--ease-out) 120ms;
+    }
+}
+
+.js .eyebrow[data-reveal]:not([data-revealed])::after {
+    transform: scaleX(0);
+}
+
+.eyebrow[data-revealed]::after,
+html:not(.js) .eyebrow::after {
+    transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    // Nothing moves, nothing waits: elements are simply present.
+    .js [data-reveal],
+    .js [data-reveal="mask"] > * {
+        opacity: 1;
+        transform: none;
+        transition: none;
+        transition-delay: 0ms;
+    }
+
+    .btn,
+    .btn .arrow-icon,
+    .eyebrow::after {
+        transition: none;
+    }
+
+    .btn:hover {
+        transform: none;
+    }
+
+    .btn:hover .arrow-icon {
+        transform: none;
+    }
+
+    .eyebrow::after {
+        transform: scaleX(1);
+    }
+}
+
+@media (max-width: 900px) {
+    .eyebrow::after {
+        width: 40px;
+    }
+}

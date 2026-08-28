@@ -1,0 +1,14 @@
+// BBH Bartle is self-hosted — it is not served by any webfont CDN.
+//
+// The woff2 is generated from the supplied .ttf (8.3kB vs 17.9kB); the ttf
+// stays as a fallback for anything that cannot take woff2. Only these two
+// are listed, so no request 404s.
+@font-face {
+    font-family: "BBH Bartle";
+    src:
+        url("/fonts/BBHBartle-Regular.woff2") format("woff2"),
+        url("/fonts/BBHBartle-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}

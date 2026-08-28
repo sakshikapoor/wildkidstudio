@@ -1,0 +1,88 @@
+---
+// The site's motion runtime. One scroll loop drives three jobs:
+//
+//  1. reveal   — un-hides [data-reveal] elements as they cross the fold
+//  2. parallax — drifts [data-parallax] elements against the scroll
+//  3. nav      — flags the header once the page has scrolled off the top
+//
+// All of it is a no-op under `prefers-reduced-motion`, and the CSS renders
+// everything visible if this script never runs.
+---
+
+<script>
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // --- Reveal on scroll -------------------------------------------------
+  //
+  // Position is measured directly rather than with an IntersectionObserver: an
+  // observer only reports threshold crossings, so an element that goes from
+  // below the fold to above it between two frames — a fast flick, a jump to an
+  // anchor — never fires and stays hidden for good.
+  const pending = new Set<HTMLElement>(
+    document.querySelectorAll<HTMLElement>('[data-reveal]'),
+  );
+
+  // A little above the fold, so the motion is already underway by the time the
+  // element is properly in view.
+  const TRIGGER = 0.88;
+
+  const revealPass = () => {
+    const line = window.innerHeight * TRIGGER;
+
+    for (const el of pending) {
+      if (el.getBoundingClientRect().top >= line) continue;
+      el.setAttribute('data-revealed', '');
+      // One-shot: sections do not re-animate when scrolled back over.
+      pending.delete(el);
+    }
+  };
+
+  if (reduced) {
+    pending.forEach((el) => el.setAttribute('data-revealed', ''));
+    pending.clear();
+  }
+
+  // --- Parallax ---------------------------------------------------------
+  //
+  // `data-parallax` is a speed: the element moves that fraction of the
+  // distance the page has scrolled, so 0.06 drifts gently behind the copy.
+  const layers = reduced
+    ? []
+    : Array.from(document.querySelectorAll<HTMLElement>('[data-parallax]')).map(
+        (el) => ({ el, speed: Number(el.dataset.parallax) || 0.1 }),
+      );
+
+  const parallaxPass = (y: number) => {
+    for (const { el, speed } of layers) {
+      el.style.transform = `translate3d(0, ${(y * speed).toFixed(2)}px, 0)`;
+    }
+  };
+
+  // --- Nav state --------------------------------------------------------
+  const nav = document.querySelector<HTMLElement>('[data-nav]');
+
+  const navPass = (y: number) => {
+    nav?.classList.toggle('is-scrolled', y > 24);
+  };
+
+  // --- One rAF-throttled loop for all three ------------------------------
+  let ticking = false;
+
+  const update = () => {
+    ticking = false;
+    const y = window.scrollY;
+    if (pending.size > 0) revealPass();
+    parallaxPass(y);
+    navPass(y);
+  };
+
+  const schedule = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(update);
+  };
+
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule, { passive: true });
+  update();
+</script>

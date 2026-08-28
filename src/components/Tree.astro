@@ -1,0 +1,53 @@
+---
+// Figma node 98:59 ("Untitled_Artwork 3 1"), positioned against the page
+// rather than any one section — it runs from the hero down through
+// "how we work".
+//
+// Two boxes, kept separate on purpose: the outer box is the designed frame
+// (443.5, 26, 625 x 2894.732 on a 1512px page) which clips the artwork; the
+// inner image is larger than that frame and offset inside it, so the top of
+// the tree is cropped. Percentages are of the 1512px design width so the
+// artwork tracks the page as it scales.
+---
+
+{/*
+  The artwork drifts a fraction of the scroll distance, so it sits behind the
+  copy rather than moving lockstep with it. Motion.astro reads the speed off
+  `data-parallax`; the value is small on purpose — the tree is tall, and any
+  more separates it from the sections it is composed against.
+*/}
+<div class="tree" data-parallax="0.06" aria-hidden="true">
+  <img src="/assets/tree.png" alt="" />
+</div>
+
+<style lang="scss">
+  @use "../styles/util" as *;
+
+  .tree {
+    position: absolute;
+    top: u(26);
+    left: 29.332%; // 443.5 / 1512
+    z-index: 1;
+    width: 41.336%; // 625 / 1512
+    aspect-ratio: 625 / 2894.732;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .tree img {
+    position: absolute;
+    top: -2.74%;
+    left: 1.16%;
+    width: 97.68%;
+    height: 105.48%;
+    max-width: none;
+  }
+
+  // Below the design width the artwork crowds the copy, which stacks into a
+  // single column — drop it rather than let it sit behind the text.
+  @media (max-width: 900px) {
+    .tree {
+      display: none;
+    }
+  }
+</style>

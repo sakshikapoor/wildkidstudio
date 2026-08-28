@@ -1,0 +1,174 @@
+---
+// Each word steps up in size, left-aligned, so the stack widens downward.
+const display = [
+  { word: 'SHIP', size: 30 },
+  { word: 'the', size: 40 },
+  { word: 'next', size: 50 },
+  { word: 'BIG', size: 70 },
+  { word: 'IDEA', size: 70 },
+];
+
+const services = [
+  'UX & UI Design',
+  'Brand Design',
+  'App Development',
+  'AI Integration',
+  'Illustrations',
+];
+---
+
+<section class="band" id="services">
+  <p class="band__display">
+    {/* The stack builds one word at a time, each rising out of its own row. */}
+    {display.map(({ word, size }, i) => (
+      <span class="band__word" style={`--size: ${size}; --i: ${i}`} data-reveal="mask">
+        <span>{word}</span>
+      </span>
+    ))}
+  </p>
+
+  <div class="band__services">
+    <p class="band__eyebrow" data-reveal="up">[2] OUR SERVICES</p>
+    <ul class="band__list">
+      {services.map((service, i) => (
+        <li style={`--i: ${i}`} data-reveal="left">{service}</li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style lang="scss">
+  @use "../styles/util" as *;
+
+  .band {
+    position: relative;
+    z-index: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: u(40);
+    padding: u(200) u(100);
+    overflow: clip;
+    background: var(--band);
+  }
+
+  .band__display {
+    display: flex;
+    flex-direction: column;
+    gap: u(10);
+    align-items: flex-start;
+    align-self: stretch;
+    width: u(439);
+    font-family: var(--font-display);
+    line-height: normal;
+    color: var(--mint);
+    white-space: nowrap;
+
+    span {
+      font-size: u(var(--size));
+    }
+
+    // The words are staggered against each other rather than against the
+    // section, so the stack unrolls downward.
+    .band__word > span {
+      transition-delay: calc(var(--i) * 90ms);
+    }
+  }
+
+  // Eyebrow pinned to the top of the panel, service chips to the bottom.
+  .band__services {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-self: stretch;
+    width: u(260);
+    overflow: clip;
+    background: var(--band-box);
+  }
+
+  .band__eyebrow {
+    font-size: u(24);
+    line-height: normal;
+    color: var(--mint);
+  }
+
+  .band__list {
+    display: flex;
+    flex-direction: column;
+    gap: u(10);
+    list-style: none;
+    // The UA's default list padding is a fixed 40px that does not scale with
+    // the design unit, so it narrows the chips more and more as the frame
+    // shrinks — enough to wrap "App Development" onto two lines.
+    padding: 0;
+
+    li {
+      // Full panel width, matching the design's 260px chips.
+      width: 100%;
+      padding: u(10);
+      font-family: var(--font-mono);
+      font-size: u(24);
+      font-weight: 700;
+      line-height: normal;
+      // Every label sits on one line; the longest sets the shared width.
+      white-space: nowrap;
+      color: var(--forest);
+      background: var(--mint);
+      transition:
+        transform var(--dur-fast) var(--ease-out),
+        background-color var(--dur-fast) var(--ease-inout),
+        opacity var(--dur-base) var(--ease-out);
+
+      &:hover {
+        transform: translateX(u(10));
+        background: var(--white);
+      }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .band__list li {
+      transition: none;
+    }
+
+    .band__list li:hover {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .band {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 56px;
+      padding: 96px 24px;
+    }
+
+    .band__display {
+      width: 100%;
+      gap: 6px;
+
+      span {
+        font-size: calc(var(--size) * 0.5px);
+      }
+    }
+
+    .band__services {
+      gap: 32px;
+      width: 100%;
+      padding: 24px;
+    }
+
+    .band__eyebrow {
+      font-size: 17px;
+    }
+
+    .band__list {
+      gap: 8px;
+
+      li {
+        font-size: 17px;
+      }
+    }
+  }
+</style>

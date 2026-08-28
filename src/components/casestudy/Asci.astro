@@ -1,0 +1,484 @@
+---
+import { Image } from 'astro:assets';
+
+// Sections sliced out of the v2.0 desktop frame, plus the mobile hero.
+import hero from '../../assets/work/asci/hero.png';
+import stats from '../../assets/work/asci/stats.png';
+import spine from '../../assets/work/asci/spine.png';
+import neosar from '../../assets/work/asci/neosar.png';
+import floodiq from '../../assets/work/asci/floodiq.png';
+import climatica from '../../assets/work/asci/climatica.png';
+import industries from '../../assets/work/asci/industries.png';
+import proof from '../../assets/work/asci/proof.png';
+import contact from '../../assets/work/asci/contact.png';
+import mobile from '../../assets/work/asci/mobile.png';
+
+const facts = [
+  { label: 'Client', value: 'ASCI, Applied Science Innovations' },
+  { label: 'Field', value: 'Physics-aware AI for flood risk' },
+  { label: 'Scope', value: 'Website design' },
+  { label: 'Products', value: 'NeoSar, FloodIQ, Climatica' },
+];
+
+// Figures the site itself puts on the page, before any product is named.
+const stakes = [
+  { figure: '60%', label: 'of India’s annual disaster losses are floods' },
+  { figure: '90%', label: 'of disaster exposure in India is uninsured' },
+  { figure: '$388B', label: 'average annual loss from floods and extreme rainfall' },
+  { figure: '$370B', label: 'global insurance protection gap from natural disasters' },
+];
+
+const products = [
+  {
+    verb: 'Plan',
+    name: 'NeoSar',
+    promise: 'Ground deformation and levee stability, tracked before failure.',
+    src: neosar,
+    alt: 'NeoSar product section on the ASCI homepage',
+  },
+  {
+    verb: 'Predict',
+    name: 'FloodIQ',
+    promise: 'Historical patterns and climate forecasts, mapped to individual assets.',
+    src: floodiq,
+    alt: 'FloodIQ product section on the ASCI homepage',
+  },
+  {
+    verb: 'Protect',
+    name: 'Climatica',
+    promise: 'Parametric insurance contracts priced on objective hydrological triggers.',
+    src: climatica,
+    alt: 'Climatica product section on the ASCI homepage',
+  },
+];
+---
+
+<article class="as">
+  <section class="as-brief">
+    <p class="eyebrow" data-reveal="up">[1] THE BRIEF</p>
+    <div class="as-brief__body">
+      <p class="as-lede" data-reveal="up" style="--i: 1">
+        ASCI builds physics-aware AI for flood risk — satellite interferometry, hydrological
+        modelling, parametric insurance maths. Three products, sold to four kinds of buyer who
+        share no vocabulary: infrastructure operators, real-estate portfolios, insurers and
+        defence. The website had to make deep science legible without making it sound small.
+      </p>
+      <dl class="as-facts">
+        {
+          facts.map((fact, i) => (
+            <div class="as-fact" data-reveal="up" style={`--i: ${i}`}>
+              <dt>{fact.label}</dt>
+              <dd>{fact.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+    <div class="as-shot as-shot--wide" data-reveal="mask">
+      <Image src={hero} alt="ASCI homepage hero" widths={[640, 1280]} formats={['webp']} />
+    </div>
+  </section>
+
+  <section class="as-stakes">
+    <div class="as-stakes__head">
+      <p class="eyebrow eyebrow--light" data-reveal="up">[2] STAKES BEFORE PITCH</p>
+    </div>
+    <dl class="as-figures">
+      {
+        stakes.map((stat, i) => (
+          <div class="as-figure" data-reveal="up" style={`--i: ${i}`}>
+            <dt>{stat.figure}</dt>
+            <dd>{stat.label}</dd>
+          </div>
+        ))
+      }
+    </dl>
+    <div class="as-shot" data-reveal="mask">
+      <Image src={stats} alt="Statistics band on the ASCI homepage" widths={[640, 1280]} formats={['webp']} />
+    </div>
+  </section>
+
+  <section class="as-spine">
+    <div class="as-spine__head">
+      <p class="eyebrow" data-reveal="up">[3] ONE SENTENCE, THREE PRODUCTS</p>
+      <p class="as-spine__note" data-reveal="up" style="--i: 1">
+        NeoSar, FloodIQ and Climatica arrived as three separate stories. Giving each one a verb —
+        plan, predict, protect — turned a catalogue into a sequence, and gave every later section
+        a slot to sit in.
+      </p>
+    </div>
+    <div class="as-shot" data-reveal="mask">
+      <Image src={spine} alt="Plan. Predict. Protect. section" widths={[640, 1280]} formats={['webp']} />
+    </div>
+
+    <div class="as-products">
+      {
+        products.map((product, i) => (
+          <div class="as-product" data-reveal="up" style={`--i: ${i % 2}`}>
+            <div class="as-product__head">
+              <span class="as-product__verb">{product.verb}</span>
+              <h3 class="as-product__name">{product.name}</h3>
+              <p class="as-product__promise">{product.promise}</p>
+            </div>
+            <div class="as-shot as-shot--tall">
+              <Image src={product.src} alt={product.alt} widths={[720, 1440]} formats={['webp']} />
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="as-language">
+    <div class="as-language__row">
+      <div class="as-language__head">
+        <p class="eyebrow" data-reveal="up">[4] THE BUYER’S WORDS</p>
+      </div>
+      <div class="as-shot" data-reveal="up">
+        <Image
+          src={industries}
+          alt="Industry bands for energy, real estate and insurance"
+          widths={[640, 1280]}
+          formats={['webp']}
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="as-close">
+    <div class="as-close__head">
+      <p class="eyebrow" data-reveal="up">[5] PROOF, THEN ASK</p>
+    </div>
+    <div class="as-close__grid">
+      <div class="as-shot as-shot--full" data-reveal="up">
+        <Image src={proof} alt="Testimonials and client logos" widths={[720, 1440]} formats={['webp']} />
+      </div>
+      <div class="as-shot" data-reveal="up">
+        <Image src={contact} alt="Contact form and footer" widths={[640, 1280]} formats={['webp']} />
+      </div>
+      <div class="as-shot as-shot--phone" data-reveal="up" style="--i: 1">
+        <Image src={mobile} alt="The same page at mobile width" widths={[300, 600]} formats={['webp']} />
+      </div>
+    </div>
+  </section>
+</article>
+
+<style lang="scss">
+  @use "../../styles/util" as *;
+
+  .as section {
+    position: relative;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    gap: u(50);
+    align-items: flex-start;
+    padding: u(100);
+  }
+
+  // Page stills share one frame: a hairline and a soft shadow, so a flat
+  // screenshot reads as a screen rather than an image.
+  .as-shot {
+    width: 100%;
+    overflow: hidden;
+    background: var(--white);
+    box-shadow: 0 u(2) u(20) rgba(10, 10, 10, 0.14);
+
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  // --- Brief ------------------------------------------------------------
+  .as-brief {
+    padding-top: u(70);
+  }
+
+  .as-brief__body {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: u(80);
+    width: 100%;
+  }
+
+  .as-lede {
+    width: u(680);
+    font-size: u(24);
+    line-height: 1.3;
+    color: var(--body);
+  }
+
+  .as-facts {
+    display: flex;
+    flex-direction: column;
+    gap: u(24);
+    width: u(400);
+  }
+
+  .as-fact {
+    display: flex;
+    flex-direction: column;
+    gap: u(4);
+    font-size: u(18);
+    line-height: 1.3;
+
+    dt {
+      font-weight: 700;
+      color: var(--sage);
+    }
+
+    dd {
+      margin: 0;
+      color: var(--ink);
+    }
+  }
+
+  // --- Stakes -----------------------------------------------------------
+  .as-stakes {
+    background: var(--ink);
+  }
+
+  .as-stakes__head {
+    display: flex;
+    flex-direction: column;
+    gap: u(20);
+  }
+
+  .eyebrow--light {
+    color: var(--white);
+  }
+
+  .as-figures {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: u(30);
+    width: 100%;
+  }
+
+  .as-figure {
+    display: flex;
+    flex-direction: column;
+    gap: u(8);
+
+    dt {
+      font-family: var(--font-display);
+      font-size: u(40);
+      line-height: normal;
+      color: var(--white);
+    }
+
+    dd {
+      margin: 0;
+      font-size: u(16);
+      line-height: 1.3;
+      color: var(--mint-soft);
+    }
+  }
+
+  // --- Spine and products -----------------------------------------------
+  .as-spine {
+    gap: u(70);
+  }
+
+  .as-spine__head {
+    display: flex;
+    flex-direction: column;
+    gap: u(20);
+  }
+
+  .as-spine__note {
+    width: u(680);
+    font-size: u(18);
+    line-height: 1.35;
+    color: var(--body);
+  }
+
+  // Stacked rather than side by side: the products are built on one template,
+  // and three identical blocks in sequence make that point at a size where the
+  // page is still readable.
+  .as-products {
+    display: flex;
+    flex-direction: column;
+    gap: u(60);
+    width: 100%;
+  }
+
+  .as-product {
+    display: flex;
+    flex-direction: column;
+    gap: u(20);
+  }
+
+  .as-product__head {
+    display: flex;
+    align-items: baseline;
+    gap: u(20);
+    flex-wrap: wrap;
+  }
+
+  .as-product__verb {
+    font-family: var(--font-mono);
+    font-size: u(14);
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--sage);
+  }
+
+  .as-product__name {
+    font-family: var(--font-display);
+    font-size: u(28);
+    font-weight: 400;
+    line-height: normal;
+    color: var(--forest);
+  }
+
+  .as-product__promise {
+    flex: 1 1 u(400);
+    font-size: u(16);
+    line-height: 1.35;
+    color: var(--body);
+  }
+
+  // Product stills run their full height — a cropped one cuts the capability
+  // list in half, which is the part that shows the template repeating.
+  .as-shot--tall img {
+    height: auto;
+  }
+
+  // --- Buyer's words ----------------------------------------------------
+  .as-language {
+    background: var(--showreel);
+  }
+
+  .as-language__head,
+  .as-close__head {
+    display: flex;
+    flex-direction: column;
+    gap: u(20);
+  }
+
+  // The heading sits beside the bands rather than above them, so the three
+  // industries read as one column of cards.
+  .as-language__row {
+    display: grid;
+    grid-template-columns: u(400) 1fr;
+    gap: u(60);
+    width: 100%;
+    align-items: start;
+  }
+
+  // --- Close ------------------------------------------------------------
+  .as-close {
+    gap: u(70);
+  }
+
+  // A bento: proof across the top, then the contact page and the same page at
+  // phone width sharing one row height.
+  .as-close__grid {
+    display: grid;
+    grid-template-columns: 1fr u(300);
+    grid-template-rows: auto u(620);
+    gap: u(40);
+    width: 100%;
+  }
+
+  .as-shot--full {
+    grid-column: 1 / -1;
+  }
+
+  // One radius across the bento, so the three panels read as a set.
+  .as-close__grid .as-shot {
+    border-radius: u(20);
+  }
+
+  // Both panels in the lower row fill the row, so their tops and bottoms line
+  // up whatever the source proportions are.
+  .as-close__grid .as-shot:not(.as-shot--full) {
+    height: 100%;
+
+    img {
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .as section {
+      gap: 32px;
+      padding: 56px 24px;
+    }
+
+    .as-brief__body {
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .as-lede,
+    .as-facts,
+    .as-spine__note {
+      width: 100%;
+    }
+
+    .as-lede {
+      font-size: 17px;
+    }
+
+    .as-fact,
+    .as-spine__note {
+      font-size: 15px;
+    }
+
+    .as-figures {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .as-figure dt {
+      font-size: 26px;
+    }
+
+    .as-figure dd {
+      font-size: 14px;
+    }
+
+    .as-language__row {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    .as-close__grid {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto;
+      gap: 24px;
+    }
+
+    .as-close__grid .as-shot {
+      border-radius: 14px;
+    }
+
+    .as-close__grid .as-shot:not(.as-shot--full) img {
+      height: 420px;
+    }
+
+    .as-products {
+      gap: 32px;
+    }
+
+    .as-product__head {
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .as-shot--tall img {
+      height: 280px;
+    }
+
+    .as-shot--phone {
+      max-width: 260px;
+    }
+  }
+</style>

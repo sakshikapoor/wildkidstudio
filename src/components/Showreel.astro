@@ -1,0 +1,204 @@
+---
+import { Image } from 'astro:assets';
+import { projects } from '../data/projects';
+---
+
+<section class="showreel" id="work">
+  <div class="showreel__head">
+    <p class="eyebrow" data-reveal="up">[3] WORK</p>
+  </div>
+
+  <div class="showreel__row">
+    {
+      projects.map((project, i) => (
+        <a
+          class="showreel__item"
+          href={`/work/${project.slug}`}
+          data-reveal="up"
+          style={`--i: ${i}`}
+        >
+          <div class="showreel__media">
+            {/*
+              Sources are 3–4k wide; Astro resizes to the rendered box at 2x
+              and emits webp. `densities` gives the retina source without
+              shipping the full original.
+            */}
+            <Image
+              src={project.cover}
+              alt={project.coverAlt}
+              width={606}
+              height={367}
+              densities={[1, 2]}
+              formats={['webp']}
+            />
+          </div>
+          <div class="showreel__caption">
+            <span class="showreel__name">{project.name}</span>
+            <span class="showreel__disciplines">{project.disciplines}</span>
+          </div>
+        </a>
+      ))
+    }
+  </div>
+</section>
+
+<style lang="scss">
+  @use "../styles/util" as *;
+
+  .showreel {
+    position: relative;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    gap: u(70);
+    align-items: flex-start;
+    padding: u(230) u(100);
+    background: var(--showreel);
+  }
+
+  .showreel__head {
+    display: flex;
+    flex-direction: column;
+    gap: u(20);
+    align-items: flex-start;
+  }
+
+  // Three cards at the designed width overrun the frame, so the row scrolls
+  // sideways rather than shrinking the cards.
+  .showreel__row {
+    display: flex;
+    gap: u(30);
+    align-items: center;
+    width: 100%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+
+    // The bar would add height the design does not account for.
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .showreel__item {
+    display: flex;
+    flex-direction: column;
+    gap: u(30);
+    align-items: flex-start;
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    text-decoration: none;
+    color: #000000;
+  }
+
+  .showreel__media {
+    width: u(605.766);
+    height: u(367.072);
+    overflow: hidden;
+    background: var(--white);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform var(--dur-slow) var(--ease-out);
+    }
+  }
+
+  .showreel__item {
+    transition: transform var(--dur-fast) var(--ease-out);
+
+    &:hover {
+      transform: translateY(u(-6));
+    }
+  }
+
+  .showreel__item:hover .showreel__media img {
+    transform: scale(1.05);
+  }
+
+  // The project name slides aside to make room for an arrow that is only
+  // there on hover.
+  .showreel__name {
+    display: inline-flex;
+    align-items: center;
+    gap: u(10);
+
+    &::after {
+      content: "↗";
+      opacity: 0;
+      transform: translate3d(u(-8), u(8), 0);
+      transition:
+        opacity var(--dur-fast) var(--ease-out),
+        transform var(--dur-fast) var(--ease-out);
+    }
+  }
+
+  .showreel__item:hover .showreel__name::after {
+    opacity: 1;
+    transform: none;
+  }
+
+  .showreel__caption {
+    display: flex;
+    flex-direction: column;
+    gap: u(10);
+    width: u(367);
+    font-size: u(24);
+    line-height: normal;
+  }
+
+  .showreel__name {
+    font-family: var(--font-display);
+    white-space: nowrap;
+  }
+
+  .showreel__disciplines {
+    font-size: u(18);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .showreel__media img,
+    .showreel__item,
+    .showreel__name::after {
+      transition: none;
+    }
+
+    .showreel__item:hover,
+    .showreel__item:hover .showreel__media img {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .showreel {
+      gap: 40px;
+      padding: 80px 24px;
+    }
+
+    .showreel__head {
+      gap: 12px;
+    }
+
+    .showreel__row {
+      gap: 20px;
+    }
+
+    .showreel__item {
+      gap: 16px;
+    }
+
+    .showreel__media {
+      width: 80vw;
+      height: auto;
+      aspect-ratio: 605.766 / 367.072;
+    }
+
+    .showreel__caption {
+      gap: 6px;
+      width: 80vw;
+      font-size: 15px;
+    }
+  }
+</style>

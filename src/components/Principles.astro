@@ -1,0 +1,151 @@
+---
+const principles = [
+  {
+    name: 'Curious',
+    body: 'We look everywhere for ideas. Design, technology, culture, nature, games, film, whatever catches our eye. Good ideas rarely stay in one place.',
+  },
+  {
+    name: 'Intent',
+    body: 'Nothing is there just because it looks good. Every decision has a reason, from the big idea down to the smallest detail.',
+  },
+  {
+    name: 'Restless',
+    body: "We don't settle for the first decent idea. We explore, question and keep pushing until the work feels right.",
+  },
+  {
+    name: 'Human',
+    body: 'We design for people first. Clear, useful and enjoyable beats clever for the sake of being clever.',
+  },
+];
+---
+
+<section class="principles" id="principles">
+  <p class="eyebrow" data-reveal="up">[4] OUR PRINCIPLES</p>
+
+  <div class="principles__list">
+    {
+      principles.map((principle, i) => (
+        <div class="principle" data-reveal="up" style={`--i: ${i}`}>
+          <h3 class="principle__name">{principle.name}</h3>
+          <p class="principle__body">{principle.body}</p>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<style lang="scss">
+  @use "../styles/util" as *;
+
+  .principles {
+    position: relative;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    gap: u(70);
+    align-items: flex-start;
+    padding: u(150) u(100);
+    overflow: clip;
+    background: var(--white);
+  }
+
+  .principles__list {
+    display: flex;
+    flex-direction: column;
+    gap: u(30);
+    width: 100%;
+  }
+
+  .principle {
+    position: relative;
+    display: flex;
+    gap: u(50);
+    align-items: center;
+    justify-content: center;
+    padding: u(40) u(20);
+    overflow: clip;
+    color: var(--white);
+    background: var(--band-box);
+    transition:
+      transform var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-inout);
+
+    // A mint edge wipes down the left side on hover, and the row nudges with
+    // it — enough to feel live without moving the reading line.
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: u(4);
+      height: 100%;
+      background: var(--mint);
+      transform: scaleY(0);
+      transform-origin: top center;
+      transition: transform var(--dur-base) var(--ease-out);
+    }
+
+    &:hover {
+      transform: translateX(u(8));
+      background: var(--forest);
+    }
+
+    &:hover::before {
+      transform: scaleY(1);
+    }
+  }
+
+  .principle__name {
+    flex-shrink: 0;
+    width: u(250);
+    font-family: var(--font-display);
+    font-size: u(24);
+    font-weight: 400;
+    line-height: normal;
+  }
+
+  .principle__body {
+    flex: 1 0 0;
+    min-width: 0;
+    font-size: u(18);
+    line-height: normal;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .principle,
+    .principle::before {
+      transition: none;
+    }
+
+    .principle:hover {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .principles {
+      gap: 40px;
+      padding: 80px 24px;
+    }
+
+    .principles__list {
+      gap: 16px;
+    }
+
+    .principle {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 24px 20px;
+    }
+
+    .principle__name {
+      width: auto;
+      font-size: 20px;
+    }
+
+    .principle__body {
+      font-size: 16px;
+    }
+  }
+</style>

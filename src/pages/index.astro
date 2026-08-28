@@ -1,0 +1,29 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.astro';
+import Tree from '../components/Tree.astro';
+import Hero from '../components/Hero.astro';
+import ServicesBand from '../components/ServicesBand.astro';
+import HowWeEngage from '../components/HowWeEngage.astro';
+import Showreel from '../components/Showreel.astro';
+import Principles from '../components/Principles.astro';
+import ContactCta from '../components/ContactCta.astro';
+---
+
+<Layout
+  title="WildKid Studio"
+  description="An independent, one-person design studio in Bengaluru building considered websites and brand systems for companies that want to stand apart, not fit in."
+>
+  <div class="page">
+    <Nav />
+    <Tree />
+    <main>
+      <Hero />
+      <ServicesBand />
+      <HowWeEngage />
+      <Showreel />
+      <Principles />
+      <ContactCta />
+    </main>
+  </div>
+</Layout>

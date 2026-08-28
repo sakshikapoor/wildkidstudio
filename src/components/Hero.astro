@@ -1,0 +1,197 @@
+---
+// The intro copy is set as five designed lines in Figma, so the line breaks
+// are deliberate rather than a consequence of the container width.
+import ArrowIcon from './ArrowIcon.astro';
+import { bookingUrl } from '../data/site';
+
+const introLines = [
+  'An independent, one-person',
+  'design studio in Bengaluru building',
+  'considered websites and brand systems',
+  'for companies that want to stand apart,',
+  'not fit in.',
+];
+---
+
+<section class="hero">
+  <div class="hero__main">
+    {/*
+      The hero is above the fold on every load, so it animates on arrival
+      rather than waiting for the scroll observer. Each line sits in a clipping
+      row and rises into it, so the type is revealed rather than faded.
+    */}
+    <h1 class="hero__wordmark">
+      <span class="hero__line" style="--i: 0"><span>WILDKID</span></span>
+      <span class="hero__line" style="--i: 1"><span>STUDIO</span></span>
+    </h1>
+    <p class="hero__intro hero__enter" style="--i: 2">
+      {/*
+        The trailing space matters: on small screens the <br> is hidden and
+        the lines reflow, so without it words from adjacent lines collide.
+      */}
+      {introLines.map((line, i) => (<>{line}{i < introLines.length - 1 && <>{' '}<br /></>}</>))}
+    </p>
+    <div class="hero__enter" style="--i: 3">
+      <a class="btn btn--hero" href={bookingUrl} target="_blank" rel="noopener">
+        <span>Book Intro Call</span>
+        <ArrowIcon />
+      </a>
+    </div>
+  </div>
+
+  <div class="hero__meta">
+    <p class="hero__est hero__enter" style="--i: 4">[0] EST. 2025</p>
+    <p class="hero__place hero__enter" style="--i: 5">[1] BENGALURU, INDIA</p>
+  </div>
+</section>
+
+<style lang="scss">
+  @use "../styles/util" as *;
+
+  .hero {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: u(40);
+    // In Figma the nav overlays the page (0–79) and the hero row starts at
+    // y=100, so there is a 21px gap below the nav. Our nav is in flow, so
+    // that gap is folded into the hero's own 150px top padding.
+    padding: u(150) u(100);
+    padding-top: u(171);
+  }
+
+  .hero__main {
+    display: flex;
+    flex-direction: column;
+    gap: u(50);
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  // Entrance
+  //
+  // Two shapes, one timeline: the wordmark lines are wiped upward out of a
+  // clipping row, everything else drifts up and fades. `--i` sets each
+  // element's place in the sequence.
+  @keyframes hero-rise {
+    from {
+      transform: translate3d(0, 100%, 0);
+    }
+    to {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @keyframes hero-enter {
+    from {
+      opacity: 0;
+      transform: translate3d(0, u(24), 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .hero__line {
+    display: block;
+    // Clips the line so its glyphs slide up from nothing.
+    overflow: hidden;
+
+    > span {
+      display: block;
+      animation: hero-rise 900ms var(--ease-out) backwards;
+      animation-delay: calc(var(--i) * 110ms);
+    }
+  }
+
+  .hero__enter {
+    animation: hero-enter 800ms var(--ease-out) backwards;
+    animation-delay: calc(var(--i) * 110ms);
+  }
+
+  .hero__wordmark {
+    display: flex;
+    flex-direction: column;
+    gap: u(10);
+    font-family: var(--font-display);
+    font-size: u(60);
+    font-weight: 400;
+    line-height: normal;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  .hero__intro {
+    font-size: u(18);
+    line-height: 1.2;
+    color: var(--body);
+  }
+
+  // Sits opposite the wordmark; the two labels push apart over the full
+  // height of the hero.
+  .hero__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
+    align-self: stretch;
+    gap: u(40);
+    font-size: u(24);
+    white-space: nowrap;
+  }
+
+  .hero__est {
+    line-height: 1.2;
+    color: var(--body);
+  }
+
+  .hero__place {
+    line-height: normal;
+    color: #000000;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__line > span,
+    .hero__enter {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .hero {
+      flex-direction: column;
+      gap: 50px;
+      padding: 80px 24px;
+    }
+
+    .hero__main {
+      gap: 32px;
+    }
+
+    .hero__wordmark {
+      gap: 6px;
+      font-size: 34px;
+    }
+
+    .hero__intro,
+    .hero__meta {
+      font-size: 17px;
+    }
+
+    // The line breaks are composed for the 1512px frame; at this width they
+    // produce a ragged, half-empty column, so let the copy reflow.
+    .hero__intro br {
+      display: none;
+    }
+
+    .hero__meta {
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: space-between;
+      width: 100%;
+      gap: 16px;
+      white-space: normal;
+    }
+  }
+</style>

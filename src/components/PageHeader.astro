@@ -1,0 +1,95 @@
+---
+import ArrowIcon from './ArrowIcon.astro';
+
+interface Props {
+  /** Numbered label, e.g. "[5] ABOUT". */
+  eyebrow: string;
+  title: string;
+  /** Optional line under the title. */
+  meta?: string;
+  /** Optional link out to the live product. */
+  liveUrl?: string;
+  /** Label for that link. */
+  liveLabel?: string;
+}
+
+const { eyebrow, title, meta, liveUrl, liveLabel } = Astro.props;
+---
+
+<header class="page-header">
+  <p class="eyebrow" data-reveal="up">{eyebrow}</p>
+  <h1 class="page-header__title" data-reveal="up" style="--i: 1">{title}</h1>
+  {meta && <p class="page-header__meta" data-reveal="up" style="--i: 2">{meta}</p>}
+  {
+    liveUrl && (
+      <a
+        class="btn btn--dark page-header__live"
+        href={liveUrl}
+        target="_blank"
+        rel="noopener"
+        data-reveal="up"
+        style="--i: 3"
+      >
+        <span>{liveLabel}</span>
+        <ArrowIcon />
+      </a>
+    )
+  }
+</header>
+
+<style lang="scss">
+  @use "../styles/util" as *;
+
+  // Mirrors the hero's top spacing: the nav overlays 100px in the Figma
+  // frame, and ours is in flow, so the remainder sits here.
+  .page-header {
+    display: flex;
+    flex-direction: column;
+    gap: u(20);
+    align-items: flex-start;
+    padding: u(171) u(100) u(70);
+  }
+
+  .page-header__title {
+    font-family: var(--font-display);
+    font-size: u(60);
+    font-weight: 400;
+    line-height: normal;
+    color: var(--ink);
+  }
+
+  // The shared button, with the arrow sitting inside it.
+  .page-header__live {
+    display: inline-flex;
+    align-items: center;
+    gap: u(10);
+    margin-top: u(10);
+  }
+
+  // Matches the showreel's disciplines line.
+  .page-header__meta {
+    font-size: u(18);
+    font-weight: 700;
+    line-height: normal;
+    color: var(--sage);
+  }
+
+  @media (max-width: 900px) {
+    .page-header {
+      gap: 12px;
+      padding: 100px 24px 48px;
+    }
+
+    .page-header__title {
+      font-size: 34px;
+    }
+
+    .page-header__meta {
+      font-size: 17px;
+    }
+
+    .page-header__live {
+      margin-top: 6px;
+    }
+  }
+</style>

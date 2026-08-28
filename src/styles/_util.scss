@@ -1,0 +1,13 @@
+// The Figma frame is a fixed 1512px wide, and the tree artwork is positioned
+// against it. If type stayed at fixed px while the artwork scaled with the
+// viewport, the two would drift and the tree would crawl into the copy.
+//
+// `u()` expresses a design pixel as a scalable unit: 1px at or above the
+// design width, and a proportional fraction below it, so the whole frame —
+// type, gutters, column widths, artwork — scales together.
+//
+// Below the mobile breakpoint the layout restructures instead of scaling, so
+// sizes there are written as plain px.
+@function u($n) {
+    @return calc(#{$n} * var(--u));
+}

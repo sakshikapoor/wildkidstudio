@@ -1,0 +1,190 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.astro';
+import PageHeader from '../components/PageHeader.astro';
+import ContactCta from '../components/ContactCta.astro';
+import { Image } from 'astro:assets';
+import portrait from '../assets/sakshi-halftone.png';
+
+// Deliberately short: the work pages carry the detail, so this page only has
+// to say who is behind them and where else to find her.
+const facts = [
+  { label: 'Founded', value: '2025' },
+  { label: 'Based in', value: 'Bengaluru, India' },
+];
+
+const links = [
+  { label: 'Portfolio', value: 'sakshikapoor.com', href: 'https://sakshikapoor.com' },
+  { label: 'LinkedIn', value: '/in/sakshire', href: 'https://linkedin.com/in/sakshire' },
+  { label: 'Illustration', value: '@sakshire', href: 'https://instagram.com/sakshire' },
+];
+---
+
+<Layout
+  title="About — WildKid Studio"
+  description="An independent design studio in Bengaluru. We design digital products and ship the code."
+>
+  <div class="page">
+    <Nav />
+    <main>
+      <PageHeader eyebrow="[5] ABOUT" title="THE STUDIO" meta="Independent since 2025" />
+
+      <section class="about">
+        <div class="about__intro">
+          <p data-reveal="up">
+            An independent design studio in Bengaluru, run by Sakshi Kapoor. Eight years in: she
+            started out in frontend engineering, moved across into design, and now does both —
+            which is why the design and the code tend to arrive together rather than in a handoff.
+          </p>
+          <p data-reveal="up" style="--i: 1">
+            She also illustrates, and is broadly in the business of acquiring every space that
+            will hold something creative. If you want to think an idea through out loud — or hear
+            an unprompted case for one of her obsessions, and against one of her dislikes — she is
+            always up for it.
+          </p>
+        </div>
+
+        <div class="about__portrait" data-reveal="scale">
+          <Image src={portrait} alt="Sakshi Kapoor" widths={[300, 600]} formats={['webp']} />
+        </div>
+
+        <dl class="about__meta">
+          {
+            facts.map((fact, i) => (
+              <div class="about__row" data-reveal="left" style={`--i: ${i}`}>
+                <dt>{fact.label}</dt>
+                <dd>{fact.value}</dd>
+              </div>
+            ))
+          }
+          {
+            links.map((link, i) => (
+              <div class="about__row" data-reveal="left" style={`--i: ${i + 2}`}>
+                <dt>{link.label}</dt>
+                <dd>
+                  <a class="about__link" href={link.href} target="_blank" rel="noopener">
+                    {link.value}
+                  </a>
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
+      </section>
+
+      <ContactCta />
+    </main>
+  </div>
+</Layout>
+
+<style lang="scss">
+  @use "../styles/util" as *;
+
+  // Three columns: words, portrait, details.
+  .about {
+    display: grid;
+    grid-template-columns: u(560) u(300) u(340);
+    justify-content: space-between;
+    align-items: start;
+    gap: u(56);
+    padding: 0 u(100) u(120);
+  }
+
+  .about__intro {
+    display: flex;
+    flex-direction: column;
+    gap: u(24);
+    font-size: u(20);
+    line-height: 1.35;
+    color: var(--body);
+  }
+
+  // The halftone is a cut-out on transparency — no frame, no ground, it just
+  // sits on the page.
+  .about__portrait img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .about__meta {
+    display: flex;
+    flex-direction: column;
+    gap: u(20);
+  }
+
+  .about__row {
+    display: flex;
+    gap: u(20);
+    font-size: u(18);
+    line-height: 1.3;
+
+    dt {
+      width: u(110);
+      flex-shrink: 0;
+      font-weight: 700;
+      color: var(--sage);
+    }
+
+    dd {
+      margin: 0;
+      color: var(--ink);
+    }
+  }
+
+  // Same rule-wipe as the nav links, so an outbound link behaves like every
+  // other link on the site.
+  .about__link {
+    position: relative;
+    text-decoration: none;
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: u(-3);
+      width: 100%;
+      height: 1px;
+      background: currentColor;
+      transform: scaleX(1);
+      transform-origin: left center;
+      transition: transform var(--dur-fast) var(--ease-inout);
+    }
+
+    &:hover::after {
+      transform: scaleX(0);
+      transform-origin: right center;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .about__link::after {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .about {
+      grid-template-columns: 1fr;
+      gap: 28px;
+      padding: 0 24px 72px;
+    }
+
+    .about__intro {
+      gap: 16px;
+      font-size: 17px;
+    }
+
+    .about__portrait {
+      max-width: 220px;
+    }
+
+    .about__row {
+      font-size: 15px;
+
+      dt {
+        width: 92px;
+      }
+    }
+  }
+</style>

@@ -1,0 +1,232 @@
+---
+import { Image } from 'astro:assets';
+
+import Layout from '../../layouts/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import ContactCta from '../../components/ContactCta.astro';
+import InstaSupply from '../../components/casestudy/InstaSupply.astro';
+import Allenati from '../../components/casestudy/Allenati.astro';
+import Asci from '../../components/casestudy/Asci.astro';
+import { projects } from '../../data/projects';
+
+// One route for all three projects, driven by the same data the showreel
+// uses — so a project added there gets a page for free.
+export function getStaticPaths() {
+  return projects.map((project, index) => ({
+    params: { slug: project.slug },
+    props: { project, index },
+  }));
+}
+
+const { project, index } = Astro.props;
+const next = projects[(index + 1) % projects.length];
+
+// A domain reads better than a URL on a button, but an app store link needs
+// its own wording — so the project can override it.
+const liveLabel =
+  project.liveLabel ??
+  (project.liveUrl && `Visit ${project.liveUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')}`);
+
+// Projects with a written-up case study render their own component in place of
+// the generic rows below. The rest still get the placeholder structure.
+const caseStudies: Record<string, boolean> = { instasupply: true, allenati: true, asci: true };
+const hasCaseStudy = caseStudies[project.slug] === true;
+
+// Placeholder structure — the Figma file has no project-page frame yet.
+const sections = [
+  { label: 'The brief', body: project.summary },
+  {
+    label: 'What we did',
+    body: `${project.role}. Working sessions every week, with the client seeing the work as it developed rather than at a single reveal.`,
+  },
+  {
+    label: 'Outcome',
+    body: 'Case study copy and supporting imagery to come.',
+  },
+];
+---
+
+<Layout
+  title={`${project.name} — WildKid Studio`}
+  description={project.summary}
+>
+  <div class="page">
+    <Nav />
+    <main>
+      <PageHeader
+        eyebrow={`[3] WORK / ${String(index + 1).padStart(2, '0')}`}
+        title={project.name}
+        meta={project.disciplines}
+        liveUrl={project.liveUrl}
+        liveLabel={liveLabel}
+      />
+
+      <div class="project__cover" data-reveal="mask">
+        <Image
+          src={project.cover}
+          alt={project.coverAlt}
+          width={1312}
+          height={795}
+          densities={[1, 2]}
+          formats={['webp']}
+        />
+      </div>
+
+      {
+        hasCaseStudy ? (
+          project.slug === 'instasupply' ? (
+            <InstaSupply />
+          ) : project.slug === 'allenati' ? (
+            <Allenati />
+          ) : (
+            <Asci />
+          )
+        ) : (
+          <section class="project">
+            {sections.map((section, i) => (
+              <div class="project__row" data-reveal="up" style={`--i: ${i}`}>
+                <h2 class="project__label">{section.label}</h2>
+                <p class="project__body">{section.body}</p>
+              </div>
+            ))}
+
+            <div class="project__row" data-reveal="up">
+              <h2 class="project__label">Year</h2>
+              <p class="project__body">{project.year}</p>
+            </div>
+          </section>
+        )
+      }
+
+      <a class="project__next" href={`/work/${next.slug}`} data-reveal="up">
+        <span class="project__next-label">Next project</span>
+        <span class="project__next-name">{next.name}</span>
+      </a>
+
+      <ContactCta />
+    </main>
+  </div>
+</Layout>
+
+<style lang="scss">
+  @use "../../styles/util" as *;
+
+  // The three sources have different native aspect ratios (2.37, 1.50, 1.33),
+  // so the frame is pinned to the showreel card's ratio and the image is
+  // cropped into it. Without this each project page gets a different height.
+  .project__cover {
+    padding: 0 u(100);
+
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 605.766 / 367.072;
+      object-fit: cover;
+      background: var(--showreel);
+    }
+  }
+
+  .project {
+    display: flex;
+    flex-direction: column;
+    gap: u(30);
+    padding: u(70) u(100) u(150);
+  }
+
+  .project__row {
+    display: flex;
+    gap: u(50);
+    align-items: flex-start;
+    padding: u(40) u(20);
+    color: var(--white);
+    background: var(--band-box);
+  }
+
+  .project__label {
+    flex-shrink: 0;
+    width: u(250);
+    font-family: var(--font-display);
+    font-size: u(24);
+    font-weight: 400;
+    line-height: normal;
+  }
+
+  // Matches the principle rows this layout is modelled on.
+  .project__body {
+    flex: 1 0 0;
+    min-width: 0;
+    font-size: u(18);
+    line-height: normal;
+  }
+
+  .project__next {
+    display: flex;
+    flex-direction: column;
+    gap: u(10);
+    align-items: flex-start;
+    // The case studies end on a full-bleed section, so the link needs room of
+    // its own rather than sitting straight under the last screen.
+    margin-top: u(60);
+    padding: 0 u(100) u(150);
+    text-decoration: none;
+    color: var(--ink);
+  }
+
+  .project__next-label {
+    font-size: u(24);
+    font-weight: 700;
+    color: var(--sage);
+  }
+
+  .project__next-name {
+    font-family: var(--font-display);
+    font-size: u(60);
+    line-height: normal;
+    transition: color 200ms ease;
+  }
+
+  .project__next:hover .project__next-name {
+    color: var(--band-box);
+  }
+
+  @media (max-width: 900px) {
+    .project__cover {
+      padding: 0 24px;
+    }
+
+    .project {
+      gap: 16px;
+      padding: 40px 24px 80px;
+    }
+
+    .project__row {
+      flex-direction: column;
+      gap: 12px;
+      padding: 24px 20px;
+    }
+
+    .project__label {
+      width: auto;
+      font-size: 20px;
+    }
+
+    .project__body {
+      font-size: 16px;
+    }
+
+    .project__next {
+      margin-top: 32px;
+      padding: 0 24px 80px;
+    }
+
+    .project__next-label {
+      font-size: 15px;
+    }
+
+    .project__next-name {
+      font-size: 34px;
+    }
+  }
+</style>
