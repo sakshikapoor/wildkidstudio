@@ -3,8 +3,6 @@ import Layout from '../layouts/Layout.astro';
 import Nav from '../components/Nav.astro';
 import PageHeader from '../components/PageHeader.astro';
 import ContactCta from '../components/ContactCta.astro';
-import { Image } from 'astro:assets';
-import portrait from '../assets/sakshi-halftone.png';
 
 // Deliberately short: the work pages carry the detail, so this page only has
 // to say who is behind them and where else to find her.
@@ -16,7 +14,7 @@ const facts = [
 const links = [
   { label: 'Portfolio', value: 'sakshikapoor.com', href: 'https://sakshikapoor.com' },
   { label: 'LinkedIn', value: '/in/sakshire', href: 'https://linkedin.com/in/sakshire' },
-  { label: 'Illustration', value: '@sakshire', href: 'https://instagram.com/sakshire' },
+  { label: 'Social', value: '@sakshire', href: 'https://instagram.com/sakshire' },
 ];
 ---
 
@@ -42,10 +40,6 @@ const links = [
             an unprompted case for one of her obsessions, and against one of her dislikes — she is
             always up for it.
           </p>
-        </div>
-
-        <div class="about__portrait" data-reveal="scale">
-          <Image src={portrait} alt="Sakshi Kapoor" widths={[300, 600]} formats={['webp']} />
         </div>
 
         <dl class="about__meta">
@@ -80,13 +74,11 @@ const links = [
 <style lang="scss">
   @use "../styles/util" as *;
 
-  // Three columns: words, portrait, details.
   .about {
-    display: grid;
-    grid-template-columns: u(560) u(300) u(340);
+    display: flex;
+    align-items: flex-start;
     justify-content: space-between;
-    align-items: start;
-    gap: u(56);
+    gap: u(80);
     padding: 0 u(100) u(120);
   }
 
@@ -94,23 +86,17 @@ const links = [
     display: flex;
     flex-direction: column;
     gap: u(24);
-    font-size: u(20);
+    width: u(680);
+    font-size: u(22);
     line-height: 1.35;
     color: var(--body);
-  }
-
-  // The halftone is a cut-out on transparency — no frame, no ground, it just
-  // sits on the page.
-  .about__portrait img {
-    display: block;
-    width: 100%;
-    height: auto;
   }
 
   .about__meta {
     display: flex;
     flex-direction: column;
     gap: u(20);
+    width: u(400);
   }
 
   .about__row {
@@ -165,18 +151,19 @@ const links = [
 
   @media (max-width: 900px) {
     .about {
-      grid-template-columns: 1fr;
+      flex-direction: column;
       gap: 28px;
       padding: 0 24px 72px;
+    }
+
+    .about__intro,
+    .about__meta {
+      width: 100%;
     }
 
     .about__intro {
       gap: 16px;
       font-size: 17px;
-    }
-
-    .about__portrait {
-      max-width: 220px;
     }
 
     .about__row {
