@@ -8,6 +8,7 @@ import HowWeEngage from '../components/HowWeEngage.astro';
 import Showreel from '../components/Showreel.astro';
 import Principles from '../components/Principles.astro';
 import ContactCta from '../components/ContactCta.astro';
+import ManDevPanel from '../components/ManDevPanel.astro';
 ---
 
 <Layout
@@ -25,5 +26,8 @@ import ContactCta from '../components/ContactCta.astro';
       <Principles />
       <ContactCta />
     </main>
+
+    {/* Tuning controls for the character in the tree. Dev only. */}
+    {import.meta.env.DEV && <ManDevPanel />}
   </div>
 </Layout>

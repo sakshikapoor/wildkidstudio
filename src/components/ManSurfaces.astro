@@ -1,0 +1,514 @@
+---
+// Dev-only editor for the surfaces the little guy can stand on.
+//
+// The overlay renders inside .tree__art, so it shares the artwork's coordinate
+// space exactly: what you draw over a branch on screen is what lands in
+// src/data/surfaces.ts. Nothing here ships — index.astro only renders it under
+// `import.meta.env.DEV`.
+//
+// The controls live in ManDevPanel.astro, at page level, because .tree is
+// transformed by the parallax and would clip anything fixed inside it. The two
+// talk through this element: the panel flips `data-editing` and dispatches
+// `man-surfaces:add` / `:clear` / `:copy` at it.
+import { surfaces } from '../data/surfaces';
+
+const CANVAS = { w: 1280, h: 6400 };
+---
+
+<div
+  class="surfaces"
+  data-surfaces
+  data-canvas-w={CANVAS.w}
+  data-canvas-h={CANVAS.h}
+  data-seed={JSON.stringify(surfaces)}
+>
+  {/*
+    The position authored in Man.astro. He does not start here: he starts on
+    the highest marked surface, and only his x is carried over to decide where
+    along it he stands. Drawn anyway, because that x is still a real input and
+    otherwise there is nothing on screen to show what it is set to.
+  */}
+  <div class="start" data-start>
+    <span class="start__feet"></span>
+    <span class="start__label" data-start-label></span>
+  </div>
+</div>
+
+{/* The shape each surface is stamped from, kept out of the script. */}
+<template data-surface-template>
+  <div class="surface" data-surface>
+    <span class="surface__grip" data-grip="left"></span>
+    <span class="surface__grip" data-grip="right"></span>
+    <span class="surface__label" data-label></span>
+  </div>
+</template>
+
+<style lang="scss">
+  @use "../styles/util" as *;
+
+  .surfaces {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  // Only in edit mode does the overlay take the pointer — otherwise it would
+  // sit over the whole artwork and swallow every click on the page behind it.
+  .surfaces[data-editing] {
+    pointer-events: auto;
+    cursor: crosshair;
+    // A wash, so it is unmistakable that the page is in an authoring mode.
+    background: rgba(0, 60, 120, 0.06);
+  }
+
+  // Marks are drawn when either switch is on. Editing implies showing; showing
+  // on its own is read-only, and leaves .surfaces without pointer-events so
+  // the character underneath stays clickable.
+  .surfaces:not([data-editing]):not([data-showing]) .surface,
+  .surfaces:not([data-editing]):not([data-showing]) .start {
+    display: none;
+  }
+
+  // --- The authored start position ----------------------------------------
+  .start {
+    position: absolute;
+    left: var(--start-left);
+    top: var(--start-top);
+    width: var(--start-width);
+    aspect-ratio: 93 / 145;
+    border: 1px dashed #007aff;
+    background: rgba(0, 122, 255, 0.1);
+  }
+
+  // His feet are what a surface has to meet, so mark that edge, not the box.
+  .start__feet {
+    position: absolute;
+    top: 100%;
+    left: -25%;
+    width: 150%;
+    border-top: 2px solid #007aff;
+  }
+
+  .start__label {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    margin-bottom: 3px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: #007aff;
+    color: var(--white);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+
+  .surface {
+    position: absolute;
+    height: 0;
+    // The bar is drawn on the line, not under it: this is the height he
+    // stands at, and a filled box would read as a platform with a thickness
+    // the data does not have.
+    border-top: 2px solid #ff3b30;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.8);
+    cursor: grab;
+  }
+
+  .surface[data-selected] {
+    border-top-color: #007aff;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9), 0 0 0 4px rgba(0, 122, 255, 0.25);
+  }
+
+  .surface__grip {
+    position: absolute;
+    top: -6px;
+    width: 10px;
+    height: 10px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    background: var(--white);
+    color: #ff3b30;
+    cursor: ew-resize;
+  }
+
+  .surface[data-selected] .surface__grip {
+    color: #007aff;
+  }
+
+  .surface__grip[data-grip="left"] {
+    left: -5px;
+  }
+
+  .surface__grip[data-grip="right"] {
+    right: -5px;
+  }
+
+  .surface__label {
+    position: absolute;
+    bottom: 4px;
+    left: 0;
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: rgba(10, 10, 10, 0.85);
+    color: var(--white);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    line-height: 1.4;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  // --- Surface editor -----------------------------------------------------
+  //
+  // Draw on empty artwork to add a surface, drag its body to move it, drag an
+  // end to restretch it, Delete to remove it. Everything is kept as
+  // percentages of the artwork canvas, so the numbers are resolution- and
+  // viewport-independent and can be pasted straight into the data file.
+
+  interface Surface {
+    left: number;
+    right: number;
+    top: number;
+    text?: string;
+  }
+
+  // Scoped to the overlay's own class as well as its hook: this element gets
+  // emptied on every render, so it had better be the right one.
+  const root = document.querySelector<HTMLElement>('.surfaces[data-surfaces]');
+  const template = document.querySelector<HTMLTemplateElement>(
+    '[data-surface-template]',
+  );
+
+  if (root && template) {
+    const canvas = {
+      w: Number(root.dataset.canvasW) || 1280,
+      h: Number(root.dataset.canvasH) || 6400,
+    };
+
+    /** Narrower than this and a surface is almost certainly a stray click. */
+    const MIN_SPAN = 0.4;
+
+    // The working copy. It starts from the authored file — handed over as
+    // JSON on the element — and is only ever written back by pasting what
+    // "Copy surfaces" produces over src/data/surfaces.ts.
+    const list: Surface[] = JSON.parse(root.dataset.seed || '[]');
+    let selected = -1;
+
+    // --- Rendering --------------------------------------------------------
+    //
+    // Redrawn wholesale on every change. The list is a handful of entries, so
+    // reconciling it would cost more to read than it saves to run.
+    const render = () => {
+      // Only the bars: the start marker is a fixture of the overlay, not part
+      // of the list being redrawn.
+      for (const bar of root.querySelectorAll('[data-surface]')) bar.remove();
+
+      list.forEach((surface, index) => {
+        const node = template.content.firstElementChild!.cloneNode(
+          true,
+        ) as HTMLElement;
+
+        node.dataset.index = String(index);
+        node.style.left = `${surface.left}%`;
+        node.style.width = `${surface.right - surface.left}%`;
+        node.style.top = `${surface.top}%`;
+        if (index === selected) node.dataset.selected = '';
+
+        // Canvas pixels in the label rather than percentages: it is the unit
+        // the artwork was drawn in, so it is the one worth eyeballing.
+        const caption = surface.text?.trim();
+
+        node.querySelector('[data-label]')!.textContent =
+          `x ${Math.round((surface.left * canvas.w) / 100)}–` +
+          `${Math.round((surface.right * canvas.w) / 100)} · ` +
+          `y ${Math.round((surface.top * canvas.h) / 100)}` +
+          // Enough of the caption to tell which bar is which, not all of it.
+          (caption ? ` · ${caption.length > 20 ? `${caption.slice(0, 19)}…` : caption}` : '');
+
+        root.append(node);
+      });
+
+      // The panel mirrors whatever is selected. Announcing it from here covers
+      // every route in — drawing, clicking, deleting, the Add button — because
+      // all of them end in a redraw.
+      root.dispatchEvent(
+        new CustomEvent('man-surfaces:selected', {
+          detail: selected >= 0 ? { ...list[selected] } : null,
+        }),
+      );
+    };
+
+    // --- Coordinates ------------------------------------------------------
+    const at = (event: PointerEvent) => {
+      const box = root.getBoundingClientRect();
+      return {
+        x: ((event.clientX - box.left) / box.width) * 100,
+        y: ((event.clientY - box.top) / box.height) * 100,
+      };
+    };
+
+    const clamp = (n: number) => Math.max(0, Math.min(100, n));
+
+    /** Keeps `left` and `right` the right way round after a drag crosses over. */
+    const tidy = (surface: Surface) => {
+      if (surface.left > surface.right) {
+        [surface.left, surface.right] = [surface.right, surface.left];
+      }
+      return surface;
+    };
+
+    // --- Dragging ---------------------------------------------------------
+    //
+    // One handler for all three gestures. `mode` decides what a pointer move
+    // does to the surface under the cursor; `origin` is what it looked like
+    // when the drag began, so every move is applied to the original rather
+    // than accumulated frame by frame.
+    let mode: 'draw' | 'move' | 'left' | 'right' | null = null;
+    let start = { x: 0, y: 0 };
+    let origin: Surface | null = null;
+
+    root.addEventListener('pointerdown', (event) => {
+      if (!('editing' in root.dataset)) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      root.setPointerCapture(event.pointerId);
+      start = at(event);
+
+      const target = event.target as HTMLElement;
+      const bar = target.closest<HTMLElement>('[data-surface]');
+
+      if (!bar) {
+        // Empty artwork: start a new zero-width surface and stretch it.
+        list.push({ left: start.x, right: start.x, top: start.y });
+        selected = list.length - 1;
+        mode = 'draw';
+      } else {
+        selected = Number(bar.dataset.index);
+        const grip = target.closest<HTMLElement>('[data-grip]');
+        mode = grip ? (grip.dataset.grip as 'left' | 'right') : 'move';
+      }
+
+      origin = { ...list[selected] };
+      render();
+    });
+
+    root.addEventListener('pointermove', (event) => {
+      if (!mode || !origin) return;
+
+      const now = at(event);
+      const surface = list[selected];
+
+      switch (mode) {
+        case 'draw':
+          surface.left = Math.min(start.x, now.x);
+          surface.right = Math.max(start.x, now.x);
+          break;
+
+        case 'move': {
+          // Move as a unit: shift both ends by the same delta so the span is
+          // preserved, then clamp the pair rather than each end separately.
+          const span = origin.right - origin.left;
+          const left = clamp(origin.left + (now.x - start.x));
+          surface.left = Math.min(left, 100 - span);
+          surface.right = surface.left + span;
+          surface.top = clamp(origin.top + (now.y - start.y));
+          break;
+        }
+
+        case 'left':
+          surface.left = clamp(origin.left + (now.x - start.x));
+          break;
+
+        case 'right':
+          surface.right = clamp(origin.right + (now.x - start.x));
+          break;
+      }
+
+      render();
+    });
+
+    const finish = (event: PointerEvent) => {
+      if (!mode) return;
+
+      const surface = tidy(list[selected]);
+
+      // A click on empty artwork reads as "deselect", not as a zero-width
+      // surface, so drop anything that never got stretched.
+      if (surface.right - surface.left < MIN_SPAN) {
+        if (mode === 'draw') {
+          list.splice(selected, 1);
+          selected = -1;
+        } else {
+          surface.right = surface.left + MIN_SPAN;
+        }
+      }
+
+      mode = null;
+      origin = null;
+      root.releasePointerCapture(event.pointerId);
+      render();
+    };
+
+    root.addEventListener('pointerup', finish);
+    root.addEventListener('pointercancel', finish);
+
+    // --- Keyboard ---------------------------------------------------------
+    window.addEventListener('keydown', (event) => {
+      if (!('editing' in root.dataset) || selected < 0) return;
+
+      // Stand off the panel's number fields, where delete and the arrows are
+      // how you edit a value — but only those. Testing for an input of any
+      // kind also caught the checkbox that turns this mode on, which is
+      // exactly what has the focus when you arrive here, so nothing on the
+      // keyboard worked until you clicked somewhere else first.
+      const focused = event.target;
+      if (
+        focused instanceof HTMLInputElement &&
+        focused.type !== 'checkbox' &&
+        focused.type !== 'radio'
+      ) {
+        return;
+      }
+
+      if (event.key === 'Backspace' || event.key === 'Delete') {
+        event.preventDefault();
+        root.dispatchEvent(new CustomEvent('man-surfaces:delete'));
+        return;
+      }
+
+      // Nudge: a canvas pixel a press, ten with shift.
+      const step = (event.shiftKey ? 10 : 1) / canvas.h * 100;
+      const stepX = (event.shiftKey ? 10 : 1) / canvas.w * 100;
+      const surface = list[selected];
+
+      switch (event.key) {
+        case 'ArrowUp':
+          surface.top = clamp(surface.top - step);
+          break;
+        case 'ArrowDown':
+          surface.top = clamp(surface.top + step);
+          break;
+        case 'ArrowLeft':
+          surface.left -= stepX;
+          surface.right -= stepX;
+          break;
+        case 'ArrowRight':
+          surface.left += stepX;
+          surface.right += stepX;
+          break;
+        default:
+          return;
+      }
+
+      event.preventDefault();
+      render();
+    });
+
+    // --- Commands from the dev panel --------------------------------------
+    root.addEventListener('man-surfaces:add', () => {
+      // Lands mid-canvas where it cannot be missed, ready to be dragged onto
+      // whatever it is meant to describe.
+      list.push({ left: 40, right: 60, top: 20 });
+      selected = list.length - 1;
+      render();
+      root.querySelector('[data-selected]')?.scrollIntoView({
+        block: 'center',
+        behavior: 'smooth',
+      });
+    });
+
+    // Typed edits to the selected bar. Moving by `left` carries the far end
+    // with it, so the span is preserved — that is what makes it a move rather
+    // than a stretch, and why length is its own field.
+    root.addEventListener('man-surfaces:set', (event) => {
+      if (selected < 0) return;
+
+      const { key, value } = (event as CustomEvent).detail;
+      const surface = list[selected];
+      if (key !== 'text' && !Number.isFinite(value)) return;
+
+      if (key === 'left') {
+        const span = surface.right - surface.left;
+        surface.left = clamp(value);
+        surface.right = surface.left + span;
+      } else if (key === 'length') {
+        surface.right = surface.left + Math.max(MIN_SPAN, value);
+      } else if (key === 'top') {
+        surface.top = clamp(value);
+      } else if (key === 'text') {
+        surface.text = String(value);
+      }
+
+      render();
+    });
+
+    root.addEventListener('man-surfaces:delete', () => {
+      if (selected < 0) return;
+      list.splice(selected, 1);
+      selected = -1;
+      render();
+    });
+
+    root.addEventListener('man-surfaces:clear', () => {
+      list.length = 0;
+      selected = -1;
+      render();
+    });
+
+    // Asked for the current state: the text to paste, and the list itself for
+    // the panel to POST at the dev server.
+    root.addEventListener('man-surfaces:read', (event) => {
+      const round = (n: number) => Number(n.toFixed(3));
+      const sorted = list
+        .slice()
+        .sort((a, b) => a.top - b.top || a.left - b.left);
+
+      const body = sorted
+        .map(
+          (s) =>
+            `  { left: ${round(s.left)}, right: ${round(s.right)}, top: ${round(s.top)}` +
+            `${s.text?.trim() ? `, text: ${JSON.stringify(s.text.trim())}` : ''} },`,
+        )
+        .join('\n');
+
+      (event as CustomEvent).detail.resolve({
+        list: sorted,
+        text: `export const surfaces: Surface[] = [\n${body}\n];`,
+      });
+    });
+
+    // --- The start marker -------------------------------------------------
+    //
+    // Read off the character rather than re-imported, so it cannot drift from
+    // whatever Man.astro is actually using.
+    const startMark = root.querySelector<HTMLElement>('[data-start]');
+    const man = document.querySelector<HTMLElement>('[data-man]');
+
+    if (startMark && man) {
+      const styles = getComputedStyle(man);
+      const read = (name: string) =>
+        parseFloat(styles.getPropertyValue(`--man-${name}`));
+
+      const left = read('left');
+      const top = read('top');
+      const w = read('width');
+      // His height as a share of canvas height — the canvas is not square, so
+      // the sprite's own ratio has to be restated in canvas terms.
+      const h = w * (145 / 93) * (canvas.w / canvas.h);
+
+      startMark.style.setProperty('--start-left', `${left}%`);
+      startMark.style.setProperty('--start-top', `${top}%`);
+      startMark.style.setProperty('--start-width', `${w}%`);
+
+      startMark.querySelector('[data-start-label]')!.textContent =
+        `authored x ${Math.round(((left + w / 2) * canvas.w) / 100)}` +
+        ` · he starts on the highest surface`;
+    }
+
+    render();
+  }
+</script>
