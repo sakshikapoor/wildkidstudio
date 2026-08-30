@@ -1,0 +1,517 @@
+---
+// Dev-only controls for the character in the tree (Man.astro).
+//
+// Nothing here ships: the page renders it only under `import.meta.env.DEV`,
+// so the panel and its script are absent from the production build.
+//
+// It writes straight to the custom properties Man.astro reads, so the page is
+// the preview. When he sits where you want him, "Copy CSS" gives you the
+// `base` / `motion` values to paste back into Man.astro — the panel is a
+// tuning surface, not a store, and a reload forgets everything.
+
+// Only what still changes something.
+//
+// `top` and `walk` used to be here and are not any more. He starts on the
+// highest marked surface, so his authored `top` no longer decides where that
+// is — it is only the origin the offsets are measured from, and moving it
+// moves nothing. `walk` is the leash for a character standing on no marked
+// surface at all, which cannot happen while the artwork has any. Both are
+// still in `base` / `motion` in Man.astro, and Copy CSS still emits them.
+//
+// `left` survives because it does still do work: it is his x, and he keeps it
+// when he is placed on the top surface, clamped to that surface's ends.
+const fields = [
+  { key: 'left', label: 'Left', unit: '%', min: 0, max: 100, step: 0.01 },
+  { key: 'width', label: 'Width', unit: '%', min: 0.5, max: 40, step: 0.01 },
+  { key: 'jump', label: 'Jump height', unit: 'px', min: 0, max: 400, step: 1 },
+  { key: 'hop', label: 'Jump reach', unit: 'px', min: 0, max: 400, step: 1 },
+];
+---
+
+<div class="panel" data-man-panel hidden>
+  <div class="panel__head">
+    <strong>Little guy</strong>
+    <button type="button" data-act="close" aria-label="Hide panel">×</button>
+  </div>
+
+  {fields.map((field) => (
+    <label class="panel__row">
+      <span class="panel__name">{field.label}</span>
+      <input
+        type="range"
+        data-field={field.key}
+        min={field.min}
+        max={field.max}
+        step={field.step}
+      />
+      <input
+        class="panel__num"
+        type="number"
+        data-field={field.key}
+        min={field.min}
+        max={field.max}
+        step={field.step}
+      />
+      <span class="panel__unit">{field.unit}</span>
+    </label>
+  ))}
+
+  <div class="panel__foot">
+    <button type="button" data-act="reset">Reset</button>
+    <button type="button" data-act="copy">Copy CSS</button>
+  </div>
+
+  <p class="panel__help">
+    Click him to select · ← → walk · space or ↑ hops on the spot · hold ← or →
+    with it to jump that way · click elsewhere to release
+  </p>
+
+  <hr class="panel__rule" />
+
+  {/*
+    Surfaces are authored on the artwork itself, so this section is a mode
+    switch and an exporter — the drawing happens over in ManSurfaces.astro.
+  */}
+  <label class="panel__toggle">
+    <input type="checkbox" data-act="show-surfaces" />
+    <span>Show surfaces &amp; start position</span>
+  </label>
+
+  <label class="panel__toggle">
+    <input type="checkbox" data-act="edit-surfaces" />
+    <span>Mark landing surfaces</span>
+  </label>
+
+  <div class="panel__foot" data-surface-tools hidden>
+    <button type="button" data-act="add-surface">Add</button>
+    <button type="button" data-act="delete-surface" disabled>Delete</button>
+    <button type="button" data-act="save-surfaces">Save to file</button>
+    <button type="button" data-act="copy-surfaces">Copy</button>
+    <button type="button" data-act="clear-surfaces">Clear</button>
+  </div>
+
+  {/*
+    The selected bar, by number. Dragging is quicker for roughing one out;
+    these are for the last few decimals, and for a length you cannot get by
+    eye because the far end is off screen.
+  */}
+  <div data-surface-fields hidden>
+    {[
+      { key: 'left', label: 'Sel. left', min: 0, max: 100, step: 0.05 },
+      { key: 'length', label: 'Sel. length', min: 0.4, max: 100, step: 0.05 },
+      { key: 'top', label: 'Sel. top', min: 0, max: 100, step: 0.01 },
+    ].map((field) => (
+      <label class="panel__row">
+        <span class="panel__name">{field.label}</span>
+        <input type="range" data-sfield={field.key} min={field.min} max={field.max} step={field.step} />
+        <input class="panel__num" type="number" data-sfield={field.key} min={field.min} max={field.max} step={field.step} />
+        <span class="panel__unit">%</span>
+      </label>
+    ))}
+
+    <label class="panel__row panel__row--wide">
+      <span class="panel__name">Sel. text</span>
+      <input
+        class="panel__num"
+        type="text"
+        data-sfield="text"
+        maxlength="200"
+        placeholder="shown over his head when he lands here"
+      />
+    </label>
+  </div>
+
+  <p class="panel__note" data-surface-hint hidden>Select a bar to edit it.</p>
+
+  <p class="panel__help" data-surface-help hidden>
+    Drag over a branch to draw one · drag a bar to move it, its ends to
+    restretch · arrows nudge, shift for ten · Delete button or the delete key
+    removes the selected one · give a bar text and it appears over his head
+    when he lands there · Save writes src/data/surfaces.ts for you
+  </p>
+
+  <p class="panel__note" data-note aria-live="polite"></p>
+</div>
+
+<button class="panel__open" type="button" data-man-panel data-act="open">
+  Little guy
+</button>
+
+<style lang="scss">
+  .panel,
+  .panel__open {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 999;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--white);
+  }
+
+  .panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 320px;
+    padding: 12px;
+    border-radius: 8px;
+    background: rgba(10, 10, 10, 0.92);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  }
+
+  .panel[hidden] {
+    display: none;
+  }
+
+  .panel__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel__row {
+    display: grid;
+    grid-template-columns: 74px 1fr 58px 14px;
+    align-items: center;
+    gap: 6px;
+  }
+
+  // A caption has no slider and no unit, so it takes the whole width.
+  .panel__row--wide {
+    grid-template-columns: 74px 1fr;
+  }
+
+  .panel__name {
+    opacity: 0.7;
+  }
+
+  .panel__unit {
+    opacity: 0.5;
+  }
+
+  .panel__num {
+    width: 100%;
+    padding: 2px 4px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    accent-color: #d1fdf9;
+  }
+
+  .panel__foot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 2px;
+  }
+
+  .panel__note {
+    min-height: 1.4em;
+    opacity: 0.6;
+  }
+
+  .panel__rule {
+    width: 100%;
+    height: 0;
+    margin: 2px 0;
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  .panel__toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+  }
+
+  [data-surface-tools][hidden],
+  [data-surface-fields][hidden],
+  [data-surface-hint][hidden],
+  [data-surface-help][hidden] {
+    display: none;
+  }
+
+  [data-surface-fields] {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .panel__help {
+    opacity: 0.5;
+  }
+
+  button:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  button {
+    padding: 4px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .panel__head button {
+    padding: 0 6px;
+    border: 0;
+    font-size: 16px;
+  }
+
+  .panel__open {
+    background: rgba(10, 10, 10, 0.92);
+  }
+
+  .panel__open[hidden] {
+    display: none;
+  }
+</style>
+
+<script>
+  const panel = document.querySelector<HTMLElement>('.panel[data-man-panel]');
+  const open = document.querySelector<HTMLElement>('.panel__open[data-man-panel]');
+  const man = document.querySelector<HTMLElement>('[data-man]');
+
+  if (panel && open && man) {
+    const note = panel.querySelector<HTMLElement>('[data-note]')!;
+
+    // Every control is a custom property on the character. Position and size
+    // are read by CSS as percentages of the artwork canvas; the walk range and
+    // jump height are unitless design px, read by CSS for the arc and by the
+    // character's own script for the walk's bounds.
+    const percent = ['left', 'top', 'width'];
+
+    const read = (key: string) =>
+      parseFloat(man.style.getPropertyValue(`--man-${key}`));
+
+    const write = (key: string, value: number) =>
+      man.style.setProperty(`--man-${key}`, percent.includes(key) ? `${value}%` : String(value));
+
+    // The values the component shipped with, so Reset means "back to the
+    // source" rather than "back to wherever this session started".
+    const inputs = Array.from(
+      panel.querySelectorAll<HTMLInputElement>('input[data-field]'),
+    );
+    const keys = [...new Set(inputs.map((input) => input.dataset.field!))];
+    const initial = Object.fromEntries(keys.map((key) => [key, read(key)]));
+
+    const sync = () => {
+      for (const input of inputs) {
+        const value = read(input.dataset.field!);
+        // Don't clobber what someone is mid-way through typing.
+        if (document.activeElement !== input) input.value = String(value);
+      }
+    };
+
+    for (const input of inputs) {
+      input.addEventListener('input', () => {
+        const value = Number(input.value);
+        if (!Number.isFinite(value)) return;
+        write(input.dataset.field!, value);
+        sync();
+      });
+    }
+
+    const setNote = (text: string) => {
+      note.textContent = text;
+      window.setTimeout(() => (note.textContent = ''), 1600);
+    };
+
+    const copy = (text: string) =>
+      navigator.clipboard.writeText(text).then(
+        () => setNote('copied'),
+        () => {
+          // Clipboard writes need a secure context and can be refused; the
+          // console is always there.
+          console.log(text);
+          setNote('see console — clipboard refused');
+        },
+      );
+
+    // --- Surface editor ---------------------------------------------------
+    //
+    // The editor owns the surfaces; the panel only switches the mode and asks
+    // for things. `copy-surfaces` is a request with a reply, so it hands the
+    // editor a resolver rather than reaching into its state.
+    const surfaces = document.querySelector<HTMLElement>('.surfaces[data-surfaces]');
+    const tools = panel.querySelector<HTMLElement>('[data-surface-tools]')!;
+    const help = panel.querySelector<HTMLElement>('[data-surface-help]')!;
+    const toggle = panel.querySelector<HTMLInputElement>('[data-act="edit-surfaces"]')!;
+
+    const ask = (name: string, detail: unknown = {}) =>
+      surfaces?.dispatchEvent(new CustomEvent(`man-surfaces:${name}`, { detail }));
+
+    const show = panel.querySelector<HTMLInputElement>('[data-act="show-surfaces"]')!;
+
+    show.addEventListener('change', () => {
+      if (!surfaces) return setNote('no artwork on this page');
+      if (show.checked) surfaces.dataset.showing = '';
+      else delete surfaces.dataset.showing;
+    });
+
+    toggle.addEventListener('change', () => {
+      const on = toggle.checked && !!surfaces;
+
+      if (on) {
+        surfaces!.dataset.editing = '';
+        // Editing draws them regardless, so reflect that in the other switch
+        // rather than let it sit unticked over a visible overlay.
+        show.checked = true;
+        surfaces!.dataset.showing = '';
+        // Both would otherwise answer to the arrow keys.
+        man.dispatchEvent(new CustomEvent('man:release'));
+      } else if (surfaces) {
+        delete surfaces.dataset.editing;
+      }
+
+      tools.hidden = !on;
+      help.hidden = !on;
+      // Which of the two shows is the selection's business; leaving edit mode
+      // hides both regardless.
+      if (!on) {
+        fields.hidden = true;
+        hint.hidden = true;
+      } else {
+        hint.hidden = !fields.hidden;
+      }
+
+      if (!surfaces) setNote('no artwork on this page');
+    });
+
+    // --- The selected bar, by number --------------------------------------
+    const fields = panel.querySelector<HTMLElement>('[data-surface-fields]')!;
+    const hint = panel.querySelector<HTMLElement>('[data-surface-hint]')!;
+    const remove = panel.querySelector<HTMLButtonElement>('[data-act="delete-surface"]')!;
+    const sInputs = Array.from(
+      panel.querySelectorAll<HTMLInputElement>('input[data-sfield]'),
+    );
+
+    for (const input of sInputs) {
+      input.addEventListener('input', () =>
+        ask('set', {
+          key: input.dataset.sfield,
+          value: input.type === 'text' ? input.value : Number(input.value),
+        }),
+      );
+    }
+
+    surfaces?.addEventListener('man-surfaces:selected', (event) => {
+      const surface = (event as CustomEvent).detail as
+        | { left: number; right: number; top: number; text?: string }
+        | null;
+
+      const editing = surfaces && 'editing' in surfaces.dataset;
+      fields.hidden = !surface || !editing;
+      hint.hidden = !!surface || !editing;
+      remove.disabled = !surface;
+      if (!surface) return;
+
+      for (const input of sInputs) {
+        // Don't clobber what someone is mid-way through typing.
+        if (document.activeElement === input) continue;
+
+        const key = input.dataset.sfield!;
+        if (key === 'text') {
+          input.value = surface.text ?? '';
+        } else {
+          const n = key === 'length' ? surface.right - surface.left : surface[key as 'left' | 'top'];
+          input.value = n.toFixed(3);
+        }
+      }
+    });
+
+    panel.addEventListener('click', (event) => {
+      const act = (event.target as HTMLElement)
+        .closest('[data-act]')
+        ?.getAttribute('data-act');
+
+      switch (act) {
+        case 'close':
+          panel.hidden = true;
+          open.hidden = false;
+          return;
+
+        case 'reset':
+          for (const [key, value] of Object.entries(initial)) write(key, value);
+          sync();
+          setNote('reset');
+          return;
+
+        case 'copy':
+          copy(
+            [
+              'const base = {',
+              `  left: ${read('left')},`,
+              `  top: ${read('top')},`,
+              `  width: ${read('width')},`,
+              '};',
+              '',
+              'const motion = {',
+              `  walk: ${read('walk')},`,
+              `  jump: ${read('jump')},`,
+              `  hop: ${read('hop')},`,
+              '};',
+            ].join('\n'),
+          );
+          return;
+
+        case 'add-surface':
+          ask('add');
+          return;
+
+        case 'delete-surface':
+          ask('delete');
+          setNote('deleted — Save to keep it');
+          return;
+
+        case 'clear-surfaces':
+          ask('clear');
+          setNote('cleared — copy to keep it');
+          return;
+
+        case 'copy-surfaces':
+          ask('read', { resolve: ({ text }: { text: string }) => copy(text) });
+          return;
+
+        case 'save-surfaces':
+          // Straight to the source file, through the dev server. Copy-and-
+          // paste was one step too many to keep remembering, and the work is
+          // gone the moment the tab reloads.
+          ask('read', {
+            resolve: ({ list }: { list: unknown[] }) =>
+              fetch('/__surfaces', {
+                method: 'POST',
+                body: JSON.stringify(list),
+              })
+                .then(async (response) => {
+                  const message = await response.text();
+                  setNote(response.ok ? `saved ${list.length}` : message);
+                })
+                .catch(() => setNote('dev server not reachable')),
+          });
+          return;
+      }
+    });
+
+    open.addEventListener('click', () => {
+      panel.hidden = false;
+      open.hidden = true;
+      sync();
+    });
+
+    sync();
+  }
+</script>

@@ -1,0 +1,89 @@
+---
+// A single still pinned to the tree artwork, optionally drifting on the spot.
+//
+// The companion to ArtLoop: same idea, same coordinate space, but one image
+// rather than a cycle. `box` is where the crop sits on the 1280 x 6400 canvas,
+// in percentages, so it lands exactly where it was drawn at any width.
+interface Props {
+  /** Path under /assets. */
+  src: string;
+  /** The crop's place on the 1280 x 6400 canvas, as percentages. */
+  box: { left: number; top: number; width: number; height: number };
+  /**
+   * Optional horizontal drift, in design px either side of where it sits. It
+   * moves on the spot — the box does not change — so nothing it is composed
+   * against has to allow for it.
+   */
+  sway?: number;
+  /** How long one drift there and back takes. */
+  swayMs?: number;
+}
+
+const { src, box, sway = 0, swayMs = 7000 } = Astro.props;
+---
+
+<div
+  class="layer"
+  class:list={[{ 'layer--sway': sway > 0 }]}
+  aria-hidden="true"
+  style={`--left: ${box.left}%; --top: ${box.top}%; --width: ${box.width}%; --height: ${box.height}%; --sway: ${sway}; --sway-ms: ${swayMs}ms;`}
+>
+  <img src={src} alt="" />
+</div>
+
+<style lang="scss">
+  .layer {
+    position: absolute;
+    left: var(--left);
+    top: var(--top);
+    width: var(--width);
+    height: var(--height);
+    // Scenery, like the tree it is painted onto — the character is the only
+    // thing in the artwork that answers to the pointer.
+    pointer-events: none;
+  }
+
+  .layer img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    // Pixel art at roughly twice the size it renders at; smoothing softens
+    // the edges into mush.
+    image-rendering: pixelated;
+  }
+
+  // Sway
+  //
+  // The drift is in design px so it scales with the frame, and it is applied
+  // to the image rather than the box so the layer's own position stays a
+  // fixed, readable number.
+  .layer--sway img {
+    animation: layer-sway var(--sway-ms) ease-in-out infinite;
+  }
+
+  // A full there-and-back in one iteration, so it never snaps back to the
+  // start the way a from/to pair would.
+  @keyframes layer-sway {
+    0%,
+    100% {
+      transform: translate3d(calc(var(--sway) * -1 * var(--u)), 0, 0);
+    }
+    50% {
+      transform: translate3d(calc(var(--sway) * var(--u)), 0, 0);
+    }
+  }
+
+  // A drift that never moves is just a position — leave it where it sits.
+  @media (prefers-reduced-motion: reduce) {
+    .layer--sway img {
+      animation: none;
+    }
+  }
+
+  // The artwork is dropped below the design width, and so is everything on it.
+  @media (max-width: 900px) {
+    .layer {
+      display: none;
+    }
+  }
+</style>

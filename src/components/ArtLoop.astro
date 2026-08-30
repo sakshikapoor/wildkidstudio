@@ -1,0 +1,131 @@
+---
+// A looping frame animation pinned to the tree artwork.
+//
+// Every one of these layers is built the same way: frames exported over the
+// artwork's full 1280 x 6400 canvas, cropped to one shared box so they stay
+// registered to each other and to the tree, and cycled. `box` is where that
+// crop sits on the canvas, in percentages, so the art lands exactly where it
+// was drawn at any viewport width.
+//
+// Frames live in /assets/<name>/1.png, 2.png … and are cross-faded by nothing
+// at all: one is opaque, the rest are not, and the swap is a hard cut.
+interface Props {
+  /** Folder under /assets, and the animation's name in the markup. */
+  name: string;
+  /** How many frames, numbered from 1. */
+  frames: 2 | 3 | 4;
+  /** The crop's place on the 1280 x 6400 canvas, as percentages. */
+  box: { left: number; top: number; width: number; height: number };
+  /** One full cycle through every frame, in ms. */
+  cycle: number;
+}
+
+const { name, frames, box, cycle } = Astro.props;
+---
+
+<div
+  class="loop"
+  data-loop={name}
+  data-frames={frames}
+  aria-hidden="true"
+  style={`--cycle: ${cycle}ms; --n: ${frames}; --left: ${box.left}%; --top: ${box.top}%; --width: ${box.width}%; --height: ${box.height}%;`}
+>
+  {Array.from({ length: frames }, (_, i) => (
+    <img class="loop__frame" src={`/assets/${name}/${i + 1}.png`} alt="" style={`--i: ${i}`} />
+  ))}
+</div>
+
+<style lang="scss">
+  .loop {
+    position: absolute;
+    left: var(--left);
+    top: var(--top);
+    width: var(--width);
+    height: var(--height);
+    // Scenery, like the tree it is painted onto — the character is the only
+    // thing in the artwork that answers to the pointer.
+    pointer-events: none;
+  }
+
+  .loop__frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    // Pixel art at roughly twice the size it renders at; smoothing turns the
+    // droplets and the lantern edges into smudges.
+    image-rendering: pixelated;
+    animation-duration: var(--cycle);
+    animation-iteration-count: infinite;
+    // Each frame waits its turn, then holds for one slice of the cycle.
+    animation-delay: calc(var(--i) * var(--cycle) / var(--n));
+  }
+
+  // The hold is written into the keyframes rather than left to a step
+  // function, so there is no interpolation to see at any frame rate. The
+  // percentages depend on the frame count, which keyframes cannot take from a
+  // custom property — hence one set per count rather than one parameterised.
+  .loop[data-frames="2"] .loop__frame {
+    animation-name: loop-2;
+  }
+
+  .loop[data-frames="3"] .loop__frame {
+    animation-name: loop-3;
+  }
+
+  .loop[data-frames="4"] .loop__frame {
+    animation-name: loop-4;
+  }
+
+  @keyframes loop-2 {
+    0%,
+    49.9% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes loop-3 {
+    0%,
+    33.32% {
+      opacity: 1;
+    }
+    33.33%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes loop-4 {
+    0%,
+    24.9% {
+      opacity: 1;
+    }
+    25%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  // A loop that never advances is just a texture — hold the first frame.
+  @media (prefers-reduced-motion: reduce) {
+    .loop__frame {
+      animation: none;
+    }
+
+    .loop__frame[style*="--i: 0"] {
+      opacity: 1;
+    }
+  }
+
+  // The artwork is dropped below the design width, and so is everything on it.
+  @media (max-width: 900px) {
+    .loop {
+      display: none;
+    }
+  }
+</style>

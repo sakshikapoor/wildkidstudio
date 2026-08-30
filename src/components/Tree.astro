@@ -3,11 +3,22 @@
 // rather than any one section — it runs from the hero down through
 // "how we work".
 //
-// Two boxes, kept separate on purpose: the outer box is the designed frame
-// (443.5, 26, 625 x 2894.732 on a 1512px page) which clips the artwork; the
-// inner image is larger than that frame and offset inside it, so the top of
-// the tree is cropped. Percentages are of the 1512px design width so the
-// artwork tracks the page as it scales.
+// Three boxes, kept separate on purpose:
+//
+//   .tree        the designed frame (443.5, 26, 625 x 2894.732 on a 1512px
+//                page), which clips the artwork. Percentages are of the
+//                1512px design width so the artwork tracks the page as it
+//                scales.
+//   .tree__art   the artwork's own box. It is larger than the frame and
+//                offset inside it, so the top of the tree is cropped. This is
+//                also the 1280 x 6400 coordinate space of the source PNG —
+//                anything positioned in here (the character) lands on the
+//                same pixel it occupies in the artwork.
+//   img          fills .tree__art exactly.
+import ArtLayer from './ArtLayer.astro';
+import ArtLoop from './ArtLoop.astro';
+import Man from './Man.astro';
+import ManSurfaces from './ManSurfaces.astro';
 ---
 
 {/*
@@ -16,8 +27,42 @@
   `data-parallax`; the value is small on purpose — the tree is tall, and any
   more separates it from the sections it is composed against.
 */}
-<div class="tree" data-parallax="0.06" aria-hidden="true">
-  <img src="/assets/tree.png" alt="" />
+<div class="tree" data-parallax="0.06">
+  <div class="tree__art">
+    <img src="/assets/tree.png" alt="" aria-hidden="true" />
+
+    {/*
+      Layer order is DOM order: the tree, then the animated pieces painted onto
+      it, then the character in front of them all. Each box below is where that
+      layer's shared crop sits on the 1280 x 6400 canvas, in percentages.
+    */}
+    <ArtLoop
+      name="water-splash"
+      frames={3}
+      cycle={540}
+      box={{ left: 23.281, top: 39.203, width: 42.031, height: 44.281 }}
+    />
+    <ArtLoop
+      name="lanterns"
+      frames={2}
+      cycle={1000}
+      box={{ left: 61.719, top: 53.516, width: 12.578, height: 0.688 }}
+    />
+    <ArtLayer
+      src="/assets/scenery/cloud.png"
+      box={{ left: 51.172, top: 69.016, width: 24.219, height: 1.688 }}
+      sway={7}
+      swayMs={9000}
+    />
+    <ArtLayer
+      src="/assets/scenery/house.png"
+      box={{ left: 56.953, top: 80.203, width: 21.328, height: 2.969 }}
+    />
+
+    <Man />
+    {/* The surface editor shares the artwork's coordinate space. Dev only. */}
+    {import.meta.env.DEV && <ManSurfaces />}
+  </div>
 </div>
 
 <style lang="scss">
@@ -31,15 +76,23 @@
     width: 41.336%; // 625 / 1512
     aspect-ratio: 625 / 2894.732;
     overflow: hidden;
+    // The artwork is scenery — it must not eat clicks meant for the copy
+    // behind it. The character opts itself back in.
     pointer-events: none;
   }
 
-  .tree img {
+  .tree__art {
     position: absolute;
     top: -2.74%;
     left: 1.16%;
     width: 97.68%;
     height: 105.48%;
+  }
+
+  .tree__art img {
+    display: block;
+    width: 100%;
+    height: 100%;
     max-width: none;
   }
 

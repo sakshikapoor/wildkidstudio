@@ -1,0 +1,815 @@
+---
+// The little guy who lives in the tree.
+//
+// He is drawn into the same 1280 x 6400 canvas as the artwork. The five poses
+// were exported over that full canvas and have been cropped to one shared box,
+// so swapping the sprite never shifts him — the crop keeps every pose
+// registered to the same origin.
+//
+// Everything below, and everything the script computes, is in percentages of
+// that canvas. It is the same coordinate space src/data/surfaces.ts is
+// authored in, which is what lets him be placed against branches by number
+// rather than by eye.
+import { surfaces } from '../data/surfaces';
+
+/** Where he starts, as percentages of the 1280 x 6400 artwork canvas. */
+const base = {
+  left: 79.375, // 1016 / 1280
+  top: 17.953, // 1149 / 6400
+  width: 7.266, // 93 / 1280
+};
+
+/** All in design px — see styles/_util.scss — so they scale with the frame. */
+const motion = {
+  /** How far he may stray when he is not standing on an authored surface. */
+  walk: 15,
+  /**
+   * The height of the arc, and so how far up he can reach a branch. The
+   * closest ledge above another in the marked artwork is a ~90px climb, so
+   * anything much under this leaves him stuck on whatever he is standing on.
+   */
+  jump: 150,
+  /** How far a jump carries him horizontally, at most. */
+  hop: 110,
+};
+
+const JUMP_MS = 620;
+
+const sprite = { w: 93, h: 145 };
+
+// His height as a percentage of canvas height, given his width as a percentage
+// of canvas width. The two axes have different denominators, so the aspect
+// ratio has to be restated in canvas terms rather than reused from the sprite.
+const heightPerWidth = (sprite.h / sprite.w) * (1280 / 6400);
+
+const poses = ['standing', 'walking-left', 'walking-right', 'mid-jump', 'full-jump'];
+---
+
+<div
+  class="man"
+  data-man
+  data-pose="standing"
+  data-floors={JSON.stringify(surfaces)}
+  data-height-per-width={heightPerWidth}
+  data-jump-ms={JUMP_MS}
+  style={`--man-left: ${base.left}%; --man-top: ${base.top}%; --man-width: ${base.width}%; --man-dx: 0%; --man-dy: 0%; --man-face: 1; --man-walk: ${motion.walk}; --man-jump: ${motion.jump}; --man-hop: ${motion.hop};`}
+>
+  {/*
+    The caption for whatever he is standing on. It sits outside the button on
+    purpose: the button is mirrored when he faces right, and mirrored text is
+    unreadable.
+  */}
+  <span class="man__tip" data-tip aria-hidden="true"></span>
+
+  {/*
+    A button rather than a div: he is a toy, but he is still a control, and
+    this is what gets him a focus ring and a keyboard route in for free.
+  */}
+  <button class="man__hit" type="button" aria-pressed="false">
+    <span class="man__label">Play with the little guy in the tree</span>
+
+  {/* The selection marker — an arrow above his head, pointing down at him. */}
+  <svg class="man__marker" viewBox="0 0 24 16" aria-hidden="true">
+    <path d="M12 16 0 0h24z" />
+  </svg>
+
+  {/*
+    Every pose is in the DOM and CSS picks one, rather than swapping an `src`.
+    Five sub-kilobyte PNGs cost less than a decode mid-jump.
+  */}
+    {poses.map((pose) => (
+      <img class="man__pose" data-pose={pose} src={`/assets/man/${pose}.png`} alt="" />
+    ))}
+  </button>
+</div>
+
+<style lang="scss" define:vars={{ spriteRatio: `${sprite.w} / ${sprite.h}` }}>
+  @use "../styles/util" as *;
+
+  .man {
+    position: absolute;
+    // --man-left/top are where he was authored; --man-dx/dy are how far the
+    // script has since carried him. Keeping them apart means the dev panel
+    // still owns the first pair while he is walking around on the second.
+    left: calc(var(--man-left) + var(--man-dx));
+    top: calc(var(--man-top) + var(--man-dy));
+    width: var(--man-width);
+    aspect-ratio: var(--spriteRatio);
+    transition: left 150ms var(--ease-out), top 150ms var(--ease-out);
+    // He opts back in to the pointer that .tree turns off for the artwork.
+    pointer-events: auto;
+  }
+
+  // In flight his position is written every frame, so a transition would only
+  // fight the simulation and smear the steering.
+  .man[data-jumping] {
+    transition: none;
+  }
+
+  .man__hit {
+    position: absolute;
+    inset: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    // Both walk sprites are drawn facing left, so going right is a mirror of
+    // the whole character, jump poses included. It sits on this box rather
+    // than .man so it does not fight the position written every frame in
+    // flight. Everything else in here — the marker,
+    // the hit cushion, the focus ring — is symmetrical, so the flip is
+    // invisible on all of it.
+    // Not transitioned: interpolating scaleX from 1 to -1 passes through 0,
+    // which collapses him to nothing halfway through every turn. He flips.
+    transform: scaleX(var(--man-face));
+  }
+
+  // He is only ~44px wide on the page, which is a mean target. Widen the hit
+  // area without moving anything that is drawn.
+  .man__hit::before {
+    content: "";
+    position: absolute;
+    inset: u(-10);
+  }
+
+  .man__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .man__pose {
+    position: absolute;
+    inset: 0;
+    display: none;
+    width: 100%;
+    height: 100%;
+    // The source is pixel art drawn at roughly twice the size it renders at,
+    // so smoothing it just makes it muddy.
+    image-rendering: pixelated;
+  }
+
+  .man[data-pose="standing"] .man__pose[data-pose="standing"],
+  .man[data-pose="walking-left"] .man__pose[data-pose="walking-left"],
+  .man[data-pose="walking-right"] .man__pose[data-pose="walking-right"],
+  .man[data-pose="mid-jump"] .man__pose[data-pose="mid-jump"],
+  .man[data-pose="full-jump"] .man__pose[data-pose="full-jump"] {
+    display: block;
+  }
+
+  // --- Caption ------------------------------------------------------------
+  //
+  // What the surface he is standing on has to say, if anything. It clears the
+  // marker above his head, and is centred on him rather than on the text, so
+  // it stays put as the wording changes.
+  .man__tip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-bottom: 58%;
+    padding: u(5) u(9);
+    border-radius: u(5);
+    background: var(--ink);
+    color: var(--white);
+    font-family: var(--font-mono);
+    font-size: u(13);
+    line-height: 1.3;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    // Centred on him, then nudged by --tip-shift when that would put it
+    // through the edge of the artwork. See positionTip().
+    transform: translate(calc(-50% + var(--tip-shift, 0px)), u(6)) scale(0.94);
+    transform-origin: 50% 100%;
+    transition:
+      opacity 180ms var(--ease-out),
+      transform 180ms var(--ease-out);
+  }
+
+  .man[data-tip] .man__tip {
+    opacity: 1;
+    transform: translate(calc(-50% + var(--tip-shift, 0px)), 0) scale(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .man__tip {
+      transition: none;
+    }
+  }
+
+  // --- Marker -------------------------------------------------------------
+  //
+  // Always there: it is what tells anyone he can be picked up at all. Picking
+  // him up turns it his own colour and sets it bobbing.
+  .man__marker {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    width: 45%;
+    margin-bottom: 12%;
+    fill: var(--ink);
+    transform: translate(-50%, 0);
+    // The bob runs whether or not he is held: it is what makes the arrow read
+    // as an invitation rather than a label. Selecting him changes its colour,
+    // not whether it moves.
+    animation: man-marker-bob 1.4s ease-in-out infinite;
+    transition: fill 160ms var(--ease-out);
+  }
+
+  .man[data-selected] .man__marker {
+    fill: #db5e42;
+  }
+
+  @keyframes man-marker-bob {
+    50% {
+      transform: translate(-50%, u(-5));
+    }
+  }
+
+  // A click focuses him and selecting him is its own, louder signal, so the
+  // ring is reserved for the keyboard route in.
+  .man__hit:focus {
+    outline: none;
+  }
+
+  .man__hit:focus-visible {
+    outline: u(2) solid var(--ink);
+    outline-offset: u(4);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .man,
+    .man[data-jumping],
+    .man__marker {
+      transition: none;
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  // --- The character ------------------------------------------------------
+  //
+  // Selected by clicking him, released by clicking anywhere else — which also
+  // puts him back where he started. While selected: left/right walk him along
+  // the surface he is standing on, and space throws him at the next one.
+  //
+  // He is tracked in canvas percentages, the same units src/data/surfaces.ts
+  // is authored in, so a landing is a plain interval test rather than anything
+  // measured off the screen.
+
+  interface Surface {
+    left: number;
+    right: number;
+    top: number;
+    text?: string;
+  }
+
+  const man = document.querySelector<HTMLElement>('[data-man]');
+  const hit = man?.querySelector<HTMLButtonElement>('.man__hit');
+  const tip = man?.querySelector<HTMLElement>('[data-tip]');
+  const art = man?.parentElement;
+
+  if (man && hit && tip && art) {
+    /** Design px per stride. The steps are small; the branches are short. */
+    const STEP = 5;
+    /** How long a walking pose lingers after the last arrow key. */
+    const SETTLE_MS = 180;
+
+    // Named `floors` on the element, not `surfaces`: the editor's overlay
+    // answers to [data-surfaces], and a second element wearing that attribute
+    // is one the editor will happily adopt and empty out.
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const surfaces: Surface[] = JSON.parse(man.dataset.floors || '[]');
+    const heightPerWidth = Number(man.dataset.heightPerWidth) || 0.312;
+    const jumpMs = Number(man.dataset.jumpMs) || 620;
+
+    // --- Units ------------------------------------------------------------
+    //
+    // The tunables are in design px because that is what the dev panel and the
+    // rest of the site speak; the geometry is in canvas percentages. These
+    // convert, and they measure rather than assume, so a resize needs no
+    // bookkeeping. The two axes differ: the canvas is 1280 wide and 6400 tall,
+    // so one percent is a very different distance in each.
+    const styles = () => getComputedStyle(man);
+
+    const tunable = (name: string, fallback: number) =>
+      parseFloat(styles().getPropertyValue(`--man-${name}`)) || fallback;
+
+    // One design pixel, in real ones.
+    //
+    // `--u` is `calc(100vw / 1512)` below the design width, and reading a
+    // custom property hands back that expression rather than a length — so
+    // parsing it yields NaN, and every distance here quietly became a CSS
+    // pixel that did not scale with the frame. Resolving it through a real
+    // property on a real element is the only way to get the number out.
+    const ruler = document.createElement('div');
+    ruler.style.cssText =
+      'position:absolute;width:var(--u);height:0;visibility:hidden;pointer-events:none';
+    man.append(ruler);
+
+    const unit = () => ruler.getBoundingClientRect().width || 1;
+
+    const pctX = (designPx: number) =>
+      (designPx * unit() * 100) / art.getBoundingClientRect().width;
+
+    const pctY = (designPx: number) =>
+      (designPx * unit() * 100) / art.getBoundingClientRect().height;
+
+    // --- Where he is ------------------------------------------------------
+    const origin = {
+      left: parseFloat(styles().getPropertyValue('--man-left')),
+      top: parseFloat(styles().getPropertyValue('--man-top')),
+    };
+
+    /** Offsets from that origin, in canvas percentage points. */
+    let dx = 0;
+    let dy = 0;
+
+    const width = () => tunable('width', 7.266);
+    const height = () => width() * heightPerWidth;
+    /** The point he actually stands on: the middle of his feet. */
+    const footX = () => origin.left + dx + width() / 2;
+    const footY = () => origin.top + dy + height();
+
+    const place = () => {
+      man.style.setProperty('--man-dx', `${dx}%`);
+      man.style.setProperty('--man-dy', `${dy}%`);
+      positionTip();
+    };
+
+    /**
+     * The surface a given foot position rests on, if any. `reach` bounds how
+     * far above and below the current standing height a surface counts as
+     * landable — he cannot jump onto something higher than his own arc.
+     */
+    const surfaceUnder = (x: number, y: number, up: number, down: number) => {
+      let best: Surface | null = null;
+      let bestGap = Infinity;
+
+      for (const surface of surfaces) {
+        if (x < surface.left || x > surface.right) continue;
+
+        const gap = surface.top - y;
+        if (gap < -up || gap > down) continue;
+
+        if (Math.abs(gap) < bestGap) {
+          bestGap = Math.abs(gap);
+          best = surface;
+        }
+      }
+
+      return best;
+    };
+
+    /** Breathing room between the caption and the edge of the artwork. */
+    const TIP_PAD = 10;
+
+    /**
+     * Keep the caption inside the artwork.
+     *
+     * It is centred on him and much wider than he is, so on a branch that runs
+     * to the edge of the tree — the ground does — walking to either end pushes
+     * it through the frame, which clips. Rather than shorten his walk, the
+     * caption slides along over his head until it fits.
+     */
+    const positionTip = () => {
+      if (!('tip' in man.dataset)) return;
+
+      const frame = art.parentElement!.getBoundingClientRect();
+      const canvas = art.getBoundingClientRect();
+      const pad = TIP_PAD * unit();
+
+      // Where his centre is *headed*, not where it is. `.man` eases into every
+      // step, so measuring its live rect reads a position part-way through the
+      // transition and computes a correction for somewhere he has already
+      // left. `offsetWidth` is safe to measure: the caption's own width does
+      // not animate.
+      const centre =
+        canvas.left + (canvas.width * (origin.left + dx + width() / 2)) / 100;
+      const half = tip.offsetWidth / 2;
+
+      const shift =
+        Math.max(0, frame.left + pad - (centre - half)) +
+        Math.min(0, frame.right - pad - (centre + half));
+
+      tip.style.setProperty('--tip-shift', `${shift}px`);
+    };
+
+    /**
+     * Show whatever the surface he has arrived on has to say. Setting the text
+     * only when there is some means the caption never flashes empty as he
+     * moves between branches.
+     */
+    const say = (surface: Surface | null) => {
+      const text = surface?.text?.trim();
+
+      if (text) {
+        tip.textContent = text;
+        man.dataset.tip = '';
+        positionTip();
+      } else {
+        delete man.dataset.tip;
+      }
+    };
+
+    /** Stand him on a surface: feet on its line, and fully on it end to end. */
+    const restOn = (target: Surface) => {
+      const half = width() / 2;
+      const x = footX();
+
+      dx =
+        (target.right - target.left < width()
+          ? (target.left + target.right) / 2
+          : Math.min(Math.max(x, target.left + half), target.right - half)) -
+        half -
+        origin.left;
+      dy = target.top - height() - origin.top;
+      floor = target;
+      place();
+      say(target);
+    };
+
+    /**
+     * Where he begins, and where a double-click or a release puts him back:
+     * the highest surface marked in the artwork.
+     *
+     * Taking it from the surfaces rather than from `base` means the two can
+     * never disagree — mark a branch higher up and that is where he starts,
+     * with no second number to keep in step. `base.left` still decides where
+     * along that branch he stands, since he keeps his authored x and is
+     * clamped onto it.
+     */
+    let floor: Surface | null = null;
+
+    const settle = () => {
+      const top = surfaces.reduce<Surface | null>(
+        (best, s) => (!best || s.top < best.top ? s : best),
+        null,
+      );
+
+      floor = top;
+      if (top) restOn(top);
+    };
+
+    // The first placement is not a move: he should already be standing on his
+    // branch when the page paints, rather than sliding down into shot.
+    man.style.transition = 'none';
+    settle();
+    void man.offsetWidth;
+    man.style.transition = '';
+
+    // --- Poses ------------------------------------------------------------
+    let jumping = false;
+    /** Holds the walking sprite briefly after the last arrow key. */
+    let poseTimer = 0;
+
+    /**
+     * Which half of the stride he is on. The two walk sprites are one leg
+     * forward and the other — not one facing left and one facing right — so
+     * they alternate as he steps, and which way he is going is carried by the
+     * mirror instead.
+     */
+    let stride = 0;
+    /**
+     * Which way he last went. The sprites are drawn facing left, so that is
+     * where he starts and -1 is his unmirrored orientation.
+     */
+    let face: -1 | 1 = -1;
+
+    /**
+     * The arrows currently down. A jump only carries him if one of them is —
+     * space on its own is a hop straight up — so this has to be real key state
+     * rather than a memory of the last direction.
+     */
+    const held = new Set<string>();
+
+    const turn = (way: -1 | 1) => {
+      face = way;
+      // Facing left is how the artwork has him, so only going right flips.
+      man.style.setProperty('--man-face', way === 1 ? '-1' : '1');
+    };
+
+    const setPose = (pose: string) => {
+      if (man.dataset.pose !== pose) man.dataset.pose = pose;
+    };
+
+    // --- Walking ----------------------------------------------------------
+    //
+    // He is leashed to the branch he is on, but the end of a branch is not a
+    // wall: if there is something below to catch him he walks off it, and only
+    // an edge with nothing under it stops him.
+    const walk = (way: -1 | 1) => {
+      const half = width() / 2;
+      const ahead = footX() + way * pctX(STEP);
+
+      if (floor && (ahead < floor.left || ahead > floor.right)) {
+        if (dropAhead(ahead, floor.top, way)) {
+          // Take the step first, so his feet are genuinely past the end before
+          // gravity is asked what is under them. Leave it out and the branch
+          // he is stepping off still spans him, and catches him again the
+          // instant he starts to drop.
+          const from = { dx, dy };
+          dx = ahead - half - origin.left;
+          place();
+          launch(0, way, from);
+        } else {
+          // The edge of the tree. Nothing to do but stand at the end of it.
+          dx = (way === 1 ? floor.right : floor.left) - half - origin.left;
+          place();
+        }
+      } else {
+        const leash = pctX(tunable('walk', 15));
+        const min = floor ? floor.left - half : origin.left - leash;
+        const max = floor ? floor.right - half : origin.left + leash;
+        dx = Math.max(min, Math.min(max, origin.left + dx + way * pctX(STEP))) - origin.left;
+        place();
+      }
+
+      stride ^= 1;
+      if (!jumping) setPose(stride ? 'walking-left' : 'walking-right');
+      window.clearTimeout(poseTimer);
+      poseTimer = window.setTimeout(() => {
+        if (!jumping) setPose('standing');
+        stride = 0;
+      }, SETTLE_MS);
+    };
+
+    // --- Flight -----------------------------------------------------------
+    //
+    // One simulation covers both the jump and the step off a branch; the only
+    // difference between them is how much upward speed he leaves with.
+    //
+    // Nothing is aimed. He is thrown, gravity pulls him back, and he lands on
+    // whatever his feet pass through on the way down — which is what makes the
+    // two awkward cases fall out for free. Clear a branch on the way up and
+    // you meet it coming down, so a straight jump lands on the ledge above.
+    // Walk off an edge and the first thing under you catches you.
+    //
+    // Gravity is derived from the two tunables rather than set on its own: a
+    // jump of `--man-jump` design px that comes back to its own height in
+    // `jumpMs` implies g = 8h/t², and every fall then has the same weight.
+
+    let flight = 0;
+
+    /** The furthest he will drop in one go, jump or step-off alike. */
+    const maxDrop = () => pctY(tunable('jump', 150) * 4);
+
+    const gravity = () => {
+      const h = pctY(tunable('jump', 150));
+      const seconds = jumpMs / 1000;
+      return { g: (8 * h) / (seconds * seconds), vy0: (4 * h) / seconds };
+    };
+
+    /**
+     * The surface his feet pass through between two heights — the first one he
+     * meets, so the highest of them.
+     */
+    const crossed = (x: number, from: number, to: number) => {
+      let best: Surface | null = null;
+
+      for (const surface of surfaces) {
+        if (x < surface.left || x > surface.right) continue;
+        if (surface.top < from - 0.001 || surface.top > to + 0.001) continue;
+        if (!best || surface.top < best.top) best = surface;
+      }
+
+      return best;
+    };
+
+    /**
+     * Is there anything below and ahead worth stepping off for? Only a rough
+     * check — the simulation decides where he actually lands — but enough to
+     * tell a branch that continues below from the outside edge of the tree.
+     */
+    const dropAhead = (x: number, from: number, way: -1 | 1) => {
+      const reach = pctX(tunable('hop', 110));
+      const drop = maxDrop();
+
+      return surfaces.some((surface) => {
+        if (surface.top <= from + 0.01) return false;
+        // "The next branch down", not "anything at all below": without this the
+        // ground at the foot of the tree qualifies from every ledge, and he
+        // walks off the top of the artwork into a fall the length of the page.
+        if (surface.top - from > drop) return false;
+        if (surface.left <= x && x <= surface.right) return true;
+        if (way === 1) return surface.left > x && surface.left - x <= reach;
+        return surface.right < x && x - surface.right <= reach;
+      });
+    };
+
+    const land = (target: Surface | null, takeoff: { dx: number; dy: number }) => {
+      jumping = false;
+      cancelAnimationFrame(flight);
+      delete man.dataset.jumping;
+
+      if (target) {
+        restOn(target);
+      } else {
+        // He found nothing at all. Put him back rather than lose him off the
+        // bottom of the artwork.
+        dx = takeoff.dx;
+        dy = takeoff.dy;
+        place();
+        say(floor);
+      }
+
+      setPose('standing');
+    };
+
+    /**
+     * `up` is the speed he leaves with: the jump's, or nothing if he stepped
+     * off. `from` is where to put him back if he finds nothing at all, which
+     * for a step off the end is the branch rather than the air beyond it.
+     */
+    const launch = (
+      up: number,
+      drift: -1 | 0 | 1,
+      from?: { dx: number; dy: number },
+    ) => {
+      if (jumping) return;
+
+      jumping = true;
+      man.dataset.jumping = '';
+      setPose('mid-jump');
+      // In the air he is standing on nothing, so there is nothing to say.
+      say(null);
+
+      const takeoff = from ?? { dx, dy };
+      const { g, vy0 } = gravity();
+      const reach = pctX(tunable('hop', 110));
+      const speed = reach / (jumpMs / 1000);
+
+      const takeoffFeet = footY();
+      let feet = takeoffFeet;
+      let vertical = -up;
+      let last = performance.now();
+
+      const frame = (now: number) => {
+        if (!jumping) return;
+
+        const dt = Math.min((now - last) / 1000, 0.05);
+        last = now;
+
+        // Steering, in the air, from whichever arrow is down — falling off a
+        // branch keeps the direction he walked off in until he says otherwise.
+        const steer = held.has('ArrowLeft') ? -1 : held.has('ArrowRight') ? 1 : 0;
+        const way = steer === 0 ? drift : steer;
+
+        // Steering is worth full speed; the drift he carries off the end of a
+        // branch is not, or an unsteered step off becomes a long flat glide
+        // instead of a drop onto the thing below.
+        const rate = steer === 0 ? speed * 0.4 : speed;
+
+        if (way !== 0) {
+          dx = Math.max(
+            takeoff.dx - reach,
+            Math.min(takeoff.dx + reach, dx + way * rate * dt),
+          );
+        }
+
+        const was = feet;
+        vertical += g * dt;
+        feet += vertical * dt;
+
+        // Only ever caught on the way down, so he passes up through a branch
+        // and lands on it rather than being stopped by its underside.
+        if (vertical > 0) {
+          const found = crossed(origin.left + dx + width() / 2, was, feet);
+          if (found) return land(found, takeoff);
+        }
+
+        // Fallen further than a drop is allowed to be, or clean off the
+        // artwork: put him back rather than let him keep going.
+        if (feet - takeoffFeet > maxDrop() || feet > 100) {
+          return land(null, takeoff);
+        }
+
+        dy = feet - height() - origin.top;
+        place();
+
+        // Stretched where he is moving slowest, at the top of the arc.
+        setPose(Math.abs(vertical) < vy0 * 0.45 ? 'full-jump' : 'mid-jump');
+
+        flight = requestAnimationFrame(frame);
+      };
+
+      flight = requestAnimationFrame(frame);
+    };
+
+    const jump = () => launch(gravity().vy0, 0);
+
+    // --- Selection --------------------------------------------------------
+    let selected = false;
+
+    const select = () => {
+      if (selected) return;
+      selected = true;
+      man.dataset.selected = '';
+      hit.setAttribute('aria-pressed', 'true');
+    };
+
+    /**
+     * Back to where he was found: any flight abandoned, and dropped onto the
+     * surface under his authored spot. The transition on .man walks him there
+     * rather than teleporting him.
+     */
+    const goHome = () => {
+      jumping = false;
+      cancelAnimationFrame(flight);
+      window.clearTimeout(poseTimer);
+      delete man.dataset.jumping;
+      dx = 0;
+      dy = 0;
+      turn(-1);
+      place();
+      setPose('standing');
+      settle();
+    };
+
+    const release = () => {
+      if (!selected) return;
+      selected = false;
+      held.clear();
+      delete man.dataset.selected;
+      hit.setAttribute('aria-pressed', 'false');
+      hit.blur();
+      goHome();
+    };
+
+    // The surface editor takes the arrow keys while it is open, so it needs a
+    // way to make him let go of them first.
+    man.addEventListener('man:release', () => release());
+
+    hit.addEventListener('click', (event) => {
+      // Otherwise the document handler below immediately lets go of him.
+      event.stopPropagation();
+      // Picking him up only. A second click has to stay free for the
+      // double-click, and letting go has two routes of its own: the page
+      // background, and escape.
+      select();
+    });
+
+    // Double-click: back to the start, still in hand, so you can set off
+    // again without having to find him and pick him up once more.
+    hit.addEventListener('dblclick', (event) => {
+      event.stopPropagation();
+      goHome();
+    });
+
+    // Anywhere else on the page — including the artwork he is standing in —
+    // puts him back. The dev panel is exempt: adjusting him should not
+    // deselect him.
+    document.addEventListener('pointerdown', (event) => {
+      const target = event.target as Element | null;
+      if (target?.closest('[data-man], [data-man-panel]')) return;
+      release();
+    });
+
+    // The clamp is measured in pixels, so it has to be redone when the frame
+    // it is measured against changes size.
+    window.addEventListener('resize', positionTip, { passive: true });
+
+    // --- Keys -------------------------------------------------------------
+    window.addEventListener('keyup', (event) => held.delete(event.key));
+    // A drag, an alt-tab or a devtools break can swallow the keyup; don't
+    // leave an arrow stuck down and turn every later hop into a leap.
+    window.addEventListener('blur', () => held.clear());
+
+    window.addEventListener('keydown', (event) => {
+      if (!selected || event.metaKey || event.ctrlKey || event.altKey) return;
+
+      switch (event.key) {
+        case 'Escape':
+          release();
+          return;
+
+        case 'ArrowLeft':
+        case 'ArrowRight': {
+          // He is selected, so the arrows are his — don't scroll the page too.
+          event.preventDefault();
+          const way = event.key === 'ArrowLeft' ? -1 : 1;
+          held.add(event.key);
+          turn(way);
+          // In the air the flight reads `held` every frame, so the press has
+          // already done its work; on the ground it is a step.
+          if (!jumping) walk(way);
+          return;
+        }
+
+        case ' ':
+        case 'Spacebar':
+        case 'ArrowUp':
+          // Up is never added to `held` — only left and right steer, and they
+          // do it in the air, so there is nothing to press simultaneously.
+          event.preventDefault();
+          jump();
+          return;
+      }
+    });
+  }
+</script>
