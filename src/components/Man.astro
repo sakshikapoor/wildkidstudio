@@ -31,6 +31,8 @@ const motion = {
   jump: 150,
   /** How far a jump carries him horizontally, at most. */
   hop: 110,
+  /** How far his shadow is stepped down and to the right. */
+  shadow: 3,
 };
 
 const JUMP_MS = 620;
@@ -52,7 +54,7 @@ const poses = ['standing', 'walking-left', 'walking-right', 'mid-jump', 'full-ju
   data-floors={JSON.stringify(surfaces)}
   data-height-per-width={heightPerWidth}
   data-jump-ms={JUMP_MS}
-  style={`--man-left: ${base.left}%; --man-top: ${base.top}%; --man-width: ${base.width}%; --man-dx: 0%; --man-dy: 0%; --man-face: 1; --man-walk: ${motion.walk}; --man-jump: ${motion.jump}; --man-hop: ${motion.hop};`}
+  style={`--man-left: ${base.left}%; --man-top: ${base.top}%; --man-width: ${base.width}%; --man-dx: 0%; --man-dy: 0%; --man-face: 1; --man-walk: ${motion.walk}; --man-jump: ${motion.jump}; --man-hop: ${motion.hop}; --man-shadow: ${motion.shadow};`}
 >
   {/*
     The caption for whatever he is standing on. It sits outside the button on
@@ -77,9 +79,22 @@ const poses = ['standing', 'walking-left', 'walking-right', 'mid-jump', 'full-ju
     Every pose is in the DOM and CSS picks one, rather than swapping an `src`.
     Five sub-kilobyte PNGs cost less than a decode mid-jump.
   */}
+    {/*
+      His shadow: the same silhouette again, in flat black, shifted down and
+      right. First in the button so every pose paints over it.
+    */}
+    <div class="man__shadow" aria-hidden="true"></div>
+
     {poses.map((pose) => (
       <img class="man__pose" data-pose={pose} src={`/assets/man/${pose}.png`} alt="" />
     ))}
+
+    {/*
+      One screen for all five poses: which sprite it is masked by is the pose
+      rules' business below, so this does not have to be repeated per pose the
+      way the images are.
+    */}
+    <div class="ht-screen" aria-hidden="true"></div>
   </button>
 </div>
 
@@ -160,6 +175,48 @@ const poses = ['standing', 'walking-left', 'walking-right', 'mid-jump', 'full-ju
     display: block;
   }
 
+  // Whichever pose is showing, as a mask. Two things are cut to his shape
+  // from it — the halftone screen and the shadow below — so both follow him
+  // through every pose without either having to know about the other. The
+  // list is the `poses` array in the frontmatter; the two are read together.
+  @each $pose in standing, walking-left, walking-right, mid-jump, full-jump {
+    .man[data-pose="#{$pose}"] {
+      --man-sprite: url("/assets/man/#{$pose}.png");
+    }
+  }
+
+  .man {
+    --ht-mask: var(--man-sprite);
+  }
+
+  // --- Shadow -------------------------------------------------------------
+  //
+  // Flat black, hard-edged, one small step down and to the right. It is his
+  // silhouette rather than a blur because the artwork is pixel art: a soft
+  // drop shadow reads as a different medium sitting on top of the drawing.
+  //
+  // It lives inside .man__hit, which is what carries the mirror when he turns
+  // — so the mask flips with the sprite for free. The offset then has to be
+  // unflipped, or the shadow would swap to his other side every time he
+  // turned: inside a scaleX(-1) box a step of -x lands +x on the page, which
+  // is exactly what multiplying by --man-face does.
+  .man__shadow {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    transform: translate(
+      calc(var(--man-face) * u(var(--man-shadow))),
+      u(var(--man-shadow))
+    );
+    mask-image: var(--man-sprite);
+    mask-size: 100% 100%;
+    // The sprite is drawn at about twice the size it renders at, so the mask
+    // is being scaled down; without this the silhouette comes back with a
+    // soft, resampled edge and stops matching the pixels it is a shadow of.
+    image-rendering: pixelated;
+    pointer-events: none;
+  }
+
   // --- Caption ------------------------------------------------------------
   //
   // What the surface he is standing on has to say, if anything. It clears the
@@ -221,6 +278,15 @@ const poses = ['standing', 'walking-left', 'walking-right', 'mid-jump', 'full-ju
 
   .man[data-selected] .man__marker {
     fill: #db5e42;
+  }
+
+  // Picking him up also changes the colour his halftone is printed in: the
+  // dots go from black to yellow, so he lifts out of an artwork screened
+  // entirely in black ink without his sprite or his position changing. It
+  // rides on the screen that is already over him — see styles/_halftone.scss
+  // — rather than adding a second layer to keep registered with him.
+  .man[data-selected] .ht-screen {
+    --ht-ink: #f2c318;
   }
 
   @keyframes man-marker-bob {

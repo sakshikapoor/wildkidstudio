@@ -1,0 +1,68 @@
+// The halftone screen.
+//
+// One of these sits inside each piece of the tree artwork — the tree itself,
+// the splash and lantern frames, the cloud, the house, and every pose of the
+// little guy. It is per-piece rather than one sheet over the composite
+// because a screen is a full rectangle, and blending a rectangle against a
+// transparent backdrop leaves the rectangle: a single overlay lays a grey grid
+// across the page wherever the artwork is see-through. Each screen is instead
+// masked by the very image it covers, so the dots stop exactly where the
+// drawing does and follow anything that moves.
+//
+// Global rather than scoped to a component because six components share it,
+// and the settings reach it as custom properties from the ink box above —
+// see src/data/halftone.ts for what each one does.
+
+.ht-screen {
+  display: none;
+}
+
+[data-halftone] .ht-screen {
+  display: block;
+  // The colour the dots are laid down in. Black everywhere by default, which
+  // is what makes the screen read as ink; anything that wants its own colour
+  // sets this on itself and the lattice below picks it up.
+  --ht-ink: #000;
+  position: absolute;
+  inset: 0;
+  opacity: var(--ht-strength);
+  // hard-light reads the screen as the decision and the artwork as the value:
+  // it drives each cell toward white or black in proportion to what is under
+  // it, which is the dot-size-follows-tone the effect is made of. The
+  // threshold that turns these soft peaks into dots is the contrast() on the
+  // ink box — without it this is a grid of smudges.
+  mix-blend-mode: hard-light;
+
+  // Two ramps crossed at a right angle and multiplied: each is a stripe
+  // pattern, and the product peaks only where both do — a lattice of soft
+  // dots. Built this way rather than as a rotated grid of radial gradients
+  // because the angle is then just the gradients' own angle, with no rotated
+  // layer to oversize so that it still covers a box 2894px tall.
+  //
+  // --ht-dot moves the white stop: at 0 the peak is a point, at 1 it fills the
+  // cell. The cell is design px through var(--u), so the screen scales with
+  // the artwork and holds its dot count at every viewport width.
+  background-image:
+    repeating-linear-gradient(
+      var(--ht-angle),
+      var(--ht-ink) 0,
+      #fff calc(var(--ht-cell) * var(--u) * var(--ht-dot) * 0.5),
+      var(--ht-ink) calc(var(--ht-cell) * var(--u))
+    ),
+    repeating-linear-gradient(
+      calc(var(--ht-angle) + 90deg),
+      var(--ht-ink) 0,
+      #fff calc(var(--ht-cell) * var(--u) * var(--ht-dot) * 0.5),
+      var(--ht-ink) calc(var(--ht-cell) * var(--u))
+    );
+  background-blend-mode: multiply;
+
+  // The image this screen belongs to, stretched over the same box the image
+  // fills. Every layer paints its picture at 100% x 100% of its own box, so
+  // the two line up without any per-layer arithmetic.
+  mask-image: var(--ht-mask);
+  mask-size: 100% 100%;
+
+  // Scenery, like everything else painted onto the tree.
+  pointer-events: none;
+}

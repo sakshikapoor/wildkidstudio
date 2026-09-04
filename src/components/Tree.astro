@@ -19,6 +19,20 @@ import ArtLayer from './ArtLayer.astro';
 import ArtLoop from './ArtLoop.astro';
 import Man from './Man.astro';
 import ManSurfaces from './ManSurfaces.astro';
+import { halftone } from '../data/halftone';
+
+// Every setting reaches the CSS as a custom property, which is what lets the
+// dev panel retune the effect by writing to this one element. See
+// src/data/halftone.ts for what each of them does.
+const ink = [
+  `--ht-cell: ${halftone.cell}`,
+  `--ht-dot: ${halftone.dot}`,
+  `--ht-angle: ${halftone.angle}deg`,
+  `--ht-contrast: ${halftone.contrast}`,
+  `--ht-brightness: ${halftone.brightness}`,
+  `--ht-desaturate: ${halftone.desaturate}`,
+  `--ht-strength: ${halftone.strength}`,
+].join('; ');
 ---
 
 {/*
@@ -29,37 +43,47 @@ import ManSurfaces from './ManSurfaces.astro';
 */}
 <div class="tree" data-parallax="0.06">
   <div class="tree__art">
-    <img src="/assets/tree.png" alt="" aria-hidden="true" />
-
     {/*
-      Layer order is DOM order: the tree, then the animated pieces painted onto
-      it, then the character in front of them all. Each box below is where that
-      layer's shared crop sits on the 1280 x 6400 canvas, in percentages.
+      Everything the halftone screen covers lives in here, and the surface
+      editor below does not — an overlay you are drawing on is no use dotted
+      and thresholded. The box is the artwork's box exactly, so the layers
+      inside keep resolving their percentages against the same canvas.
     */}
-    <ArtLoop
-      name="water-splash"
-      frames={3}
-      cycle={540}
-      box={{ left: 23.281, top: 39.203, width: 42.031, height: 44.281 }}
-    />
-    <ArtLoop
-      name="lanterns"
-      frames={2}
-      cycle={1000}
-      box={{ left: 61.719, top: 53.516, width: 12.578, height: 0.688 }}
-    />
-    <ArtLayer
-      src="/assets/scenery/cloud.png"
-      box={{ left: 51.172, top: 69.016, width: 24.219, height: 1.688 }}
-      sway={7}
-      swayMs={9000}
-    />
-    <ArtLayer
-      src="/assets/scenery/house.png"
-      box={{ left: 56.953, top: 80.203, width: 21.328, height: 2.969 }}
-    />
+    <div class="tree__ink" data-ink data-halftone={halftone.on ? '' : undefined} style={ink}>
+      <img src="/assets/tree.png" alt="" aria-hidden="true" />
+      <div class="ht-screen" style="--ht-mask: url('/assets/tree.png')" aria-hidden="true"></div>
 
-    <Man />
+      {/*
+        Layer order is DOM order: the tree, then the animated pieces painted onto
+        it, then the character in front of them all. Each box below is where that
+        layer's shared crop sits on the 1280 x 6400 canvas, in percentages.
+      */}
+      <ArtLoop
+        name="water-splash"
+        frames={3}
+        cycle={540}
+        box={{ left: 23.281, top: 39.203, width: 42.031, height: 44.281 }}
+      />
+      <ArtLoop
+        name="lanterns"
+        frames={2}
+        cycle={1000}
+        box={{ left: 61.719, top: 53.516, width: 12.578, height: 0.688 }}
+      />
+      <ArtLayer
+        src="/assets/scenery/cloud.png"
+        box={{ left: 51.172, top: 69.016, width: 24.219, height: 1.688 }}
+        sway={7}
+        swayMs={9000}
+      />
+      <ArtLayer
+        src="/assets/scenery/house.png"
+        box={{ left: 56.953, top: 80.203, width: 21.328, height: 2.969 }}
+      />
+
+      <Man />
+    </div>
+
     {/* The surface editor shares the artwork's coordinate space. Dev only. */}
     {import.meta.env.DEV && <ManSurfaces />}
   </div>
@@ -94,6 +118,27 @@ import ManSurfaces from './ManSurfaces.astro';
     width: 100%;
     height: 100%;
     max-width: none;
+  }
+
+  // Halftone
+  //
+  // The box the effect is applied to, and the box every screen inside it
+  // reads its settings from. Without the attribute it is a plain wrapper that
+  // changes nothing, so the artwork has one code path whether the screen is
+  // on or off. The screens themselves are in styles/_halftone.scss — one per
+  // layer, each masked by its own image.
+  .tree__ink {
+    position: absolute;
+    inset: 0;
+  }
+
+  // Desaturate and expose, then collapse toward black and white once the
+  // screen below has been blended in. The filter is on the parent on purpose:
+  // it applies to the composite, which is what turns the screen's soft peaks
+  // into dots rather than merely darkening a grid.
+  .tree__ink[data-halftone] {
+    filter: grayscale(var(--ht-desaturate)) brightness(var(--ht-brightness))
+      contrast(var(--ht-contrast));
   }
 
   // Below the design width the artwork crowds the copy, which stacks into a

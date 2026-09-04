@@ -3,6 +3,36 @@ import { defineConfig } from 'astro/config';
 import { readFile, writeFile } from 'node:fs/promises';
 
 const SURFACES = new URL('./src/data/surfaces.ts', import.meta.url);
+const HALFTONE = new URL('./src/data/halftone.ts', import.meta.url);
+
+/**
+ * Reads a POSTed JSON body, hands it to `handle`, and answers with whatever
+ * that returns — or with the message of whatever it throws.
+ *
+ * Both editors below are sockets that rewrite a source file, so neither
+ * trusts its caller: the shape is checked before anything is written.
+ *
+ * @param {(body: unknown) => Promise<string>} handle
+ */
+function jsonEndpoint(handle) {
+  /** @type {import('vite').Connect.NextHandleFunction} */
+  return (req, res, next) => {
+    if (req.method !== 'POST') return next();
+
+    let body = '';
+    req.on('data', (chunk) => (body += chunk));
+    req.on('end', async () => {
+      try {
+        const message = await handle(JSON.parse(body));
+        res.setHeader('content-type', 'text/plain');
+        res.end(message);
+      } catch (error) {
+        res.statusCode = 400;
+        res.end(error instanceof Error ? error.message : 'bad request');
+      }
+    });
+  };
+}
 
 /**
  * Lets the in-browser surface editor write src/data/surfaces.ts.
@@ -18,71 +48,109 @@ function surfaceEditor() {
     name: 'wildkid:surface-editor',
     /** @param {import('vite').ViteDevServer} server */
     configureServer(server) {
-      server.middlewares.use('/__surfaces', (req, res, next) => {
-        if (req.method !== 'POST') return next();
+      server.middlewares.use(
+        '/__surfaces',
+        jsonEndpoint(async (body) => {
+          if (!Array.isArray(body)) throw new Error('expected an array');
 
-        let body = '';
-        req.on('data', (chunk) => (body += chunk));
-        req.on('end', async () => {
-          const fail = (status, message) => {
-            res.statusCode = status;
-            res.end(message);
-          };
+          const clean = body.map((s) => {
+            const nums = [s?.left, s?.right, s?.top];
+            if (!nums.every((n) => typeof n === 'number' && Number.isFinite(n) && n >= 0 && n <= 100)) {
+              throw new Error('every value must be a percentage between 0 and 100');
+            }
+            if (s.left >= s.right) throw new Error('left must be less than right');
 
-          try {
-            const list = JSON.parse(body);
+            if (s.text != null && typeof s.text !== 'string') {
+              throw new Error('text must be a string');
+            }
+            if (typeof s.text === 'string' && s.text.length > 200) {
+              throw new Error('text must be 200 characters or fewer');
+            }
 
-            // The editor is the only caller, but it is still a socket that
-            // rewrites a source file — check the shape rather than trust it.
-            if (!Array.isArray(list)) return fail(400, 'expected an array');
+            const text = typeof s.text === 'string' ? s.text.trim() : '';
+            return { left: s.left, right: s.right, top: s.top, text };
+          });
 
-            const clean = list.map((s) => {
-              const nums = [s?.left, s?.right, s?.top];
-              if (!nums.every((n) => typeof n === 'number' && Number.isFinite(n) && n >= 0 && n <= 100)) {
-                throw new Error('every value must be a percentage between 0 and 100');
-              }
-              if (s.left >= s.right) throw new Error('left must be less than right');
+          const round = (n) => Number(n.toFixed(3));
+          const rows = clean
+            .sort((a, b) => a.top - b.top || a.left - b.left)
+            .map(
+              (s) =>
+                `  { left: ${round(s.left)}, right: ${round(s.right)}, top: ${round(s.top)}` +
+                // JSON.stringify does the quoting and escaping, so a caption
+                // with an apostrophe in it cannot break the file it lands in.
+                `${s.text ? `, text: ${JSON.stringify(s.text)}` : ''} },`,
+            )
+            .join('\n');
 
-              if (s.text != null && typeof s.text !== 'string') {
-                throw new Error('text must be a string');
-              }
-              if (typeof s.text === 'string' && s.text.length > 200) {
-                throw new Error('text must be 200 characters or fewer');
-              }
+          const source = await readFile(SURFACES, 'utf8');
+          const marker = 'export const surfaces: Surface[] = [';
+          const head = source.indexOf(marker);
+          if (head === -1) throw new Error('could not find the surfaces array');
 
-              const text = typeof s.text === 'string' ? s.text.trim() : '';
-              return { left: s.left, right: s.right, top: s.top, text };
-            });
+          await writeFile(SURFACES, `${source.slice(0, head)}${marker}\n${rows}\n];\n`);
+          return `saved ${clean.length}`;
+        }),
+      );
+    },
+  };
+}
 
-            const round = (n) => Number(n.toFixed(3));
-            const rows = clean
-              .sort((a, b) => a.top - b.top || a.left - b.left)
-              .map(
-                (s) =>
-                  `  { left: ${round(s.left)}, right: ${round(s.right)}, top: ${round(s.top)}` +
-                  // JSON.stringify does the quoting and escaping, so a caption
-                  // with an apostrophe in it cannot break the file it lands in.
-                  `${s.text ? `, text: ${JSON.stringify(s.text)}` : ''} },`,
-              )
-              .join('\n');
+/**
+ * Lets the dev panel write src/data/halftone.ts.
+ *
+ * Same bargain as the surface editor: dev only, and only the object literal
+ * at the end of the file is rewritten — the doc comment and the `Halftone`
+ * interface above it are left exactly as they are.
+ */
+function halftoneEditor() {
+  // Every field, with what counts as a legal value. `on` is the odd one out
+  // and is checked separately.
+  const ranges = {
+    cell: [1, 200],
+    dot: [0, 1],
+    angle: [0, 360],
+    contrast: [0, 10],
+    brightness: [0, 3],
+    desaturate: [0, 1],
+    strength: [0, 1],
+  };
 
-            const source = await readFile(SURFACES, 'utf8');
-            const marker = 'export const surfaces: Surface[] = [';
-            const head = source.indexOf(marker);
-            if (head === -1) return fail(500, 'could not find the surfaces array');
+  return {
+    name: 'wildkid:halftone-editor',
+    /** @param {import('vite').ViteDevServer} server */
+    configureServer(server) {
+      server.middlewares.use(
+        '/__halftone',
+        jsonEndpoint(async (body) => {
+          if (typeof body !== 'object' || body === null) throw new Error('expected an object');
+          const input = /** @type {Record<string, unknown>} */ (body);
 
-            await writeFile(
-              SURFACES,
-              `${source.slice(0, head)}${marker}\n${rows}\n];\n`,
-            );
+          if (typeof input.on !== 'boolean') throw new Error('on must be a boolean');
 
-            res.setHeader('content-type', 'text/plain');
-            res.end(`saved ${clean.length}`);
-          } catch (error) {
-            fail(400, error instanceof Error ? error.message : 'bad request');
+          const round = (n) => Number(n.toFixed(3));
+          const rows = [`  on: ${input.on},`];
+
+          for (const [key, [min, max]] of Object.entries(ranges)) {
+            const value = input[key];
+            if (typeof value !== 'number' || !Number.isFinite(value)) {
+              throw new Error(`${key} must be a number`);
+            }
+            if (value < min || value > max) {
+              throw new Error(`${key} must be between ${min} and ${max}`);
+            }
+            rows.push(`  ${key}: ${round(value)},`);
           }
-        });
-      });
+
+          const source = await readFile(HALFTONE, 'utf8');
+          const marker = 'export const halftone: Halftone = {';
+          const head = source.indexOf(marker);
+          if (head === -1) throw new Error('could not find the halftone object');
+
+          await writeFile(HALFTONE, `${source.slice(0, head)}${marker}\n${rows.join('\n')}\n};\n`);
+          return 'saved';
+        }),
+      );
     },
   };
 }
@@ -90,5 +158,5 @@ function surfaceEditor() {
 // site is used to build absolute URLs for og:/canonical tags.
 export default defineConfig({
   site: 'https://wildkidstudio.in',
-  vite: { plugins: [surfaceEditor()] },
+  vite: { plugins: [surfaceEditor(), halftoneEditor()] },
 });

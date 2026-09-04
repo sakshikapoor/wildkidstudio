@@ -26,6 +26,23 @@ const fields = [
   { key: 'jump', label: 'Jump height', unit: 'px', min: 0, max: 400, step: 1 },
   { key: 'hop', label: 'Jump reach', unit: 'px', min: 0, max: 400, step: 1 },
 ];
+
+// The halftone screen over the artwork. What each one does is in
+// src/data/halftone.ts; the ranges here are the useful part of each, not the
+// legal one — the dev server checks the wider bounds when it writes the file.
+//
+// They are not independent: contrast is what turns the screen into dots, so
+// at 1 the rest only smudge the artwork. Reach for strength and contrast
+// together.
+const inkFields = [
+  { key: 'cell', label: 'Cell', unit: 'px', min: 1, max: 40, step: 0.5 },
+  { key: 'dot', label: 'Dot size', unit: '', min: 0, max: 1, step: 0.01 },
+  { key: 'angle', label: 'Angle', unit: '°', min: 0, max: 360, step: 1 },
+  { key: 'contrast', label: 'Contrast', unit: '×', min: 1, max: 6, step: 0.05 },
+  { key: 'brightness', label: 'Brightness', unit: '×', min: 0.4, max: 2, step: 0.01 },
+  { key: 'desaturate', label: 'Desaturate', unit: '', min: 0, max: 1, step: 0.01 },
+  { key: 'strength', label: 'Strength', unit: '', min: 0, max: 1, step: 0.01 },
+];
 ---
 
 <div class="panel" data-man-panel hidden>
@@ -129,6 +146,54 @@ const fields = [
     removes the selected one · give a bar text and it appears over his head
     when he lands there · Save writes src/data/surfaces.ts for you
   </p>
+
+  <hr class="panel__rule" />
+
+  {/*
+    The halftone screen over the tree and everything painted on it. Same
+    bargain as the surfaces: the page is the preview, and Save writes the
+    source file — here src/data/halftone.ts — so a reload keeps the result.
+  */}
+  <label class="panel__toggle">
+    <input type="checkbox" data-act="halftone" />
+    <span>Halftone the artwork</span>
+  </label>
+
+  <div data-ink-fields hidden>
+    {inkFields.map((field) => (
+      <label class="panel__row">
+        <span class="panel__name">{field.label}</span>
+        <input
+          type="range"
+          data-ifield={field.key}
+          min={field.min}
+          max={field.max}
+          step={field.step}
+        />
+        <input
+          class="panel__num"
+          type="number"
+          data-ifield={field.key}
+          min={field.min}
+          max={field.max}
+          step={field.step}
+        />
+        <span class="panel__unit">{field.unit}</span>
+      </label>
+    ))}
+
+    <div class="panel__foot">
+      <button type="button" data-act="reset-halftone">Reset</button>
+      <button type="button" data-act="save-halftone">Save to file</button>
+      <button type="button" data-act="copy-halftone">Copy</button>
+    </div>
+
+    <p class="panel__help">
+      Contrast is the threshold — it is what makes the dots, and under about
+      1.5 the rest only smudges. Cell is in design px, so the screen scales
+      with the artwork and holds its dot count at every width.
+    </p>
+  </div>
 
   <p class="panel__note" data-note aria-live="polite"></p>
 </div>
@@ -236,11 +301,13 @@ const fields = [
   [data-surface-tools][hidden],
   [data-surface-fields][hidden],
   [data-surface-hint][hidden],
-  [data-surface-help][hidden] {
+  [data-surface-help][hidden],
+  [data-ink-fields][hidden] {
     display: none;
   }
 
-  [data-surface-fields] {
+  [data-surface-fields],
+  [data-ink-fields] {
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -505,6 +572,116 @@ const fields = [
           return;
       }
     });
+
+    // --- Halftone ---------------------------------------------------------
+    //
+    // Every setting is a custom property on the artwork's ink box, so the
+    // panel tunes the real page rather than a preview of it. The values are
+    // authored in src/data/halftone.ts and rendered onto the element inline,
+    // which is both where they start and where they are read back from.
+    const ink = document.querySelector<HTMLElement>('[data-ink]');
+    const inkSwitch = panel.querySelector<HTMLInputElement>('[data-act="halftone"]')!;
+    const inkFields = panel.querySelector<HTMLElement>('[data-ink-fields]')!;
+    const inkInputs = Array.from(
+      panel.querySelectorAll<HTMLInputElement>('input[data-ifield]'),
+    );
+
+    // The one setting carrying a unit. It has to be a real angle for the
+    // gradients to take it, and parseFloat reads it back regardless.
+    const degrees = ['angle'];
+
+    const readInk = (key: string) =>
+      parseFloat(ink!.style.getPropertyValue(`--ht-${key}`));
+
+    const writeInk = (key: string, value: number) =>
+      ink!.style.setProperty(
+        `--ht-${key}`,
+        degrees.includes(key) ? `${value}deg` : String(value),
+      );
+
+    if (ink) {
+      const inkKeys = [...new Set(inkInputs.map((input) => input.dataset.ifield!))];
+
+      // What the source file says, so Reset means "back to what is saved"
+      // rather than "back to wherever this session started".
+      const inkInitial = Object.fromEntries(inkKeys.map((key) => [key, readInk(key)]));
+      const inkWasOn = ink.dataset.halftone !== undefined;
+
+      const syncInk = () => {
+        for (const input of inkInputs) {
+          const value = readInk(input.dataset.ifield!);
+          if (document.activeElement !== input) input.value = String(value);
+        }
+      };
+
+      // The sliders are hidden while the screen is off: they would all move
+      // something invisible, which reads as a broken panel rather than an
+      // inactive one.
+      const showInk = (on: boolean) => {
+        inkSwitch.checked = on;
+        inkFields.hidden = !on;
+        if (on) ink.dataset.halftone = '';
+        else delete ink.dataset.halftone;
+      };
+
+      inkSwitch.addEventListener('change', () => showInk(inkSwitch.checked));
+
+      for (const input of inkInputs) {
+        input.addEventListener('input', () => {
+          const value = Number(input.value);
+          if (!Number.isFinite(value)) return;
+          writeInk(input.dataset.ifield!, value);
+          syncInk();
+        });
+      }
+
+      // What both Copy and Save send: the switch plus every slider, in the
+      // shape src/data/halftone.ts holds them.
+      const inkState = () => ({
+        on: inkSwitch.checked,
+        ...Object.fromEntries(inkKeys.map((key) => [key, readInk(key)])),
+      });
+
+      panel.addEventListener('click', (event) => {
+        const act = (event.target as HTMLElement).closest<HTMLElement>('[data-act]')?.dataset.act;
+
+        switch (act) {
+          case 'reset-halftone':
+            for (const [key, value] of Object.entries(inkInitial)) writeInk(key, value);
+            showInk(inkWasOn);
+            syncInk();
+            setNote('halftone reset');
+            return;
+
+          case 'copy-halftone':
+            copy(
+              [
+                'export const halftone: Halftone = {',
+                ...Object.entries(inkState()).map(([key, value]) => `  ${key}: ${value},`),
+                '};',
+              ].join('\n'),
+            );
+            return;
+
+          case 'save-halftone':
+            fetch('/__halftone', {
+              method: 'POST',
+              body: JSON.stringify(inkState()),
+            })
+              .then(async (response) => setNote(await response.text()))
+              .catch(() => setNote('dev server not reachable'));
+            return;
+        }
+      });
+
+      showInk(inkWasOn);
+      syncInk();
+    } else {
+      // No artwork on this page, so there is nothing to screen. Leave the
+      // switch visible but inert rather than silently doing nothing.
+      inkSwitch.disabled = true;
+      inkSwitch.addEventListener('click', () => setNote('no artwork on this page'));
+    }
 
     open.addEventListener('click', () => {
       panel.hidden = false;

@@ -29,6 +29,7 @@ const { src, box, sway = 0, swayMs = 7000 } = Astro.props;
   style={`--left: ${box.left}%; --top: ${box.top}%; --width: ${box.width}%; --height: ${box.height}%; --sway: ${sway}; --sway-ms: ${swayMs}ms;`}
 >
   <img src={src} alt="" />
+  <div class="ht-screen" style={`--ht-mask: url('${src}')`} aria-hidden="true"></div>
 </div>
 
 <style lang="scss">
@@ -57,7 +58,9 @@ const { src, box, sway = 0, swayMs = 7000 } = Astro.props;
   // The drift is in design px so it scales with the frame, and it is applied
   // to the image rather than the box so the layer's own position stays a
   // fixed, readable number.
-  .layer--sway img {
+  // The screen drifts with the image, or the dots would slide across it.
+  .layer--sway img,
+  .layer--sway .ht-screen {
     animation: layer-sway var(--sway-ms) ease-in-out infinite;
   }
 
@@ -75,7 +78,8 @@ const { src, box, sway = 0, swayMs = 7000 } = Astro.props;
 
   // A drift that never moves is just a position — leave it where it sits.
   @media (prefers-reduced-motion: reduce) {
-    .layer--sway img {
+    .layer--sway img,
+    .layer--sway .ht-screen {
       animation: none;
     }
   }
