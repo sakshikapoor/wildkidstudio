@@ -4,11 +4,7 @@
 import { bookingUrl } from '../data/site';
 
 const introLines = [
-  'An independent, one-person',
-  'design studio in Bengaluru building',
-  'considered websites and brand systems',
-  'for companies that want to stand apart,',
-  'not fit in.',
+  'An independent, one-person design studio in Bengaluru building considered websites and brand systems for companies that want to stand apart, not fit in.'
 ];
 ---
 
@@ -20,8 +16,8 @@ const introLines = [
       row and rises into it, so the type is revealed rather than faded.
     */}
     <h1 class="hero__wordmark">
-      <span class="hero__line" style="--i: 0"><span>WILDKID</span></span>
-      <span class="hero__line" style="--i: 1"><span>STUDIO</span></span>
+      <span class="hero__line" style="--i: 0"><span>Wildkid Studio</span></span>
+      <!-- <span class="hero__line" style="--i: 1"><span>STUDIO</span></span> -->
     </h1>
     <p class="hero__intro hero__enter" style="--i: 2">
       {/*
@@ -113,7 +109,7 @@ const introLines = [
     flex-direction: column;
     gap: u(10);
     font-family: var(--font-display);
-    font-size: u(60);
+    font-size: u(75);
     font-weight: 400;
     line-height: normal;
     color: var(--ink);
@@ -121,9 +117,12 @@ const introLines = [
   }
 
   .hero__intro {
-    font-size: u(18);
+    font-size: u(20);
     line-height: 1.2;
+    width: 100%;
+    max-width: u(500);
     color: var(--body);
+    line-height: 1.5;
   }
 
   // Sits opposite the wordmark; the two labels push apart over the full
@@ -135,7 +134,7 @@ const introLines = [
     justify-content: space-between;
     align-self: stretch;
     gap: u(40);
-    font-size: u(24);
+    font-size: u(20);
     white-space: nowrap;
   }
 
@@ -172,6 +171,10 @@ const introLines = [
       font-size: 34px;
     }
 
+    .hero__intro {
+      max-width: 100%;
+    }
+
     .hero__intro,
     .hero__meta {
       font-size: 17px;
@@ -185,9 +188,10 @@ const introLines = [
 
     .hero__meta {
       flex-direction: row;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
       width: 100%;
+      font-size: 16px;
       gap: 16px;
       white-space: normal;
     }

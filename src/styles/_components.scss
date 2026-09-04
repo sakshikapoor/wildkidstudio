@@ -9,7 +9,7 @@
 // 1.2 here adds 4.8px to every section that carries an eyebrow.
 .eyebrow {
     font-family: var(--font-body);
-    font-size: u(24);
+    font-size: u(20);
     line-height: normal;
     color: var(--ink);
 }
@@ -26,9 +26,11 @@
 .btn {
     display: inline-block;
     font-family: var(--font-body);
-    font-weight: 700;
     line-height: normal;
     text-decoration: none;
+    padding: u(7) u(15);
+    font-size: u(20);
+    border-radius: 8px;
     transition:
         background-color 200ms ease,
         color 200ms ease;
@@ -41,10 +43,11 @@
     gap: u(5);
     align-items: center;
     justify-content: center;
-    padding: u(10);
+    padding: u(7) u(15);
     // The label is written in sentence case; this sets it as Title Case.
     text-transform: capitalize;
-    font-size: u(24);
+    font-size: u(20);
+    border-radius: 8px;
     background: #000000;
     color: var(--white);
 
@@ -59,10 +62,10 @@
     gap: u(10);
     align-items: center;
     justify-content: center;
-    padding: u(10);
+    // padding: u(10);
     // The label is written in sentence case; this sets it as Title Case.
     text-transform: capitalize;
-    font-size: u(24);
+    // font-size: u(24);
     background: var(--white);
     color: var(--ink);
 
@@ -106,13 +109,13 @@
     .btn--hero,
     .btn--hero-light {
         gap: 8px;
-        padding: 10px;
-        font-size: 17px;
+        padding: 7px 15px;
+        font-size: 16px;
     }
 
     .btn--dark,
     .btn--light {
-        padding: 10px 15px;
-        font-size: 15px;
+        padding: 7px 15px;
+        font-size: 16px;
     }
 }

@@ -69,15 +69,15 @@ const { eyebrow, title, meta, liveUrl, liveLabel } = Astro.props;
   // Matches the showreel's disciplines line.
   .page-header__meta {
     font-size: u(18);
-    font-weight: 700;
+    font-weight: 600;
     line-height: normal;
     color: var(--sage);
   }
 
   @media (max-width: 900px) {
     .page-header {
-      gap: 12px;
-      padding: 100px 24px 48px;
+      gap: 4px;
+      padding: 50px 24px 48px;
     }
 
     .page-header__title {
@@ -85,7 +85,8 @@ const { eyebrow, title, meta, liveUrl, liveLabel } = Astro.props;
     }
 
     .page-header__meta {
-      font-size: 17px;
+      font-size: 16px;
+      font-weight: 500;
     }
 
     .page-header__live {

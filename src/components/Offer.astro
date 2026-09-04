@@ -26,7 +26,7 @@ const { title, meta, reveal = 'up', delay = 0 } = Astro.props;
   .offer {
     display: flex;
     flex-direction: column;
-    gap: u(30);
+    gap: u(20);
     align-items: flex-start;
   }
 
@@ -43,19 +43,19 @@ const { title, meta, reveal = 'up', delay = 0 } = Astro.props;
     position: relative;
     padding-bottom: u(12);
 
-    &::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      width: 100%;
-      height: 1px;
-      background: var(--sage);
-      opacity: 0.35;
-      transform: scaleX(0);
-      transform-origin: left center;
-      transition: transform var(--dur-slow) var(--ease-out) 240ms;
-    }
+    // &::after {
+    //   content: "";
+    //   position: absolute;
+    //   left: 0;
+    //   bottom: 0;
+    //   width: 100%;
+    //   height: 1px;
+    //   background: var(--sage);
+    //   opacity: 0.15;
+    //   transform: scaleX(0);
+    //   transform-origin: left center;
+    //   transition: transform var(--dur-slow) var(--ease-out) 240ms;
+    // }
   }
 
   .offer[data-revealed] .offer__head::after,
@@ -74,7 +74,7 @@ const { title, meta, reveal = 'up', delay = 0 } = Astro.props;
 
   .offer__meta {
     font-size: u(18);
-    font-weight: 700;
+    font-weight: 600;
     line-height: normal;
     color: var(--sage);
   }
@@ -94,16 +94,25 @@ const { title, meta, reveal = 'up', delay = 0 } = Astro.props;
 
   @media (max-width: 900px) {
     .offer {
-      gap: 20px;
+      gap: 4px;
     }
 
     .offer__title {
       font-size: 26px;
     }
 
+    .offer__head {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
     .offer__meta,
     .offer__body {
-      font-size: 17px;
+      font-size: 16px;
+      font-weight: 400;
     }
   }
 </style>

@@ -28,7 +28,7 @@ export interface Project {
 export const projects: Project[] = [
   {
     slug: 'instasupply',
-    name: 'INSTASUPPLY',
+    name: 'InstaSupply',
     disciplines: 'Product Design, Brand Design',
     cover: instasupply,
     coverAlt: 'InstaSupply product screens',
@@ -40,7 +40,7 @@ export const projects: Project[] = [
   },
   {
     slug: 'allenati',
-    name: 'ALLENATI',
+    name: 'Allenati',
     disciplines: 'Product Design, Brand Design',
     cover: allenati,
     coverAlt: 'Allenati mobile app in use',

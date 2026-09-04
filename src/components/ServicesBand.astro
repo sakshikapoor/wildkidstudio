@@ -1,11 +1,11 @@
 ---
 // Each word steps up in size, left-aligned, so the stack widens downward.
 const display = [
-  { word: 'SHIP', size: 30 },
-  { word: 'the', size: 40 },
-  { word: 'next', size: 50 },
-  { word: 'BIG', size: 70 },
-  { word: 'IDEA', size: 70 },
+  { word: 'SHIP', size: 40 },
+  { word: 'the', size: 50 },
+  { word: 'next', size: 60 },
+  { word: 'BIG', size: 100 },
+  { word: 'IDEA', size: 100 },
 ];
 
 const services = [
@@ -18,14 +18,14 @@ const services = [
 ---
 
 <section class="band" id="services">
-  <p class="band__display">
+  <div class="band__display">
     {/* The stack builds one word at a time, each rising out of its own row. */}
     {display.map(({ word, size }, i) => (
       <span class="band__word" style={`--size: ${size}; --i: ${i}`} data-reveal="mask">
         <span>{word}</span>
       </span>
     ))}
-  </p>
+  </div>
 
   <div class="band__services">
     <p class="band__eyebrow" data-reveal="up">[2] OUR SERVICES</p>
@@ -87,7 +87,7 @@ const services = [
   }
 
   .band__eyebrow {
-    font-size: u(24);
+    font-size: u(20);
     line-height: normal;
     color: var(--mint);
   }
@@ -108,11 +108,12 @@ const services = [
       padding: u(10);
       font-family: var(--font-body);
       font-size: u(18);
-      text-transform: uppercase;
+      // text-transform: uppercase;
       line-height: normal;
       // Every label sits on one line; the longest sets the shared width.
       white-space: nowrap;
       color: var(--forest);
+      border-radius: u(8);
       background: var(--mint);
       // Colour only — nothing moves, so the display type beside it stays the
       // one animated thing in this band.
@@ -138,34 +139,38 @@ const services = [
     .band {
       flex-direction: column;
       align-items: flex-start;
-      gap: 56px;
+      gap: 24px;
       padding: 96px 24px;
     }
 
     .band__display {
+      display: flex;
+      flex-direction: row;
       width: 100%;
       gap: 6px;
 
       span {
-        font-size: calc(var(--size) * 0.5px);
+        font-size: 24px;
       }
     }
 
     .band__services {
       gap: 32px;
       width: 100%;
-      padding: 24px;
+
     }
 
     .band__eyebrow {
-      font-size: 17px;
+      font-size: 16px;
     }
 
     .band__list {
       gap: 8px;
 
       li {
-        font-size: 17px;
+        font-size: 16px;
+        padding: 4px;
+        border-radius: 4px;
       }
     }
   }
