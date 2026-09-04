@@ -112,7 +112,7 @@ npm run preview  # serve the built output locally
 ```
 public/
   assets/            favicon, og image, tree.png — served at the site root
-  fonts/             self-hosted BBH Bartle (see Fonts below)
+  fonts/             self-hosted Bitcount + Jost (see Fonts below)
 src/
   assets/work/       showreel sources — optimised by Astro, see Images
   data/
@@ -173,21 +173,28 @@ import Section from '../components/Section.astro';
 
 ### Fonts
 
-**Anonymous Pro** loads from Google Fonts (linked in `Layout.astro`).
-
-**BBH Bartle is not installed yet.** It is not served by any webfont CDN, so
-it has to be self-hosted. Drop the files into `public/fonts/`:
+Two self-hosted variable fonts, both in `public/fonts/`, both declared in
+`src/styles/_fonts.scss` and preloaded from `Layout.astro`. No webfont CDN is
+involved.
 
 ```
-public/fonts/BBHBartle-Regular.woff2   (or .woff / .otf / .ttf)
+--font-display   Bitcount Prop Double   headings, the wordmark
+--font-body      Jost                   everything else
 ```
 
-`src/styles/_fonts.scss` already declares the `@font-face` and tries each
-extension in turn. Until a file is there, headings fall back to Arial Black
-and the build logs a "didn't resolve at build time" warning for each missing
-extension — both resolve on their own once the font is added. Letterform
-widths differ between Bartle and the fallback, so a few headline line breaks
-will shift when the real font lands.
+Each ships as `.woff2` with the original `.ttf` beside it as a fallback. The
+woff2 files are converted from the supplied ttf — Bitcount 264kB → 35kB, Jost
+131kB → 49kB. To replace or re-convert a face:
+
+```
+pip install "fonttools[woff]"
+python -c "from fontTools.ttLib import TTFont; f=TTFont('X.ttf'); f.flavor='woff2'; f.save('X.woff2')"
+```
+
+Both are variable on the weight axis, declared as `font-weight: 100 900`, so
+any weight the CSS asks for is interpolated from the one file. Bitcount's
+other axes (`ELXP`, `ELSH`, `slnt`, `CRSV`) stay at their defaults — nothing
+in the design varies them.
 
 ### Matching the Figma frame
 

@@ -5,11 +5,10 @@
 
 // Numbered section label, e.g. "[2] HOW WE ENGAGE".
 //
-// `normal` is deliberate: Anonymous Pro's natural line box is exactly 1em, so
-// this matches the 24px height Figma reports. Setting 1.2 here adds 4.8px to
-// every section that carries an eyebrow.
+// `normal` is deliberate: it matches the 24px height Figma reports. Setting
+// 1.2 here adds 4.8px to every section that carries an eyebrow.
 .eyebrow {
-    font-family: var(--font-mono);
+    font-family: var(--font-body);
     font-size: u(24);
     line-height: normal;
     color: var(--ink);
@@ -26,7 +25,7 @@
 
 .btn {
     display: inline-block;
-    font-family: var(--font-mono);
+    font-family: var(--font-body);
     font-weight: 700;
     line-height: normal;
     text-decoration: none;

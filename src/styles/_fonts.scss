@@ -1,14 +1,30 @@
-// BBH Bartle is self-hosted — it is not served by any webfont CDN.
+// Both faces are self-hosted variable fonts, supplied as .ttf and converted to
+// woff2 here (Bitcount 264kB → 35kB, Jost 131kB → 49kB). The ttf stays as a
+// fallback for anything that cannot take woff2. Only these are listed, so no
+// request 404s.
 //
-// The woff2 is generated from the supplied .ttf (8.3kB vs 17.9kB); the ttf
-// stays as a fallback for anything that cannot take woff2. Only these two
-// are listed, so no request 404s.
+// `font-weight: 100 900` hands the whole wght axis to the browser, so any
+// weight the CSS asks for is interpolated from the one file.
+
+// Display face. The file is the Prop Double cut; the other axes (ELXP, ELSH,
+// slnt, CRSV) stay at their defaults — nothing in the design varies them.
 @font-face {
-    font-family: "BBH Bartle";
+    font-family: "Bitcount Prop Double";
     src:
-        url("/fonts/BBHBartle-Regular.woff2") format("woff2"),
-        url("/fonts/BBHBartle-Regular.ttf") format("truetype");
-    font-weight: 400;
+        url("/fonts/BitcountPropDouble-Variable.woff2") format("woff2-variations"),
+        url("/fonts/BitcountPropDouble-Variable.ttf") format("truetype-variations");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+// Body / UI face.
+@font-face {
+    font-family: "Jost";
+    src:
+        url("/fonts/Jost-Variable.woff2") format("woff2-variations"),
+        url("/fonts/Jost-Variable.ttf") format("truetype-variations");
+    font-weight: 100 900;
     font-style: normal;
     font-display: swap;
 }

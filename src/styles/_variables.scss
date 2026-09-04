@@ -19,10 +19,11 @@
 
     // Type
     //
-    // BBH Bartle is not a webfont — see _fonts.scss. The fallbacks are wide,
-    // heavy faces so the layout holds its shape if the file is missing.
-    --font-display: "BBH Bartle", "Arial Black", "Helvetica Neue", Impact, sans-serif;
-    --font-mono: "Anonymous Pro", ui-monospace, "SF Mono", Menlo, monospace;
+    // Both faces are self-hosted — see _fonts.scss. The fallbacks stand in
+    // with a similar shape so the layout holds if a file is missing: a wide
+    // heavy face behind the display type, a geometric sans behind the body.
+    --font-display: "Bitcount Prop Double", "Arial Black", "Helvetica Neue", Impact, sans-serif;
+    --font-body: "Jost", "Futura", "Century Gothic", "Avenir Next", sans-serif;
 
     // One design pixel. See _util.scss.
     --u: 1px;

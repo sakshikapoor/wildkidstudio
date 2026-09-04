@@ -63,15 +63,24 @@ const ogImageUrl = new URL(ogImage, Astro.site);
     <meta name="twitter:image" content={ogImageUrl} />
 
     <!--
-      Anonymous Pro comes from Google Fonts. BBH Bartle is not served by any
-      webfont CDN — it is self-hosted from public/fonts/, declared in
-      src/styles/_fonts.scss.
+      Both faces are self-hosted from public/fonts/ and declared in
+      src/styles/_fonts.scss — no webfont CDN is involved. Preloaded because
+      the @font-face rules sit inside the stylesheet, so the browser would
+      otherwise only discover them after the CSS has parsed.
     -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400;1,700&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      href="/fonts/BitcountPropDouble-Variable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/Jost-Variable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
     />
   </head>
 
