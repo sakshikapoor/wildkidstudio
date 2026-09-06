@@ -10,10 +10,17 @@ import { bookingUrl } from '../data/site';
   <div class="cta__glow" aria-hidden="true"></div>
 
   <div class="cta__head">
+    {/*
+      The spans and the class on the <br> carry no styling of their own — they
+      are handles for the breakpoint at the end of the stylesheet, which puts
+      each point on its own line and drops the aside. Everything here is
+      inline, and the <br> is the same hard break as before, so the wide
+      layout renders exactly as it did without them.
+    */}
     <p class="cta__intro" data-reveal="up">
-      Fixed-scope engagements. Transparent pricing. Weekly working sessions.
+      <span class="cta__point">Fixed-scope engagements.</span> <span class="cta__point">Transparent pricing.</span> <span class="cta__point">Weekly working sessions.</span><br class="cta__break">
+      <span class="cta__aside">You see the work in progress, not just the polished reveal.</span>
     </p>
-    <p class="cta__intro cta__intro_a" data-reveal="up">You see the work in progress, not just the polished reveal.</p>
     <h2 class="cta__headline" data-reveal="up" style="--i: 1">
       Tell us what you're building
     </h2>
@@ -138,10 +145,18 @@ import { bookingUrl } from '../data/site';
       font-size: 15px;
     }
 
-    .cta__intro_a {
-      display: none;
+    // A point to a line, centred by .cta__head above. The aside is the first
+    // thing to go on a narrow screen — the three points are the promise, and
+    // it only elaborates on them. Its hard break goes with it, or it would
+    // leave an empty line behind.
+    .cta__point {
+      display: block;
     }
 
+    .cta__break,
+    .cta__aside {
+      display: none;
+    }
 
     .cta__headline {
       font-size: 28px;
