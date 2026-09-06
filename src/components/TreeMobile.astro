@@ -1,0 +1,110 @@
+---
+// The tree artwork, for handsets.
+//
+// Tree.astro is hidden below 900px: it is a tall column beside a two-column
+// page, and there is no room for it once the copy stacks. This puts it back a
+// different way — the top of the tree rises behind the hero and fades out
+// into the page, with the little guy standing on a branch.
+//
+// None of it is interactive. The desktop artwork has a character you can walk
+// along the branches; here it is scenery: aria-hidden, pointer-events off,
+// and nothing reachable by keyboard.
+import { surfaces } from '../data/surfaces';
+
+// He stands on a real branch rather than a guessed offset — these are the
+// same canvas percentages the desktop character is placed against, so he
+// lands on the artwork exactly where he would up there.
+const branch = surfaces.find((s) => s.top > 20 && s.top < 22) ?? surfaces[0];
+
+// The sprite is 93 x 145 on the 1280 x 6400 canvas, so its box is
+// 7.27% x 2.27%. Feet on the branch, centred on its span.
+const MAN_W = 7.266;
+const MAN_H = 2.266;
+
+const man =
+  `--man-left: ${((branch.left + branch.right) / 2 - MAN_W / 2).toFixed(3)}%; ` +
+  `--man-top: ${(branch.top - MAN_H).toFixed(3)}%; ` +
+  `--man-w: ${MAN_W}%; --man-h: ${MAN_H}%;`;
+---
+
+<div class="tm" aria-hidden="true">
+  <div class="tm__art" data-parallax="0.04">
+    <img src="/assets/tree.png" alt="" loading="lazy" />
+    <img class="tm__man" src="/assets/man/standing.png" alt="" style={man} />
+  </div>
+</div>
+
+<style lang="scss">
+  // Nothing here exists on the wide layout — that page has the real tree.
+  .tm {
+    display: none;
+  }
+
+  @media (max-width: 900px) {
+    // Right-aligned against the page and cropped by its own box, which is
+    // sized to the hero and no further.
+    .tm {
+      display: block;
+      position: absolute;
+      top: 0;
+      right: 0;
+      // The fade below has to finish inside this box, or the artwork carries
+      // on over the green band that follows the hero.
+      height: 560px;
+      width: 78%;
+      overflow: clip;
+      // Behind the hero copy, in front of nothing.
+      z-index: 0;
+      pointer-events: none;
+      // The artwork should read as texture the eye passes over, not as a
+      // second thing competing with the headline.
+      opacity: 0.38;
+      // Two fades, intersected: one takes the bottom edge into the page so it
+      // ends without a seam, the other pulls the artwork back toward the
+      // right edge so the copy is never reading against the trunk.
+      mask-image:
+        linear-gradient(to bottom, #000 42%, transparent 86%),
+        linear-gradient(to right, transparent 0%, #000 46%);
+      mask-composite: intersect;
+      -webkit-mask-image:
+        linear-gradient(to bottom, #000 42%, transparent 86%),
+        linear-gradient(to right, transparent 0%, #000 46%);
+      -webkit-mask-composite: source-in;
+    }
+
+    .tm__art {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      aspect-ratio: 1280 / 6400;
+      // The lift is a transform rather than `top` on purpose: a percentage
+      // `top` resolves against the 560px window, while a percentage translate
+      // resolves against the artwork's own height — which is what keeps the
+      // same slice of tree in frame at every screen width.
+      transform: translateY(-3%);
+    }
+
+    .tm img {
+      display: block;
+      // Pixel art at roughly twice the size it renders at; smoothing softens
+      // the edges into mush.
+      image-rendering: pixelated;
+    }
+
+    .tm__art > img:first-child {
+      width: 100%;
+      height: 100%;
+    }
+
+    // Placed against the artwork canvas, so he stays on his branch at any
+    // width.
+    .tm__man {
+      position: absolute;
+      left: var(--man-left);
+      top: var(--man-top);
+      width: var(--man-w);
+      height: var(--man-h);
+    }
+  }
+</style>

@@ -2,8 +2,8 @@
 // Each word steps up in size, left-aligned, so the stack widens downward.
 const display = [
   { word: 'SHIP', size: 40 },
-  { word: 'the', size: 50 },
-  { word: 'next', size: 60 },
+  { word: 'THE', size: 50 },
+  { word: 'NEXT', size: 60 },
   { word: 'BIG', size: 100 },
   { word: 'IDEA', size: 100 },
 ];
@@ -66,6 +66,7 @@ const services = [
 
     span {
       font-size: u(var(--size));
+    font-weight: var(--weight-display);
     }
 
     // The words are staggered against each other rather than against the
@@ -146,6 +147,10 @@ const services = [
     .band__display {
       display: flex;
       flex-direction: row;
+      // Each word is nowrap, so the line can only break between words — and
+      // below about 360px the five of them no longer fit one row. Without
+      // this they shrink and the mask clips the last letter off each.
+      flex-wrap: wrap;
       width: 100%;
       gap: 6px;
 
@@ -164,12 +169,20 @@ const services = [
       font-size: 16px;
     }
 
+    // Chips sit side by side and run onto the next line, rather than the
+    // desktop column of full-width rows. Each label is still nowrap, so a
+    // break only ever falls between chips.
     .band__list {
+      flex-direction: row;
+      flex-wrap: wrap;
       gap: 8px;
 
       li {
+        // Width comes from the label. The desktop rule stretches every chip
+        // to the panel, which here would put one on each line again.
+        width: auto;
         font-size: 16px;
-        padding: 4px;
+        padding: 8px 12px;
         border-radius: 4px;
       }
     }

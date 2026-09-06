@@ -334,6 +334,7 @@ const categoryLabels = [
     dt {
       font-family: var(--font-display);
       font-size: u(40);
+      font-weight: var(--weight-display);
       line-height: normal;
       color: var(--ink);
     }
@@ -368,7 +369,7 @@ const categoryLabels = [
     h3 {
       font-family: var(--font-display);
       font-size: u(24);
-      font-weight: 400;
+      font-weight: var(--weight-display);
       line-height: normal;
       color: var(--forest);
     }
@@ -400,7 +401,7 @@ const categoryLabels = [
   .cs-block__title {
     font-family: var(--font-display);
     font-size: u(40);
-    font-weight: 400;
+    font-weight: var(--weight-display);
     line-height: normal;
     color: var(--ink);
   }
@@ -671,6 +672,10 @@ const categoryLabels = [
       font-size: 26px;
     }
 
+    .cs-block__note {
+      margin-top: 8px;
+    }
+
     .cs-cats__grid {
       grid-template-columns: repeat(4, 1fr);
       gap: 8px;
@@ -681,8 +686,20 @@ const categoryLabels = [
       padding: 10px;
     }
 
+    // Section [3] sets its detail in u(), the design pixel — which is a
+    // quarter of a real pixel at handset width, so every one of these read at
+    // 3–5px and the swatch text ran across its own chip. Below the breakpoint
+    // they are real pixels on the same 4px base the section is describing.
     .cs-swatches {
       grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .cs-swatch {
+      // Matches the chip below, so the text column starts where the chip ends
+      // instead of overlapping it.
+      grid-template-columns: 40px 1fr;
+      column-gap: 12px;
     }
 
     .cs-swatch__chip {
@@ -691,12 +708,48 @@ const categoryLabels = [
       border-radius: 8px;
     }
 
+    .cs-swatch__role {
+      font-size: 15px;
+    }
+
+    .cs-swatch__token,
+    .cs-swatch__use {
+      font-size: 13px;
+    }
+
+    .cs-spacing {
+      gap: 10px;
+    }
+
+    .cs-step {
+      gap: 12px;
+    }
+
+    .cs-step__label {
+      width: 30px;
+      font-size: 13px;
+    }
+
     .cs-step__bar {
+      height: 12px;
       width: calc(var(--w) * 4px);
+    }
+
+    .cs-type {
+      gap: 12px;
+    }
+
+    .cs-type__row {
+      gap: 12px;
+      padding-bottom: 8px;
     }
 
     .cs-type__sample {
       font-size: calc(var(--size) * 0.8px);
+    }
+
+    .cs-type__size {
+      font-size: 13px;
     }
 
     // Two phones to a row on a handset.

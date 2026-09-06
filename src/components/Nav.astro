@@ -12,7 +12,40 @@ const links = [
   <nav class="nav__links" aria-label="Primary">
     {links.map((link) => <a href={link.href}><span>{link.label}</span></a>)}
   </nav>
-  <a class="btn btn--dark" href="mailto:hello@wildkidstudio.in">hello@wildkidstudio.in</a>
+  <a class="btn btn--dark nav__email" href="mailto:hello@wildkidstudio.in">
+    hello@wildkidstudio.in
+  </a>
+
+  {/*
+    The handset header. The email address is too long to sit in a 24px gutter,
+    so below the breakpoint it moves into this menu along with the links the
+    desktop bar shows. Both this button and the panel only appear once the
+    document has the `js` class — without scripting the panel could never be
+    opened, so the plain links and the email button stay on instead.
+  */}
+  <button
+    class="nav__toggle"
+    type="button"
+    data-nav-toggle
+    aria-expanded="false"
+    aria-controls="nav-menu"
+    aria-label="Open menu"
+  >
+    <span class="nav__toggle-bars" aria-hidden="true">
+      <span></span>
+      <span></span>
+      <span></span>
+    </span>
+  </button>
+
+  <div class="nav__menu" id="nav-menu" data-nav-menu>
+    <nav class="nav__menu-links" aria-label="Menu">
+      {links.map((link) => <a href={link.href}>{link.label}</a>)}
+    </nav>
+    <a class="btn btn--dark nav__menu-email" href="mailto:hello@wildkidstudio.in">
+      hello@wildkidstudio.in
+    </a>
+  </div>
 </header>
 
 <style lang="scss">
@@ -60,6 +93,7 @@ const links = [
     padding: u(10) 0;
     font-family: var(--font-display);
     font-size: u(30);
+    font-weight: var(--weight-display);
     line-height: normal;
     color: var(--logo-green);
     text-decoration: none;
@@ -108,10 +142,125 @@ const links = [
     }
   }
 
+  // --- The handset menu -------------------------------------------------
+  //
+  // Both pieces are desktop-hidden and switched on inside the breakpoint
+  // below, so nothing here reaches the wide bar.
+  .nav__toggle,
+  .nav__menu {
+    display: none;
+  }
+
+  .nav__toggle {
+    // 44px of tappable area around a 20px mark.
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    color: var(--ink);
+  }
+
+  .nav__toggle-bars {
+    position: relative;
+    display: block;
+    width: 20px;
+    height: 14px;
+
+    span {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      border-radius: 1px;
+      background: currentColor;
+      transition:
+        transform var(--dur-fast) var(--ease-inout),
+        opacity var(--dur-fast) var(--ease-inout);
+    }
+
+    span:nth-child(1) { top: 0; }
+    span:nth-child(2) { top: 6px; }
+    span:nth-child(3) { top: 12px; }
+  }
+
+  // Open: the outer bars meet in the middle and cross, the middle one goes.
+  .nav.is-menu-open .nav__toggle-bars {
+    span:nth-child(1) {
+      transform: translateY(6px) rotate(45deg);
+    }
+
+    span:nth-child(2) {
+      opacity: 0;
+    }
+
+    span:nth-child(3) {
+      transform: translateY(-6px) rotate(-45deg);
+    }
+  }
+
+  // Anchored to the bar's own bottom edge, so it follows the padding the
+  // scrolled state takes away rather than needing its own measurement.
+  .nav__menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 16px;
+    padding: 8px 24px 24px;
+    background: var(--white);
+    box-shadow: 0 12px 24px rgba(10, 10, 10, 0.1);
+    // Only a safety net: five rows fit any handset. A landscape phone with
+    // the keyboard up is the case that needs it.
+    max-height: calc(100dvh - 100%);
+    overflow-y: auto;
+    // visibility keeps the closed panel out of the tab order and the
+    // accessibility tree without the display:none that would kill the
+    // transition.
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition:
+      opacity var(--dur-fast) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out),
+      visibility 0s linear var(--dur-fast);
+  }
+
+  .nav.is-menu-open .nav__menu {
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+    transition-delay: 0s;
+  }
+
+  .nav__menu-links {
+    display: flex;
+    flex-direction: column;
+
+    a {
+      padding: 14px 0;
+      font-size: 18px;
+      line-height: normal;
+      color: var(--ink);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(10, 10, 10, 0.08);
+    }
+  }
+
+  .nav__menu-email {
+    align-self: flex-start;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .nav,
     .nav__links a span,
-    .nav__links a::after {
+    .nav__links a::after,
+    .nav__toggle-bars span,
+    .nav__menu {
       transition: none;
     }
 
@@ -131,8 +280,87 @@ const links = [
       font-size: 24px;
     }
 
-    .nav__links {
+    // With scripting, the bar is the mark and the toggle; the links and the
+    // email move into the panel. The :global is because `js` sits on <html>,
+    // outside this component's scope.
+    :global(html.js) .nav__links,
+    :global(html.js) .nav__email {
       display: none;
+    }
+
+    :global(html.js) .nav__toggle {
+      display: inline-flex;
+    }
+
+    :global(html.js) .nav__menu {
+      display: flex;
+    }
+
+    // Without scripting the panel could never be opened, so the bar keeps
+    // everything and wraps onto a second row rather than leaving a handset
+    // with no navigation at all.
+    :global(html:not(.js)) .nav {
+      flex-wrap: wrap;
+      gap: 12px 16px;
+    }
+
+    :global(html:not(.js)) .nav__links {
+      gap: 20px;
+      font-size: 16px;
     }
   }
 </style>
+
+<script>
+  // The handset menu. The panel is closed in CSS (visibility: hidden), so
+  // everything here is one flag on the header plus the ARIA state that has to
+  // agree with it.
+  const nav = document.querySelector<HTMLElement>('[data-nav]');
+  const toggle = nav?.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+  const menu = nav?.querySelector<HTMLElement>('[data-nav-menu]');
+
+  if (nav && toggle && menu) {
+    const isOpen = () => nav.classList.contains('is-menu-open');
+
+    const setOpen = (open: boolean) => {
+      nav.classList.toggle('is-menu-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      // The panel sits over the page, so the page underneath should not
+      // scroll behind it.
+      document.body.style.overflow = open ? 'hidden' : '';
+    };
+
+    toggle.addEventListener('click', () => setOpen(!isOpen()));
+
+    // Every link here either jumps to an anchor on this page or leaves for
+    // another one. Both mean the menu has done its job.
+    menu.addEventListener('click', (event) => {
+      if ((event.target as HTMLElement).closest('a')) setOpen(false);
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || !isOpen()) return;
+      setOpen(false);
+      // Escape should leave focus somewhere sensible rather than on a control
+      // that is now invisible.
+      toggle.focus();
+    });
+
+    // A tap anywhere off the header dismisses it. The toggle's own click has
+    // already run by the time this fires, and it is inside the header, so
+    // opening does not immediately close again.
+    document.addEventListener('click', (event) => {
+      if (!isOpen() || nav.contains(event.target as Node)) return;
+      setOpen(false);
+    });
+
+    // Crossing back to the wide bar hands over to a nav that is always
+    // visible. Leaving the flag set would strand the scroll lock.
+    window
+      .matchMedia('(min-width: 901px)')
+      .addEventListener('change', (event) => {
+        if (event.matches) setOpen(false);
+      });
+  }
+</script>
