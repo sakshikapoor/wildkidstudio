@@ -21,9 +21,9 @@
  * `cell` is in design px — see styles/_util.scss — so the screen scales with
  * the artwork and the dot count stays put at every viewport width.
  *
- * These are authored in the browser rather than by hand: run the dev server,
- * open the "Little guy" panel, and work the Halftone sliders against the real
- * artwork. Save writes this file for you.
+ * These were tuned in the browser against the real artwork. The dev panel's
+ * halftone sliders have since been taken out, so changing the screen now
+ * means editing the numbers below and watching the page reload.
  */
 export interface Halftone {
   /** Whether the screen is laid over the artwork at all. */
