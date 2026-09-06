@@ -19,11 +19,18 @@
 
     // Type
     //
-    // Both faces are self-hosted — see _fonts.scss. The fallbacks stand in
-    // with a similar shape so the layout holds if a file is missing: a wide
-    // heavy face behind the display type, a geometric sans behind the body.
-    --font-display: "Bitcount Prop Double", "Arial Black", "Helvetica Neue", Impact, sans-serif;
+    // The site is set in one face — see _fonts.scss. The fallbacks are
+    // geometric sans shapes, so the layout holds if the file is missing.
+    //
+    // --font-display is kept as its own name even though it points at the
+    // body face: it marks which rules are display type, so reintroducing a
+    // separate display face later is this one line. What actually separates
+    // the two voices today is the weight below.
+    --font-display: var(--font-body);
     --font-body: "Jost", "Futura", "Century Gothic", "Avenir Next", sans-serif;
+
+    // One knob so the whole display voice moves together.
+    --weight-display: 600;
 
     // One design pixel. See _util.scss.
     --u: 1px;

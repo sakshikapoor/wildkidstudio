@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Nav from '../components/Nav.astro';
 import Tree from '../components/Tree.astro';
+import TreeMobile from '../components/TreeMobile.astro';
 import Hero from '../components/Hero.astro';
 import ServicesBand from '../components/ServicesBand.astro';
 import HowWeEngage from '../components/HowWeEngage.astro';
@@ -20,6 +21,9 @@ import ManDevPanel from '../components/ManDevPanel.astro';
     <Tree />
     <main>
       <Hero />
+      {/* The handset treatment of the tree. Hidden above the breakpoint,
+          where Tree.astro above renders the real thing. */}
+      <TreeMobile />
       <ServicesBand />
       <HowWeEngage />
       <Showreel />
