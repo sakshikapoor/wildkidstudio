@@ -112,7 +112,7 @@ npm run preview  # serve the built output locally
 ```
 public/
   assets/            favicon, og image, tree.png — served at the site root
-  fonts/             self-hosted Bitcount + Jost (see Fonts below)
+  fonts/             self-hosted Jost (see Fonts below)
 src/
   assets/work/       showreel sources — optimised by Astro, see Images
   data/
@@ -173,28 +173,38 @@ import Section from '../components/Section.astro';
 
 ### Fonts
 
-Two self-hosted variable fonts, both in `public/fonts/`, both declared in
+One self-hosted variable font, in `public/fonts/`, declared in
 `src/styles/_fonts.scss` and preloaded from `Layout.astro`. No webfont CDN is
 involved.
 
 ```
---font-display   Bitcount Prop Double   headings, the wordmark
---font-body      Jost                   everything else
+--font-display   Jost   headings, the wordmark
+--font-body      Jost   everything else
 ```
 
-Each ships as `.woff2` with the original `.ttf` beside it as a fallback. The
-woff2 files are converted from the supplied ttf — Bitcount 264kB → 35kB, Jost
-131kB → 49kB. To replace or re-convert a face:
+Both names resolve to Jost. `--font-display` is kept as its own name because
+it marks which rules are display type, so bringing back a separate display
+face is one line in `_variables.scss`. What separates the two voices today is
+weight, not family:
+
+```
+--weight-display   600   headings, the wordmark, the nav logo
+```
+
+It ships as `.woff2` with the original `.ttf` beside it as a fallback. The
+woff2 is converted from the supplied ttf — 131kB → 49kB. To replace or
+re-convert a face:
 
 ```
 pip install "fonttools[woff]"
 python -c "from fontTools.ttLib import TTFont; f=TTFont('X.ttf'); f.flavor='woff2'; f.save('X.woff2')"
 ```
 
-Both are variable on the weight axis, declared as `font-weight: 100 900`, so
-any weight the CSS asks for is interpolated from the one file. Bitcount's
-other axes (`ELXP`, `ELSH`, `slnt`, `CRSV`) stay at their defaults — nothing
-in the design varies them.
+Jost is variable on the weight axis (100–900), declared as
+`font-weight: 100 900`, so any weight the CSS asks for is interpolated from
+the one file.
+
+Change it in `_variables.scss` and every heading moves together.
 
 ### Matching the Figma frame
 

@@ -58,7 +58,12 @@
 // its single child — clipping the observed element itself would collapse its
 // intersection rect to nothing, and the observer would never fire.
 .js [data-reveal="mask"] {
-    overflow: hidden;
+    // Vertical only. A rise-up reveal needs the top and bottom edges and
+    // nothing else, and a box that also clips horizontally shaves the ink off
+    // the last glyph of any face whose ink runs past its advance width.
+    // visible/clip is the one mixed pair CSS keeps as specified.
+    overflow-x: visible;
+    overflow-y: clip;
     opacity: 1;
 
     > * {
