@@ -29,6 +29,11 @@
     --font-display: var(--font-body);
     --font-body: "Jost", "Futura", "Century Gothic", "Avenir Next", sans-serif;
 
+    // The hand-lettered voice — the hero wordmark, the "WK" mark and the
+    // contact call to action. Deliberately only those three, so it reads as
+    // an accent against the Jost rather than a second body face.
+    --font-hand: "Gochi Hand", "Bradley Hand", "Segoe Print", cursive;
+
     // One knob so the whole display voice moves together.
     --weight-display: 600;
 

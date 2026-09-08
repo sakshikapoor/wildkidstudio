@@ -15,3 +15,15 @@
     font-style: normal;
     font-display: swap;
 }
+
+// A second face, used only for the three hand-lettered moments: the hero
+// wordmark, the "WK" mark in the nav, and the contact call to action. It is
+// a single static weight, so there is no wght axis to hand over.
+
+@font-face {
+    font-family: "Gochi Hand";
+    src: url("/fonts/GochiHand-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}

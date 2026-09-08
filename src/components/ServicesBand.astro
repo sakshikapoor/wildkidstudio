@@ -59,14 +59,15 @@ const services = [
     align-items: flex-start;
     align-self: stretch;
     width: u(439);
-    font-family: var(--font-display);
+    font-family: var(--font-hand);
     line-height: normal;
     color: var(--mint);
+    text-transform: lowercase;
     white-space: nowrap;
 
     span {
       font-size: u(var(--size));
-    font-weight: var(--weight-display);
+    // font-weight: var(--weight-display);
     }
 
     // The words are staggered against each other rather than against the
@@ -153,9 +154,15 @@ const services = [
       flex-wrap: wrap;
       width: 100%;
       gap: 6px;
+      // On the handset the stack becomes a hand-lettered run rather than the
+      // desktop's stepped caps, so the words are set lowercase in the hand
+      // face — which only ships a 400, hence the weight override.
+      font-family: var(--font-hand);
+      text-transform: lowercase;
 
       span {
-        font-size: 24px;
+        font-size: 34px;
+        font-weight: 400;
       }
     }
 
