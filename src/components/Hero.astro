@@ -1,82 +1,91 @@
 ---
-// The intro copy is set as five designed lines in Figma, so the line breaks
-// are deliberate rather than a consequence of the container width.
+// The cover. A running head, the studio's name set as large as the frame
+// allows, and under a rule the intro beside the frontispiece: a plate drawn
+// in ballpoint that opens to full colour on hover, like the work below it.
 import { bookingUrl } from '../data/site';
+import PenPlate from './PenPlate.astro';
+import DotField from './DotField.astro';
 
-const introLines = [
-  'An independent, one-person design studio in Bengaluru building considered websites and brand systems for companies that want to stand apart, not fit in.'
-];
+// Anything bright with a clear subject and real shadows hatches well.
+import coverArt from '../assets/made_in_bengaluru.png';
+
+const intro =
+  'An independent, one-person design studio in Bengaluru building considered websites and brand systems for companies that want to stand apart, not fit in.';
 ---
 
-<section class="hero">
-  <div class="hero__main">
-    {/*
-      The hero is above the fold on every load, so it animates on arrival
-      rather than waiting for the scroll observer. Each line sits in a clipping
-      row and rises into it, so the type is revealed rather than faded.
-    */}
-    <h1 class="hero__wordmark">
-      <span class="hero__line" style="--i: 0"><span>Wildkid Studio</span></span>
-      <!-- <span class="hero__line" style="--i: 1"><span>STUDIO</span></span> -->
-    </h1>
-    <p class="hero__intro hero__enter" style="--i: 2">
-      {/*
-        The trailing space matters: on small screens the <br> is hidden and
-        the lines reflow, so without it words from adjacent lines collide.
-      */}
-      {introLines.map((line, i) => (<>{line}{i < introLines.length - 1 && <>{' '}<br /></>}</>))}
-    </p>
-    <div class="hero__enter" style="--i: 3">
-      <a class="btn btn--hero" href={bookingUrl} target="_blank" rel="noopener">
-        <span>Book Intro Call</span>
-      </a>
-    </div>
+<section class="cover">
+  <DotField />
+
+  <div class="section-head cover__head cover__enter" style="--i: 0">
+    <p class="eyebrow">[0] EST. 2025</p>
+    <p class="eyebrow cover__place">[1] BENGALURU, INDIA</p>
   </div>
 
-  <div class="hero__meta">
-    <p class="hero__est hero__enter" style="--i: 4">[0] EST. 2025</p>
-    <p class="hero__place hero__enter" style="--i: 5">[1] BENGALURU, INDIA</p>
+  {/*
+    The cover is above the fold on every load, so it animates on arrival
+    rather than waiting for the scroll observer. Each word sits in a clipping
+    box and rises into it, so the type is revealed rather than faded.
+  */}
+  <h1 class="cover__wordmark">
+    <span class="cover__word" style="--i: 1"><span>Wildkid</span></span>
+    <span class="cover__word" style="--i: 2"><span>Studio</span></span>
+  </h1>
+
+  <div class="cover__body">
+    <div class="cover__text">
+      <p class="cover__intro cover__enter" style="--i: 3">{intro}</p>
+      <div class="cover__enter" style="--i: 4">
+        <a class="btn btn--hero" href={bookingUrl} target="_blank" rel="noopener">
+          <span>Book Intro Call</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- <div class="cover__plate cover__enter" style="--i: 3"> -->
+      <!-- <PenPlate
+        src={coverArt}
+        alt="Made in Bengaluru, lettered in a painted folk-art sign"
+        width={560}
+        aspect="3 / 2"
+        pen={{ lineCount: 150 }}
+        colour
+        eager
+      />
+      <p class="plate-caption">
+        <span>Pl. 00</span>
+        <span>Frontispiece</span>
+      </p>
+    </div> -->
   </div>
 </section>
 
 <style lang="scss">
   @use "../styles/util" as *;
 
-  .hero {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: u(40);
-    // In Figma the nav overlays the page (0–79) and the hero row starts at
-    // y=100, so there is a 21px gap below the nav. Our nav is in flow, so
-    // that gap is folded into the hero's own 150px top padding.
-    padding: u(150) u(100);
-    padding-top: u(171);
-  }
-
-  .hero__main {
+  // Positioned and isolated so the dot field can sit behind everything in
+  // the cover without slipping under the page.
+  .cover {
+    position: relative;
+    isolation: isolate;
     display: flex;
     flex-direction: column;
-    gap: u(50);
-    align-items: flex-start;
-    justify-content: center;
+    padding: u(56) u(100) u(96);
   }
 
   // Entrance
   //
-  // Two shapes, one timeline: the wordmark lines are wiped upward out of a
-  // clipping row, everything else drifts up and fades. `--i` sets each
-  // element's place in the sequence.
-  @keyframes hero-rise {
+  // Two shapes, one timeline: the wordmark rises out of its clipping boxes,
+  // everything else drifts up and fades. `--i` sets each element's place.
+  @keyframes cover-rise {
     from {
-      transform: translate3d(0, 100%, 0);
+      transform: translate3d(0, 105%, 0);
     }
     to {
-      transform: translate3d(0, 0, 0);
+      transform: none;
     }
   }
 
-  @keyframes hero-enter {
+  @keyframes cover-enter {
     from {
       opacity: 0;
       transform: translate3d(0, u(24), 0);
@@ -87,117 +96,156 @@ const introLines = [
     }
   }
 
-  .hero__line {
+  .cover__enter {
+    animation: cover-enter 800ms var(--ease-out) backwards;
+    animation-delay: calc(var(--i) * 110ms);
+  }
+
+  // A pin in the accent beside the place name, with a slow ring going out
+  // from it — the studio is here, and open.
+  @keyframes cover-ping {
+    from {
+      transform: scale(1);
+      opacity: 0.55;
+    }
+    to {
+      transform: scale(3);
+      opacity: 0;
+    }
+  }
+
+  .cover__place {
+    position: relative;
+    padding-left: u(17);
+
+    &::before,
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: u(7);
+      height: u(7);
+      margin-top: u(-3.5);
+      border-radius: 50%;
+      background: var(--dot);
+    }
+
+    &::after {
+      animation: cover-ping 2400ms var(--ease-out) infinite;
+    }
+  }
+
+  // Set to fill the frame edge to edge: heavy, narrowed, and tracked in
+  // tight, so the name reads as a masthead rather than a heading.
+  .cover__wordmark {
+    display: flex;
+    justify-content: space-between;
+    margin: u(28) 0 u(40);
+    font-size: u(250);
+    font-weight: 760;
+    font-stretch: 90%;
+    letter-spacing: -0.03em;
+    line-height: 0.84;
+    white-space: nowrap;
+    color: var(--ink);
+  }
+
+  .cover__word {
     display: block;
-    // Clips the line so its glyphs slide up from nothing.
+    // Clips the word so its glyphs rise from nothing. Padding keeps the
+    // descender-less baseline clear of the clip, and the negative margin
+    // hands that space back.
     overflow: hidden;
+    padding: 0 0.04em 0.06em;
+    margin: 0 -0.04em -0.06em;
 
     > span {
       display: block;
-      animation: hero-rise 900ms var(--ease-out) backwards;
+      animation: cover-rise 1000ms var(--ease-out) backwards;
       animation-delay: calc(var(--i) * 110ms);
     }
   }
 
-  .hero__enter {
-    animation: hero-enter 800ms var(--ease-out) backwards;
-    animation-delay: calc(var(--i) * 110ms);
+  // Intro on the left, frontispiece on the right, under one rule.
+  .cover__body {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    column-gap: u(24);
+    padding-top: u(24);
+    border-top: var(--rule);
   }
 
-  .hero__wordmark {
+  .cover__text {
+    grid-column: 1 / span 5;
     display: flex;
     flex-direction: column;
-    gap: u(10);
-    // The hand face, not the display face. It only ships a 400, so the
-    // display weight is dropped rather than left to synthesise a fake bold,
-    // and the size is nudged up because Gochi's cap height sits lower than
-    // Jost's at the same px.
-    font-family: var(--font-hand);
-    font-size: u(86);
-    font-weight: 400;
-    line-height: normal;
-    color: var(--ink);
-    white-space: nowrap;
+    gap: u(36);
+    align-items: flex-start;
   }
 
-  .hero__intro {
-    font-size: u(20);
-    line-height: 1.2;
-    width: 100%;
-    max-width: u(500);
-    color: var(--body);
-    line-height: 1.5;
+  .cover__intro {
+    font-size: u(28);
+    font-weight: 500;
+    line-height: 1.22;
+    letter-spacing: -0.012em;
+    text-wrap: pretty;
   }
 
-  // Sits opposite the wordmark; the two labels push apart over the full
-  // height of the hero.
-  .hero__meta {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    justify-content: space-between;
-    align-self: stretch;
-    gap: u(40);
-    font-size: u(20);
-    white-space: nowrap;
-  }
-
-  .hero__est {
-    line-height: 1.2;
-    color: var(--body);
-  }
-
-  .hero__place {
-    line-height: normal;
-    color: #000000;
+  .cover__plate {
+    grid-column: 8 / span 5;
+    margin: 0;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .hero__line > span,
-    .hero__enter {
+    .cover__word > span,
+    .cover__enter,
+    .cover__place::after {
       animation: none;
+    }
+
+    .cover__place::after {
+      opacity: 0;
     }
   }
 
   @media (max-width: 900px) {
-    .hero {
+    .cover {
+      padding: 20px 24px 72px;
+    }
+
+    // Two lines, one word each, as big as a handset allows.
+    .cover__wordmark {
       flex-direction: column;
-      gap: 50px;
-      padding: 80px 24px;
+      gap: 0;
+      margin: 20px 0 28px;
+      font-size: 27vw;
     }
 
-    .hero__main {
-      gap: 32px;
+    .cover__body {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+      padding-top: 20px;
     }
 
-    .hero__wordmark {
-      gap: 6px;
-      font-size: 50px;
+    .cover__text {
+      gap: 24px;
     }
 
-    .hero__intro {
-      max-width: 100%;
+    .cover__intro {
+      font-size: 20px;
     }
 
-    .hero__intro,
-    .hero__meta {
-      font-size: 17px;
-    }
+    .cover__place {
+      padding-left: 14px;
 
-    // The line breaks are composed for the 1512px frame; at this width they
-    // produce a ragged, half-empty column, so let the copy reflow.
-    .hero__intro br {
-      display: none;
-    }
-
-    .hero__meta {
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      font-size: 16px;
-      gap: 16px;
-      white-space: normal;
+      &::before,
+      &::after {
+        width: 6px;
+        height: 6px;
+        margin-top: -3px;
+      }
     }
   }
 </style>

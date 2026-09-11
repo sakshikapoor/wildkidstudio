@@ -1,0 +1,83 @@
+---
+// An empty picture box, drawn the way a print layout marks a space held for
+// an image: a tinted frame crossed corner to corner, with a small label.
+// Stands in for a project's cover until the photograph exists.
+interface Props {
+  /** The short label in the corner. */
+  label?: string;
+  /** CSS aspect-ratio. Without it the box fills its parent's height. */
+  aspect?: string;
+  class?: string;
+}
+
+const { label = 'Image to come', aspect, class: className } = Astro.props;
+---
+
+<div
+  class:list={['placeholder', className]}
+  style={aspect ? `aspect-ratio: ${aspect}` : undefined}
+  role="img"
+  aria-label={label}
+>
+  {/*
+    Stretched to the box with preserveAspectRatio="none", so the lines always
+    meet the corners; non-scaling-stroke keeps them a hairline however far
+    the box is stretched.
+  */}
+  <svg class="placeholder__cross" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+    <line x1="0" y1="0" x2="100" y2="100" vector-effect="non-scaling-stroke"></line>
+    <line x1="100" y1="0" x2="0" y2="100" vector-effect="non-scaling-stroke"></line>
+  </svg>
+  <span class="placeholder__label" aria-hidden="true">{label}</span>
+</div>
+
+<style lang="scss">
+  @use "../styles/util" as *;
+
+  .placeholder {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    color: var(--ink);
+    background: var(--tint);
+  }
+
+  .placeholder__cross {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+
+    line {
+      stroke: currentColor;
+      stroke-width: 1;
+      opacity: 0.35;
+    }
+  }
+
+  .placeholder__label {
+    position: absolute;
+    left: u(14);
+    bottom: u(12);
+    padding: u(4) u(10) u(5);
+    font-size: u(13);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.1;
+    background: var(--tint);
+    border: var(--rule);
+    border-radius: 999px;
+  }
+
+  @media (max-width: 900px) {
+    .placeholder__label {
+      left: 10px;
+      bottom: 10px;
+      padding: 3px 8px 4px;
+      font-size: 11px;
+    }
+  }
+</style>

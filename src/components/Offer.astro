@@ -1,22 +1,25 @@
 ---
 interface Props {
+  /** Catalogue number, shown as "No. 01". */
+  number: number;
   title: string;
   /** Duration or capacity line, e.g. "1–2 weeks". */
   meta: string;
-  /** Direction the card enters from. See _motion.scss. */
-  reveal?: 'up' | 'left' | 'right';
   /** Position in a staggered group of cards. */
   delay?: number;
 }
 
-const { title, meta, reveal = 'up', delay = 0 } = Astro.props;
+const { number, title, meta, delay = 0 } = Astro.props;
 ---
 
-<article class="offer" data-reveal={reveal} style={`--i: ${delay}`}>
-  <div class="offer__head">
-    <h3 class="offer__title">{title}</h3>
-    <p class="offer__meta">{meta}</p>
-  </div>
+{/*
+  One listing in the catalogue: item number, name, a spec tag for the
+  duration, then the description.
+*/}
+<article class="offer" data-reveal="up" style={`--i: ${delay}`}>
+  <p class="offer__no">No. {String(number).padStart(2, '0')}</p>
+  <h3 class="offer__title">{title}</h3>
+  <p class="offer__meta">{meta}</p>
   <p class="offer__body"><slot /></p>
 </article>
 
@@ -26,93 +29,72 @@ const { title, meta, reveal = 'up', delay = 0 } = Astro.props;
   .offer {
     display: flex;
     flex-direction: column;
-    gap: u(20);
     align-items: flex-start;
+    height: 100%;
+    padding: u(20) u(28) u(40);
   }
 
-  .offer__head {
-    display: flex;
-    flex-direction: column;
-    gap: u(5);
-    align-items: flex-start;
-    width: 100%;
-  }
-
-  // The rule under the title draws itself once the card has landed.
-  .offer__head {
-    position: relative;
-    padding-bottom: u(12);
-
-    // &::after {
-    //   content: "";
-    //   position: absolute;
-    //   left: 0;
-    //   bottom: 0;
-    //   width: 100%;
-    //   height: 1px;
-    //   background: var(--sage);
-    //   opacity: 0.15;
-    //   transform: scaleX(0);
-    //   transform-origin: left center;
-    //   transition: transform var(--dur-slow) var(--ease-out) 240ms;
-    // }
-  }
-
-  .offer[data-revealed] .offer__head::after,
-  :global(html:not(.js)) .offer .offer__head::after {
-    transform: scaleX(1);
+  .offer__no {
+    font-size: u(15);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 
   .offer__title {
+    margin-top: u(64);
     font-family: var(--font-display);
-    font-size: u(40);
+    font-size: u(80);
     font-weight: var(--weight-display);
-    line-height: normal;
-    color: var(--forest);
+    font-stretch: 90%;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
     white-space: nowrap;
   }
 
+  // Set as a tag, like a spec stamped beside a product.
   .offer__meta {
-    font-size: u(18);
+    margin-top: u(20);
+    padding: u(5) u(12) u(6);
+    font-size: u(15);
     font-weight: 600;
-    line-height: normal;
-    color: var(--sage);
+    line-height: 1.1;
+    border: var(--rule);
+    border-radius: 999px;
   }
 
   .offer__body {
-    font-size: u(18);
-    line-height: normal;
-    color: #000000;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .offer__head::after {
-      transform: scaleX(1);
-      transition: none;
-    }
+    margin-top: u(28);
+    max-width: 30ch;
+    font-size: u(19);
+    line-height: 1.4;
+    text-wrap: pretty;
   }
 
   @media (max-width: 900px) {
     .offer {
-      gap: 4px;
+      padding: 16px 0 36px;
+    }
+
+    .offer__no {
+      font-size: 12px;
     }
 
     .offer__title {
-      font-size: 26px;
+      margin-top: 24px;
+      font-size: 48px;
     }
 
-    .offer__head {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
+    .offer__meta {
+      margin-top: 14px;
+      padding: 4px 10px 5px;
+      font-size: 13px;
     }
 
-    .offer__meta,
     .offer__body {
+      margin-top: 18px;
+      max-width: none;
       font-size: 16px;
-      font-weight: 400;
     }
   }
 </style>

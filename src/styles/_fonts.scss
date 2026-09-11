@@ -1,29 +1,35 @@
-// The site is set in one self-hosted variable font, supplied as .ttf and
-// converted to woff2 here (131kB → 49kB). The ttf stays as a fallback for
-// anything that cannot take woff2. Only these are listed, so no request 404s.
+// Bricolage Grotesque, self-hosted from public/fonts/. It is a variable font
+// on three axes, and handing each range to the browser is what lets any
+// weight, width or optical size the CSS asks for be interpolated from the one
+// file:
 //
-// `font-weight: 100 900` hands the whole wght axis to the browser, so any
-// weight the CSS asks for is interpolated from the one file — which is what
-// lets the display type sit at 600 against body copy at 400.
+//   wght  200–800   `font-weight`
+//   wdth   75–100   `font-stretch`
+//   opsz   12–96    follows the font size automatically (font-optical-sizing)
+//
+// Split by script the way Google Fonts serves it, so a page in plain English
+// only ever downloads the latin file.
 
 @font-face {
-    font-family: "Jost";
-    src:
-        url("/fonts/Jost-Variable.woff2") format("woff2-variations"),
-        url("/fonts/Jost-Variable.ttf") format("truetype-variations");
-    font-weight: 100 900;
+    font-family: "Bricolage Grotesque";
+    src: url("/fonts/BricolageGrotesque-Variable-latin.woff2") format("woff2");
+    font-weight: 200 800;
+    font-stretch: 75% 100%;
     font-style: normal;
     font-display: swap;
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+        U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191,
+        U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-// A second face, used only for the three hand-lettered moments: the hero
-// wordmark, the "WK" mark in the nav, and the contact call to action. It is
-// a single static weight, so there is no wght axis to hand over.
-
 @font-face {
-    font-family: "Gochi Hand";
-    src: url("/fonts/GochiHand-Regular.woff2") format("woff2");
-    font-weight: 400;
+    font-family: "Bricolage Grotesque";
+    src: url("/fonts/BricolageGrotesque-Variable-latin-ext.woff2") format("woff2");
+    font-weight: 200 800;
+    font-stretch: 75% 100%;
     font-style: normal;
     font-display: swap;
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+        U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+        U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }

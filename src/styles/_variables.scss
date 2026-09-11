@@ -1,48 +1,54 @@
-// Design tokens, taken from the Figma file (wildkid-studio-v2, node 98:32).
-// The design uses raw hex — there are no Figma variables to map — so these
-// names are ours.
+// Design tokens — "Catalogue No. 01".
+//
+// The site is printed in one ink on one stock: ultramarine ballpoint blue on
+// an off-white paper. Every piece of type, every rule and every pen plate is
+// the same blue, so hierarchy comes from size, weight and space rather than
+// from a second colour. The one exception is --dot, a small hot accent kept
+// for markers (nav hover, list bullets, the email underline, text selection)
+// and never for text — it only reaches 3.1:1 on paper.
 :root {
-    // Neutrals
-    --white: #ffffff;
-    --ink: #0a0a0a; // headings, dark section backgrounds
-    --body: #202020; // body copy
+    // Stock and ink
+    --paper: #f7f7f3;
+    --ink: #1f2be0; // 7.9:1 on paper
+    --ink-soft: #4b53e3; // secondary lines — 5.4:1 on paper
+    --ink-deep: #0e1580; // pressed / hover state on blue fills
+    --tint: #dde0fa; // empty plates, quiet fills — ink on it is 6.5:1
+    --dot: #ff4a1c;
 
-    // Greens
-    --logo-green: #00352e; // "WK" mark in the nav
-    --band: rgba(29, 80, 75, 0.9); // "ship the next big idea" band
-    --band-box: #34625d; // panel behind the engagement list
-    --mint: #d1fdf9; // display type on the band
-    --mint-soft: #c4f4f0; // body copy on the band
-    --forest: #0c342e; // offer headings
-    --sage: #34625d; // offer subtitles
-    --showreel: #bcd1d9; // showreel section background
+    // Rule weight for every hairline on the page: section heads, list rows,
+    // plate frames. One value so the grid reads as one hand.
+    --rule-w: 1.5px;
+    --rule: var(--rule-w) solid var(--ink);
+
+    // Older token names, still used by the case-study pages. Each points at
+    // its role in the new palette, so those pages pick up the rebrand without
+    // being rewritten.
+    --white: var(--paper);
+    --body: var(--ink);
+    --sage: var(--ink-soft);
+    --forest: var(--ink);
+    --band-box: var(--ink-deep);
+    --mint: var(--tint);
+    --mint-soft: var(--tint);
+    --showreel: var(--tint);
 
     // Type
     //
-    // The site is set in one face — see _fonts.scss. The fallbacks are
-    // geometric sans shapes, so the layout holds if the file is missing.
-    //
-    // --font-display is kept as its own name even though it points at the
-    // body face: it marks which rules are display type, so reintroducing a
-    // separate display face later is this one line. What actually separates
-    // the two voices today is the weight below.
+    // One variable face across three axes — weight, width and optical size —
+    // so the display voice (heavy, narrow, tightly set) and the reading voice
+    // (regular, full width, small optical size) come from the same file.
+    --font-body: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
     --font-display: var(--font-body);
-    --font-body: "Jost", "Futura", "Century Gothic", "Avenir Next", sans-serif;
-
-    // The hand-lettered voice — the hero wordmark, the "WK" mark and the
-    // contact call to action. Deliberately only those three, so it reads as
-    // an accent against the Jost rather than a second body face.
-    --font-hand: "Gochi Hand", "Bradley Hand", "Segoe Print", cursive;
 
     // One knob so the whole display voice moves together.
-    --weight-display: 600;
+    --weight-display: 720;
 
     // One design pixel. See _util.scss.
     --u: 1px;
 }
 
-// Below the design width the frame scales proportionally, so the tree
-// artwork stays in the same relationship to the copy it flanks.
+// Below the design width the frame scales proportionally, so the grid keeps
+// its proportions all the way down to the handset breakpoint.
 @media (max-width: 1512px) {
     :root {
         --u: calc(100vw / 1512);

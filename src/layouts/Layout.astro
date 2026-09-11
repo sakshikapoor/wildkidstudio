@@ -29,6 +29,8 @@ const ogImageUrl = new URL(ogImage, Astro.site);
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <meta name="theme-color" content="#f7f7f3" />
+
     <!--
       Set before the stylesheet so the reveal system's hidden state applies on
       the first paint. Without scripting the class never lands and every
@@ -63,22 +65,15 @@ const ogImageUrl = new URL(ogImage, Astro.site);
     <meta name="twitter:image" content={ogImageUrl} />
 
     <!--
-      The one face is self-hosted from public/fonts/ and declared in
+      The face is self-hosted from public/fonts/ and declared in
       src/styles/_fonts.scss — no webfont CDN is involved. Preloaded because
       the @font-face rule sits inside the stylesheet, so the browser would
-      otherwise only discover it after the CSS has parsed.
+      otherwise only discover it after the CSS has parsed. Only the latin
+      file: the latin-ext one is fetched on demand if a page ever needs it.
     -->
     <link
       rel="preload"
-      href="/fonts/Jost-Variable.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
-    <!-- Preloaded for the same reason, and because it sets the hero wordmark. -->
-    <link
-      rel="preload"
-      href="/fonts/GochiHand-Regular.woff2"
+      href="/fonts/BricolageGrotesque-Variable-latin.woff2"
       as="font"
       type="font/woff2"
       crossorigin

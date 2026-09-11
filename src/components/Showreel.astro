@@ -1,41 +1,67 @@
 ---
+// The plates — the work, straight after the cover. Each project is a
+// numbered plate showing its cover photograph; a project without one yet
+// shows an empty picture box in its place.
+//
+// Laid out as catalogue spreads on the 12-column grid: plates run in pairs,
+// a wide one (7 columns) beside a narrow one (5), with the sides swapping
+// every row, and every plate in a row the same height so the captions share
+// a line. Six projects make three rows. An odd plate out takes the whole
+// row as a banner, so the grid reads as finished at any count — new
+// projects in src/data/projects.ts slot into the pattern on their own.
 import { Image } from 'astro:assets';
+import PicturePlaceholder from './PicturePlaceholder.astro';
 import { projects } from '../data/projects';
+
+// How wide each plate renders, following the pattern in the styles below,
+// so the browser picks an image file to match rather than always the widest.
+const sizesFor = (i: number) => {
+  const isBanner = i === projects.length - 1 && i % 2 === 0;
+  const isWide = i % 4 === 0 || i % 4 === 3;
+  const desktop = isBanner ? 1312 : isWide ? 757 : 531;
+  return `(max-width: 900px) calc(100vw - 48px), (max-width: 1512px) ${((desktop / 1512) * 100).toFixed(1)}vw, ${desktop}px`;
+};
 ---
 
-<section class="showreel" id="work">
-  <div class="showreel__head">
-    <p class="eyebrow" data-reveal="up">[3] WORK</p>
+<section class="plates" id="work">
+  <div class="section-head" data-reveal="rule">
+    <p class="eyebrow">[2] WORK</p>
+    <p class="eyebrow">({String(projects.length).padStart(2, '0')})</p>
   </div>
 
-  <div class="showreel__row">
+  <div class="plates__grid">
     {
       projects.map((project, i) => (
         <a
-          class="showreel__item"
+          class="plates__item"
           href={`/work/${project.slug}`}
           data-reveal="up"
-          style={`--i: ${i}`}
+          style={`--i: ${i % 2}`}
         >
-          <div class="showreel__media">
-            {/*
-              Sources are 3–4k wide; Astro resizes to the rendered box at 2x
-              and emits webp. `densities` gives the retina source without
-              shipping the full original.
-            */}
-            <Image
-              src={project.cover}
-              alt={project.coverAlt}
-              width={606}
-              height={367}
-              densities={[1, 2]}
-              formats={['webp']}
-            />
+          <p class="plate-caption plates__label">
+            <span>Pl. {String(i + 1).padStart(2, '0')}</span>
+            {project.year && <span>{project.year}</span>}
+          </p>
+          <div class="plates__frame">
+            {project.cover ? (
+              <Image
+                class="plates__image"
+                src={project.cover}
+                alt={project.coverAlt ?? ''}
+                widths={[480, 760, 1080, 1520, 2000]}
+                sizes={sizesFor(i)}
+                formats={['webp']}
+                loading={i < 2 ? 'eager' : 'lazy'}
+              />
+            ) : (
+              <PicturePlaceholder />
+            )}
           </div>
-          <div class="showreel__caption">
-            <span class="showreel__name">{project.name}</span>
-            <span class="showreel__disciplines">{project.disciplines}</span>
+          <div class="plates__caption">
+            <span class="plates__name">{project.name}</span>
+            <span class="plates__arrow" aria-hidden="true">↗</span>
           </div>
+          <p class="plates__disciplines">{project.disciplines}</p>
         </a>
       ))
     }
@@ -45,172 +71,153 @@ import { projects } from '../data/projects';
 <style lang="scss">
   @use "../styles/util" as *;
 
-  .showreel {
-    position: relative;
-    z-index: 0;
+  .plates {
     display: flex;
     flex-direction: column;
-    gap: u(70);
-    align-items: flex-start;
-    padding: u(230) u(100);
-    background: var(--showreel);
+    padding: u(20) u(100) u(160);
   }
 
-  .showreel__head {
+  .plates__grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: u(56) u(24);
+    margin-top: u(32);
+  }
+
+  // The spread pattern, four plates to a cycle: wide–narrow, narrow–wide.
+  .plates__item:nth-child(4n + 1),
+  .plates__item:nth-child(4n + 4) {
+    grid-column: span 7;
+  }
+
+  .plates__item:nth-child(4n + 2),
+  .plates__item:nth-child(4n + 3) {
+    grid-column: span 5;
+  }
+
+  // The odd one out at the end takes the full row.
+  .plates__item:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  .plates__item {
     display: flex;
     flex-direction: column;
-    gap: u(20);
-    align-items: flex-start;
-  }
-
-  // Three cards at the designed width overrun the frame, so the row scrolls
-  // sideways rather than shrinking the cards.
-  .showreel__row {
-    display: flex;
-    gap: u(30);
-    align-items: center;
-    width: 100%;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-
-    // The bar would add height the design does not account for.
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-
-  .showreel__item {
-    display: flex;
-    flex-direction: column;
-    gap: u(30);
-    align-items: flex-start;
-    flex: 0 0 auto;
-    scroll-snap-align: start;
+    min-width: 0;
     text-decoration: none;
-    color: #000000;
+    color: var(--ink);
   }
 
-  .showreel__media {
-    width: u(605.766);
-    height: u(367.072);
+  .plates__label {
+    margin: 0 0 u(10);
+  }
+
+  // One height for every plate, so a row's two plates and their captions
+  // line up whatever their widths. The photograph is cropped into it.
+  .plates__frame {
+    height: u(500);
     overflow: hidden;
-    border-radius: u(8);
-    background: var(--white);
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: u(8);
-      transition: transform var(--dur-slow) var(--ease-out);
-    }
+    background: var(--tint);
   }
 
-  .showreel__item {
-    transition: transform var(--dur-fast) var(--ease-out);
-
-    &:hover {
-      transform: translateY(u(-6));
-    }
+  .plates__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--dur-slow) var(--ease-out);
   }
 
-  .showreel__item:hover .showreel__media img {
-    transform: scale(1.05);
+  .plates__item:hover .plates__image,
+  .plates__item:focus-visible .plates__image {
+    transform: scale(1.03);
   }
 
-  // The project name slides aside to make room for an arrow that is only
-  // there on hover.
-  .showreel__name {
-    display: inline-flex;
-    align-items: center;
-    gap: u(10);
-
-    // &::after {
-    //   content: "↗";
-    //   opacity: 0;
-    //   transform: translate3d(u(-8), u(8), 0);
-    //   transition:
-    //     opacity var(--dur-fast) var(--ease-out),
-    //     transform var(--dur-fast) var(--ease-out);
-    // }
-  }
-
-  .showreel__item:hover .showreel__name::after {
-    opacity: 1;
-    transform: none;
-  }
-
-  .showreel__caption {
+  .plates__caption {
     display: flex;
-    flex-direction: column;
-    gap: u(10);
-    width: u(367);
-    line-height: normal;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: u(16);
+    margin-top: u(18);
   }
 
-  .showreel__name {
-    font-family: var(--font-display);
-    font-size: u(30);
+  .plates__name {
+    font-size: u(48);
     font-weight: var(--weight-display);
-    line-height: 1.1;
-    white-space: nowrap;
+    font-stretch: 90%;
+    letter-spacing: -0.03em;
+    line-height: 1;
   }
 
-  .showreel__disciplines {
-    font-size: u(18);
+  // The arrow takes the accent as it moves off, marking the plate you are on.
+  .plates__arrow {
+    font-size: u(30);
+    font-weight: 600;
+    transition:
+      transform var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out);
+  }
+
+  .plates__item:hover .plates__arrow,
+  .plates__item:focus-visible .plates__arrow {
+    color: var(--dot);
+    transform: translate3d(u(5), u(-5), 0);
+  }
+
+  .plates__disciplines {
+    margin-top: u(8);
+    font-size: u(17);
+    color: var(--ink-soft);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .showreel__media img,
-    .showreel__item,
-    .showreel__name::after {
+    .plates__arrow,
+    .plates__image {
       transition: none;
     }
 
-    .showreel__item:hover,
-    .showreel__item:hover .showreel__media img {
+    .plates__item:hover .plates__arrow,
+    .plates__item:hover .plates__image {
       transform: none;
     }
   }
 
+  // One plate to a row on a handset, each at the same landscape proportion.
   @media (max-width: 900px) {
-    .showreel {
-      gap: 40px;
-      padding: 80px 24px;
+    .plates {
+      padding: 8px 24px 88px;
     }
 
-    .showreel__head {
-      gap: 12px;
+    .plates__grid {
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+      margin-top: 24px;
     }
 
-    .showreel__row {
-      gap: 20px;
+    .plates__label {
+      margin-bottom: 8px;
     }
 
-    .showreel__item {
-      gap: 16px;
-    }
-
-    .showreel__media {
-      width: 80vw;
+    .plates__frame {
       height: auto;
-      border-radius: 8px;
-      aspect-ratio: 605.766 / 367.072;
+      aspect-ratio: 4 / 3;
     }
 
-    .showreel__caption {
-      gap: 6px;
-      width: 80vw;
+    .plates__caption {
+      margin-top: 14px;
     }
 
-    .showreel__name {
-      font-size: 20px;
+    .plates__name {
+      font-size: 32px;
     }
 
-    .showreel__disciplines {
-      font-size: 16px;
+    .plates__arrow {
+      font-size: 22px;
+    }
+
+    .plates__disciplines {
+      font-size: 15px;
     }
   }
 </style>

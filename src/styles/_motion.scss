@@ -84,57 +84,48 @@
     transform: none;
 }
 
+// A rule that draws itself across the frame, left to right, like a line
+// ruled on the page. The element itself stays put and visible — only the
+// rule on its top edge is animated — so the label under it is readable the
+// moment it arrives.
+.js [data-reveal="rule"] {
+    opacity: 1;
+    transform: none;
+}
+
+[data-reveal="rule"] {
+    position: relative;
+    border-top-color: transparent !important;
+
+    &::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: calc(-1 * var(--rule-w));
+        height: var(--rule-w);
+        background: var(--ink);
+        transform-origin: left center;
+        transition: transform var(--dur-slow) var(--ease-out);
+        transition-delay: calc(var(--i, 0) * var(--stagger));
+    }
+}
+
+.js [data-reveal="rule"]:not([data-revealed])::before {
+    transform: scaleX(0);
+}
+
 // Micro-interactions on the shared components
 //
 // The arrow leans in the direction it points when its button is hovered.
 .btn {
-    transition:
-        background-color var(--dur-fast) var(--ease-inout),
-        color var(--dur-fast) var(--ease-inout),
-        transform var(--dur-fast) var(--ease-out);
-
     .arrow-icon {
         transition: transform var(--dur-fast) var(--ease-out);
-    }
-
-    &:hover {
-        transform: translateY(u(-2));
-    }
-
-    &:active {
-        transform: translateY(0);
     }
 
     &:hover .arrow-icon {
         transform: translate3d(u(3), u(-3), 0);
     }
-}
-
-// Section labels get a rule that draws itself out from the text once the
-// section arrives.
-.eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: u(12);
-
-    &::after {
-        content: "";
-        width: u(60);
-        height: 1px;
-        background: currentColor;
-        transform: scaleX(0);
-        transform-origin: left center;
-        transition: transform var(--dur-slow) var(--ease-out) 120ms;
-    }
-}
-
-.js .eyebrow[data-reveal]:not([data-revealed])::after {
-    transform: scaleX(0);
-}
-
-.eyebrow[data-revealed]::after,
-html:not(.js) .eyebrow::after {
-    transform: scaleX(1);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -147,27 +138,18 @@ html:not(.js) .eyebrow::after {
         transition-delay: 0ms;
     }
 
-    .btn,
-    .btn .arrow-icon,
-    .eyebrow::after {
+    .js [data-reveal="rule"]::before {
+        transform: none !important;
         transition: none;
     }
 
-    .btn:hover {
-        transform: none;
+    .btn,
+    .btn::before,
+    .btn .arrow-icon {
+        transition: none;
     }
 
     .btn:hover .arrow-icon {
         transform: none;
-    }
-
-    .eyebrow::after {
-        transform: scaleX(1);
-    }
-}
-
-@media (max-width: 900px) {
-    .eyebrow::after {
-        width: 40px;
     }
 }

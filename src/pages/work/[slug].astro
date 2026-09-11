@@ -5,13 +5,14 @@ import Layout from '../../layouts/Layout.astro';
 import Nav from '../../components/Nav.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import ContactCta from '../../components/ContactCta.astro';
+import PicturePlaceholder from '../../components/PicturePlaceholder.astro';
 import InstaSupply from '../../components/casestudy/InstaSupply.astro';
 import Allenati from '../../components/casestudy/Allenati.astro';
 import Asci from '../../components/casestudy/Asci.astro';
 import { projects } from '../../data/projects';
 
-// One route for all three projects, driven by the same data the showreel
-// uses — so a project added there gets a page for free.
+// One route for every project, driven by the same data as the homepage
+// plates — so a project added there gets a page for free.
 export function getStaticPaths() {
   return projects.map((project, index) => ({
     params: { slug: project.slug },
@@ -33,18 +34,18 @@ const liveLabel =
 const caseStudies: Record<string, boolean> = { instasupply: true, allenati: true, asci: true };
 const hasCaseStudy = caseStudies[project.slug] === true;
 
-// Placeholder structure — the Figma file has no project-page frame yet.
+// Generic rows for a project without its own case-study component. Each
+// row only appears once its data exists, so a bare placeholder project shows
+// just its brief, and fills out as the entry in projects.ts does.
 const sections = [
   { label: 'The brief', body: project.summary },
-  {
+  project.role && {
     label: 'What we did',
     body: `${project.role}. Working sessions every week, with the client seeing the work as it developed rather than at a single reveal.`,
   },
-  {
-    label: 'Outcome',
-    body: 'Case study copy and supporting imagery to come.',
-  },
-];
+  { label: 'Outcome', body: 'Case study copy and supporting imagery to come.' },
+  project.year && { label: 'Year', body: project.year },
+].filter((section): section is { label: string; body: string } => Boolean(section));
 ---
 
 <Layout
@@ -55,7 +56,7 @@ const sections = [
     <Nav />
     <main>
       <PageHeader
-        eyebrow={`[3] WORK / ${String(index + 1).padStart(2, '0')}`}
+        eyebrow={`[2] WORK / ${String(index + 1).padStart(2, '0')}`}
         title={project.name}
         meta={project.disciplines}
         liveUrl={project.liveUrl}
@@ -63,14 +64,20 @@ const sections = [
       />
 
       <div class="project__cover" data-reveal="mask">
-        <Image
-          src={project.cover}
-          alt={project.coverAlt}
-          width={1312}
-          height={795}
-          densities={[1, 2]}
-          formats={['webp']}
-        />
+        {
+          project.cover ? (
+            <Image
+              src={project.cover}
+              alt={project.coverAlt ?? ''}
+              width={1312}
+              height={795}
+              densities={[1, 2]}
+              formats={['webp']}
+            />
+          ) : (
+            <PicturePlaceholder aspect="1312 / 795" />
+          )
+        }
       </div>
 
       {
@@ -90,11 +97,6 @@ const sections = [
                 <p class="project__body">{section.body}</p>
               </div>
             ))}
-
-            <div class="project__row" data-reveal="up">
-              <h2 class="project__label">Year</h2>
-              <p class="project__body">{project.year}</p>
-            </div>
           </section>
         )
       }
@@ -112,54 +114,58 @@ const sections = [
 <style lang="scss">
   @use "../../styles/util" as *;
 
-  // The three sources have different native aspect ratios (2.37, 1.50, 1.33),
-  // so the frame is pinned to the showreel card's ratio and the image is
-  // cropped into it. Without this each project page gets a different height.
+  // The sources have different native aspect ratios, so the frame is pinned
+  // to one ratio and the image is cropped into it. Without this each project
+  // page gets a different height.
   .project__cover {
     padding: 0 u(100);
 
     img {
       display: block;
       width: 100%;
-      border-radius: 8px;
       height: auto;
-      aspect-ratio: 605.766 / 367.072;
+      aspect-ratio: 1312 / 795;
       object-fit: cover;
-      background: var(--showreel);
+      background: var(--tint);
     }
   }
 
+  // The generic write-up: ruled rows, label on the left, copy on the right —
+  // the same catalogue entry as the principles on the homepage.
   .project {
     display: flex;
     flex-direction: column;
-    gap: u(30);
-    padding: u(70) u(100) u(150);
+    padding: u(80) u(100) u(40);
   }
 
   .project__row {
-    display: flex;
-    gap: u(50);
-    align-items: flex-start;
-    padding: u(40) u(20);
-    color: var(--white);
-    background: var(--band-box);
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    column-gap: u(24);
+    align-items: baseline;
+    padding: u(24) 0 u(28);
+    border-top: var(--rule);
+
+    &:last-child {
+      border-bottom: var(--rule);
+    }
   }
 
   .project__label {
-    flex-shrink: 0;
-    width: u(250);
-    font-family: var(--font-display);
-    font-size: u(24);
-    font-weight: var(--weight-display);
-    line-height: normal;
+    grid-column: 1 / span 4;
+    font-size: u(15);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 
-  // Matches the principle rows this layout is modelled on.
   .project__body {
-    flex: 1 0 0;
-    min-width: 0;
-    font-size: u(18);
-    line-height: normal;
+    grid-column: 6 / span 7;
+    max-width: 44ch;
+    font-size: u(24);
+    font-weight: 500;
+    line-height: 1.3;
+    text-wrap: pretty;
   }
 
   .project__next {
@@ -175,22 +181,55 @@ const sections = [
     color: var(--ink);
   }
 
+  // An accent dot pops in beside the label on hover — the same finger on
+  // the index as the nav links.
   .project__next-label {
-    font-size: u(24);
-    font-weight: 700;
-    color: var(--sage);
+    position: relative;
+    font-size: u(15);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: u(-14);
+      top: 50%;
+      width: u(7);
+      height: u(7);
+      border-radius: 50%;
+      background: var(--dot);
+      transform: translateY(-50%) scale(0);
+      transition: transform var(--dur-fast) cubic-bezier(0.3, 1.6, 0.5, 1);
+    }
+  }
+
+  .project__next:hover .project__next-label::before,
+  .project__next:focus-visible .project__next-label::before {
+    transform: translateY(-50%) scale(1);
   }
 
   .project__next-name {
-    font-family: var(--font-display);
-    font-size: u(60);
+    font-size: u(120);
     font-weight: var(--weight-display);
-    line-height: normal;
-    transition: color 200ms ease;
+    font-stretch: 90%;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+    transition: transform var(--dur-fast) var(--ease-out);
   }
 
   .project__next:hover .project__next-name {
-    color: var(--band-box);
+    transform: translateX(u(16));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project__next-name {
+      transition: none;
+    }
+
+    .project__next:hover .project__next-name {
+      transform: none;
+    }
   }
 
   @media (max-width: 900px) {
@@ -199,23 +238,22 @@ const sections = [
     }
 
     .project {
-      gap: 16px;
-      padding: 40px 24px 80px;
+      padding: 40px 24px 24px;
     }
 
     .project__row {
+      display: flex;
       flex-direction: column;
-      gap: 12px;
-      padding: 24px 20px;
+      gap: 8px;
+      padding: 16px 0 20px;
     }
 
     .project__label {
-      width: auto;
-      font-size: 20px;
+      font-size: 12px;
     }
 
     .project__body {
-      font-size: 16px;
+      font-size: 18px;
     }
 
     .project__next {
@@ -224,11 +262,11 @@ const sections = [
     }
 
     .project__next-label {
-      font-size: 15px;
+      font-size: 12px;
     }
 
     .project__next-name {
-      font-size: 34px;
+      font-size: 48px;
     }
   }
 </style>
