@@ -1,26 +1,44 @@
 @use "util" as *;
 
 body {
-    background: var(--white);
-    color: var(--body);
+    background: var(--paper);
+    color: var(--ink);
     font-family: var(--font-body);
-    font-size: u(24);
-    // Figma's default is auto leading; the few blocks set to 1.2 or 1.3 in
-    // the design declare it themselves.
-    line-height: normal;
+    font-size: u(20);
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 a {
     color: inherit;
 }
 
-// The design frame. The tree artwork is positioned against this box, so it
-// caps at the design width and centres beyond it.
+// Highlighted text takes the accent, so a selection reads as a mark made on
+// the page rather than more of the ink.
+::selection {
+    background: var(--dot);
+    color: var(--paper);
+}
+
+:focus-visible {
+    outline: 2px solid var(--dot);
+    outline-offset: 3px;
+}
+
+// The design frame: content caps at the design width and centres beyond it.
 .page {
     position: relative;
     max-width: 1512px;
     margin: 0 auto;
     overflow-x: clip;
+}
+
+// Everything under the sticky nav shares one stacking context below it, so
+// no animated or composited layer in a section can paint over the bar.
+main {
+    position: relative;
+    z-index: 0;
 }
 
 @media (max-width: 900px) {

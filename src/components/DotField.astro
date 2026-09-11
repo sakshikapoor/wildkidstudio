@@ -1,0 +1,33 @@
+---
+// A breathing grid of ink dots that bends away from the pointer. Fills the
+// nearest positioned ancestor and sits behind its content, so the section
+// needs `position: relative; isolation: isolate`. See src/scripts/dots.ts.
+//
+// Decorative only: without scripting the canvas is simply empty.
+---
+
+<canvas class="dots" data-dots aria-hidden="true"></canvas>
+
+<script>
+  import '../scripts/dots';
+</script>
+
+<style lang="scss">
+  .dots {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    color: var(--ink);
+    // Let the field thin out towards its edges rather than stop on a line —
+    // at the foot of the section, and at the sides where the page is capped
+    // on a wide screen.
+    mask-image:
+      linear-gradient(to bottom, #000 70%, transparent),
+      linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+    mask-composite: intersect;
+  }
+</style>

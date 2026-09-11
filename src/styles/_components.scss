@@ -3,119 +3,167 @@
 // Shared pieces used across sections. Astro's <style> blocks are scoped per
 // component, so anything shared lives here.
 
-// Numbered section label, e.g. "[2] HOW WE ENGAGE".
-//
-// `normal` is deliberate: it matches the 24px height Figma reports. Setting
-// 1.2 here adds 4.8px to every section that carries an eyebrow.
+// Numbered section label, e.g. "[2] HOW WE ENGAGE". Set small, caps and
+// tracked, like the running heads of a printed catalogue.
 .eyebrow {
     font-family: var(--font-body);
-    font-size: u(20);
-    line-height: normal;
+    font-size: u(15);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.2;
     color: var(--ink);
 }
 
-// Section heading in the display face, e.g. "SHOWREEL".
+// The head of every catalogue section: a full-width rule with the running
+// label under it. The rule is on this wrapper rather than on the eyebrow so
+// it spans the frame whatever the label's length.
+.section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: u(24);
+    width: 100%;
+    padding-top: u(14);
+    border-top: var(--rule);
+}
+
+// Section heading in the display face.
 .section-title {
     font-family: var(--font-display);
-    font-size: u(44);
+    font-size: u(96);
     font-weight: var(--weight-display);
-    line-height: normal;
+    font-stretch: 90%;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
     color: var(--ink);
 }
 
+// Buttons are outlined pills. On hover an ink fill rises from the bottom
+// edge — the pill's own colour, poured in — and the label flips to paper.
 .btn {
-    display: inline-block;
-    font-family: var(--font-body);
-    line-height: normal;
-    text-decoration: none;
-    padding: u(7) u(15);
-    font-size: u(20);
-    border-radius: 8px;
-    transition:
-        background-color 200ms ease,
-        color 200ms ease;
-}
-
-// Hero button: black block, 24px type, 10px padding all round, arrow on the
-// right with a 10px gap.
-.btn--hero {
-    display: inline-flex;
-    gap: u(5);
-    align-items: center;
-    justify-content: center;
-    padding: u(7) u(15);
-    // The label is written in sentence case; this sets it as Title Case.
-    text-transform: capitalize;
-    font-size: u(20);
-    border-radius: 8px;
-    background: #000000;
-    color: var(--white);
-
-    &:hover {
-        background: var(--band-box);
-    }
-}
-
-// Same geometry as .btn--hero, inverted for the dark closing section.
-.btn--hero-light {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     display: inline-flex;
     gap: u(10);
     align-items: center;
     justify-content: center;
-    // padding: u(10);
-    // The label is written in sentence case; this sets it as Title Case.
-    text-transform: capitalize;
-    // font-size: u(24);
-    background: var(--white);
+    padding: u(12) u(24);
+    font-family: var(--font-body);
+    font-size: u(17);
+    font-weight: 600;
+    line-height: 1.1;
+    text-decoration: none;
     color: var(--ink);
+    border: var(--rule);
+    border-radius: 999px;
+    background: transparent;
+    transition: color var(--dur-fast) var(--ease-inout);
+
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        border-radius: inherit;
+        background: var(--ink);
+        transform: translateY(101%);
+        transition: transform var(--dur-fast) var(--ease-out);
+    }
 
     &:hover {
-        background: var(--mint);
+        color: var(--paper);
+    }
+
+    &:hover::before {
+        transform: none;
     }
 }
 
-// Nav / footer button: 18px type, 15px horizontal padding.
+// The primary action. Title Case from sentence-case source.
+.btn--hero {
+    text-transform: capitalize;
+}
+
+// Solid ink pill, for the nav and page headers.
 .btn--dark {
-    padding: u(10) u(15);
-    font-size: u(18);
+    color: var(--paper);
     background: var(--ink);
-    color: var(--white);
+
+    &::before {
+        background: var(--ink-deep);
+    }
+}
+
+// Inverted for the blue back cover: paper outline, paper fill on hover.
+.btn--hero-light {
+    text-transform: capitalize;
+    color: var(--paper);
+    border-color: var(--paper);
+
+    &::before {
+        background: var(--paper);
+    }
 
     &:hover {
-        background: var(--band-box);
+        color: var(--ink);
     }
 }
 
 .btn--light {
-    padding: u(10) u(15);
-    font-size: u(18);
-    background: var(--white);
     color: var(--ink);
+    border-color: var(--paper);
+    background: var(--paper);
+
+    &::before {
+        background: var(--tint);
+    }
 
     &:hover {
-        background: var(--mint);
+        color: var(--ink);
     }
 }
 
 @media (max-width: 900px) {
     .eyebrow {
-        font-size: 16px;
+        font-size: 12px;
+    }
+
+    .section-head {
+        gap: 12px;
+        padding-top: 10px;
     }
 
     .section-title {
-        font-size: 28px;
+        font-size: 44px;
     }
 
-    .btn--hero,
-    .btn--hero-light {
+    .btn {
         gap: 8px;
-        padding: 7px 15px;
-        font-size: 16px;
+        padding: 11px 20px;
+        font-size: 15px;
     }
+}
 
-    .btn--dark,
-    .btn--light {
-        padding: 7px 15px;
-        font-size: 16px;
+// The line under a plate: its number on the left, what it is on the right,
+// in the running-head voice.
+.plate-caption {
+    display: flex;
+    justify-content: space-between;
+    gap: u(16);
+    margin-top: u(12);
+    font-size: u(13);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.2;
+    color: var(--ink);
+}
+
+@media (max-width: 900px) {
+    .plate-caption {
+        margin-top: 8px;
+        font-size: 11px;
     }
 }

@@ -2,7 +2,7 @@
 import ArrowIcon from './ArrowIcon.astro';
 
 interface Props {
-  /** Numbered label, e.g. "[5] ABOUT". */
+  /** Numbered label, e.g. "[6] ABOUT". */
   eyebrow: string;
   title: string;
   /** Optional line under the title. */
@@ -17,7 +17,9 @@ const { eyebrow, title, meta, liveUrl, liveLabel } = Astro.props;
 ---
 
 <header class="page-header">
-  <p class="eyebrow" data-reveal="up">{eyebrow}</p>
+  <div class="section-head" data-reveal="rule">
+    <p class="eyebrow">{eyebrow}</p>
+  </div>
   <h1 class="page-header__title" data-reveal="up" style="--i: 1">{title}</h1>
   {meta && <p class="page-header__meta" data-reveal="up" style="--i: 2">{meta}</p>}
   {
@@ -47,14 +49,18 @@ const { eyebrow, title, meta, liveUrl, liveLabel } = Astro.props;
     flex-direction: column;
     gap: u(20);
     align-items: flex-start;
-    padding: u(171) u(100) u(70);
+    padding: u(56) u(100) u(70);
   }
 
+  // The same display voice as the cover wordmark, one step down.
   .page-header__title {
+    margin-top: u(24);
     font-family: var(--font-display);
-    font-size: u(60);
+    font-size: u(160);
     font-weight: var(--weight-display);
-    line-height: normal;
+    font-stretch: 90%;
+    letter-spacing: -0.03em;
+    line-height: 0.9;
     color: var(--ink);
   }
 
@@ -71,17 +77,18 @@ const { eyebrow, title, meta, liveUrl, liveLabel } = Astro.props;
     font-size: u(18);
     font-weight: 600;
     line-height: normal;
-    color: var(--sage);
+    color: var(--ink-soft);
   }
 
   @media (max-width: 900px) {
     .page-header {
-      gap: 4px;
-      padding: 50px 24px 48px;
+      gap: 8px;
+      padding: 20px 24px 48px;
     }
 
     .page-header__title {
-      font-size: 34px;
+      margin-top: 16px;
+      font-size: 64px;
     }
 
     .page-header__meta {

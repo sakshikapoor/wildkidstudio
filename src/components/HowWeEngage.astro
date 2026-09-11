@@ -2,92 +2,67 @@
 import Offer from './Offer.astro';
 ---
 
-<section class="work" id="engage">
-  <p class="eyebrow" data-reveal="up">[2] HOW WE ENGAGE</p>
+{/*
+  Three listings side by side, split by vertical rules, in order of size:
+  try us, build with us, keep us.
+*/}
+<section class="engage" id="engage">
+  <div class="section-head" data-reveal="rule">
+    <p class="eyebrow">[4] HOW WE ENGAGE</p>
+  </div>
 
-  <div class="work__grid">
-    <div class="work__stack">
-      <Offer title="Sprint" meta="1–2 weeks" reveal="left">
-        One flow, one feature, or a design audit. A low-risk way to see how we work before a
-        larger commitment.
-      </Offer>
-      <Offer title="Retainer" meta="Ongoing design capacity" reveal="left" delay={1}>
-        Part-time weekly hours for teams that need continuous design-to-shipped-code
-        throughput without a full-time hire.
-      </Offer>
-    </div>
-
-    <div class="work__build">
-      <Offer title="Build" meta="6–8 weeks" reveal="right" delay={1}>
-        A defined v1, from design through working frontend and backend, with clear milestones
-        and milestone-based payment.
-      </Offer>
-    </div>
+  <div class="engage__grid">
+    <Offer number={1} title="Sprint" meta="1–2 weeks">
+      One flow, one feature, or a design audit. A low-risk way to see how we work before a
+      larger commitment.
+    </Offer>
+    <Offer number={2} title="Build" meta="6–8 weeks" delay={1}>
+      A defined v1, from design through working frontend and backend, with clear milestones
+      and milestone-based payment.
+    </Offer>
+    <Offer number={3} title="Retainer" meta="Ongoing design capacity" delay={2}>
+      Part-time weekly hours for teams that need continuous design-to-shipped-code
+      throughput without a full-time hire.
+    </Offer>
   </div>
 </section>
 
 <style lang="scss">
   @use "../styles/util" as *;
 
-  .work {
-    position: relative;
-    z-index: 0;
+  .engage {
     display: flex;
     flex-direction: column;
-    gap: u(70);
-    align-items: flex-start;
-    padding: u(150) u(100);
-    overflow: clip;
+    padding: u(40) u(100) u(160);
   }
 
-  .work__grid {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: u(40);
-    width: 100%;
-  }
+  .engage__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-bottom: var(--rule);
 
-  // Sprint and Retainer stack on the left; the tree artwork falls in the gap
-  // between this column and Build.
-  .work__stack {
-    display: flex;
-    flex-direction: column;
-    gap: u(100);
-    align-items: flex-start;
-
-    :global(.offer__body) {
-      width: u(315);
+    > :global(*) + :global(*) {
+      border-left: var(--rule);
     }
-  }
 
-  .work__build {
-    width: u(400);
+    // The first listing sits flush with the frame edge.
+    > :global(:first-child) {
+      padding-left: 0;
+    }
   }
 
   @media (max-width: 900px) {
-    .work {
-      gap: 48px;
-      padding: 80px 24px;
+    .engage {
+      padding: 24px 24px 88px;
     }
 
-    .work__grid {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 56px;
-    }
+    .engage__grid {
+      grid-template-columns: 1fr;
 
-    .work__stack {
-      gap: 56px;
-      width: 100%;
-
-      :global(.offer__body) {
-        width: 100%;
+      > :global(*) + :global(*) {
+        border-left: 0;
+        border-top: var(--rule);
       }
-    }
-
-    .work__build {
-      width: 100%;
     }
   }
 </style>

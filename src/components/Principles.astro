@@ -20,110 +20,133 @@ const principles = [
 ---
 
 <section class="principles" id="principles">
-  <p class="eyebrow" data-reveal="up">[4] OUR PRINCIPLES</p>
+  <div class="section-head" data-reveal="rule">
+    <p class="eyebrow">[5] OUR PRINCIPLES</p>
+  </div>
 
-  <div class="principles__list">
+  {/*
+    A glossary: number, term, definition, each entry on its own ruled row.
+    On hover the row is inked in from the bottom and the type flips to
+    paper — the entry you are reading, underlined in full.
+  */}
+  <ol class="principles__list">
     {
       principles.map((principle, i) => (
-        <div class="principle" data-reveal="up" style={`--i: ${i}`}>
+        <li class="principle" data-reveal="up" style={`--i: ${i}`}>
+          <span class="principle__no" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
           <h3 class="principle__name">{principle.name}</h3>
           <p class="principle__body">{principle.body}</p>
-        </div>
+        </li>
       ))
     }
-  </div>
+  </ol>
 </section>
 
 <style lang="scss">
   @use "../styles/util" as *;
 
   .principles {
-    position: relative;
-    z-index: 0;
     display: flex;
     flex-direction: column;
-    gap: u(70);
-    align-items: flex-start;
-    padding: u(150) u(100);
-    overflow: clip;
-    background: var(--white);
+    padding: u(40) u(100) u(160);
   }
 
   .principles__list {
-    display: flex;
-    flex-direction: column;
-    gap: u(30);
-    width: 100%;
+    list-style: none;
+    padding: 0;
+    margin: u(40) 0 0;
+    border-bottom: var(--rule);
   }
 
   .principle {
     position: relative;
-    display: flex;
-    gap: u(50);
-    align-items: center;
-    justify-content: center;
-    padding: u(40) u(20);
-    border-radius: u(8);
-    overflow: clip;
-    color: var(--white);
-    background: var(--band-box);
-    // Colour only, matching the service chips: black on hover, nothing moves.
-    transition:
-      color var(--dur-fast) var(--ease-inout),
-      background-color var(--dur-fast) var(--ease-inout);
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    column-gap: u(24);
+    align-items: baseline;
+    padding: u(26) u(16) u(30);
+    border-top: var(--rule);
+    transition: color var(--dur-fast) var(--ease-inout);
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: var(--ink);
+      transform: scaleY(0);
+      transform-origin: bottom center;
+      transition: transform var(--dur-fast) var(--ease-out);
+    }
 
     &:hover {
-      color: var(--white);
-      background: #000000;
+      color: var(--paper);
+    }
+
+    &:hover::before {
+      transform: none;
     }
   }
 
+  .principle__no {
+    grid-column: 1;
+    font-size: u(15);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    font-variant-numeric: tabular-nums;
+  }
+
   .principle__name {
-    flex-shrink: 0;
-    width: u(320);
-    font-family: var(--font-display);
-    font-size: u(30);
+    grid-column: 2 / span 4;
+    font-size: u(56);
     font-weight: var(--weight-display);
-    line-height: normal;
+    font-stretch: 90%;
+    letter-spacing: -0.025em;
+    line-height: 1;
   }
 
   .principle__body {
-    flex: 1 0 0;
-    min-width: 0;
-    font-size: u(18);
-    line-height: normal;
+    grid-column: 7 / span 6;
+    max-width: 44ch;
+    font-size: u(19);
+    line-height: 1.4;
+    text-wrap: pretty;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .principle {
+    .principle,
+    .principle::before {
       transition: none;
     }
   }
 
   @media (max-width: 900px) {
     .principles {
-      gap: 40px;
-      padding: 80px 24px;
+      padding: 24px 24px 88px;
     }
 
     .principles__list {
-      gap: 16px;
+      margin-top: 20px;
     }
 
     .principle {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 24px 20px;
-      border-radius: 8px;
+      grid-template-columns: 32px 1fr;
+      row-gap: 10px;
+      padding: 18px 0 22px;
+    }
+
+    .principle__no {
+      font-size: 12px;
     }
 
     .principle__name {
-      width: auto;
-      font-size: 20px;
+      grid-column: 2;
+      font-size: 32px;
     }
 
     .principle__body {
+      grid-column: 2;
       font-size: 16px;
     }
   }
