@@ -3,13 +3,14 @@ import { Image } from 'astro:assets';
 
 import PhoneFrame from '../PhoneFrame.astro';
 
-import fastSkimToggle from '../../assets/work/bookskim/fast-skim-toggle.png';
-import amoled from '../../assets/work/bookskim/amoled.png';
-import libraryCovers from '../../assets/work/bookskim/library-covers.png';
-import librarySearch from '../../assets/work/bookskim/library-search.png';
-import dictionary from '../../assets/work/bookskim/dictionary.png';
-import readerOptions from '../../assets/work/bookskim/reader-options.png';
-import streak from '../../assets/work/bookskim/streak.png';
+import fastSkimToggle from '../../assets/work/bookskim/fast-skim-toggle.jpeg';
+import readingPage from '../../assets/work/bookskim/reading-page.jpeg';
+import libraryCovers from '../../assets/work/bookskim/library-covers.jpeg';
+import librarySearch from '../../assets/work/bookskim/library-search.jpeg';
+import dictionary from '../../assets/work/bookskim/dictionary.jpeg';
+import readerOptions from '../../assets/work/bookskim/reader-options.jpeg';
+import streak from '../../assets/work/bookskim/streak.jpeg';
+import readingTime from '../../assets/work/bookskim/reading-time.jpeg';
 
 const facts = [
   { label: 'Platform', value: 'Android' },
@@ -46,25 +47,31 @@ const screens = [
     name: 'Search the shelf',
     note: 'The same shelf as a list, with how far along you are on every title, so a half-finished book is never hidden behind a cover.',
     src: librarySearch,
-    alt: 'BookSkim library as a searchable list of books',
+    alt: 'Searching the BookSkim library, results listed with reading progress',
   },
   {
     name: 'Long-press for a definition',
     note: 'The meaning comes up over the page, with the senses stacked and an example under each. No browser, no tab to close, no lost place.',
     src: dictionary,
-    alt: 'Dictionary sheet defining the word “inevitable” over a page of text',
+    alt: 'Dictionary sheet defining the word “convenient” over a page of text',
   },
   {
     name: 'Reader options',
-    note: 'Four themes, two faces, six sizes — one sheet, all of it one tap from the page you were on.',
+    note: 'Four themes, four faces, six sizes. Paper for the afternoon, true black for a dark room, and whatever sits easiest on your eyes in between — one sheet, one tap from the page you were on.',
     src: readerOptions,
     alt: 'Reader options sheet with theme, font size and font style controls',
   },
   {
     name: 'A streak, and nothing built on it',
-    note: 'Days read and time spent. No leaderboard, no feed, nobody else can see it.',
+    note: 'The days you read, marked across the week, and a line about the book rather than about you. No leaderboard, no feed, nobody else can see it.',
     src: streak,
-    alt: 'Two day reading streak overlay with a week of markers',
+    alt: 'Three day reading streak overlay with a week of markers',
+  },
+  {
+    name: 'Minutes, not targets',
+    note: 'Today against the week, and that is the whole of it. Nothing to hit, nothing to lose, nothing that nags you when the bar is short.',
+    src: readingTime,
+    alt: 'Reading time panel showing two minutes today against twelve this week',
   },
 ];
 
@@ -117,9 +124,10 @@ const quiet = [
       <p class="eyebrow" data-reveal="up">[2] FAST SKIM</p>
       <h2 class="section-title" data-reveal="up" style="--i: 1">A FIXED POINT<br />ON EVERY WORD</h2>
       <p class="bk-skim__note" data-reveal="up" style="--i: 2">
-        It reads faster for some people and does nothing for others, which is exactly why it ships
-        as a switch and not as the default. Off for poetry, on for textbooks — and the setting is
-        remembered per book, so the decision is made once and never asked again.
+        The bold head is an anchor. On a long line your eye has a fixed point to come back to
+        instead of drifting up into the line above, and you skim the sentence rather than re-read
+        it — which is what makes six hundred pages of a novel read like less of a climb. It does
+        more for some people than for others, so it stays a switch, remembered per book.
       </p>
     </div>
 
@@ -132,24 +140,36 @@ const quiet = [
       </figcaption>
     </figure>
 
+    <p class="bk-skim__note" data-reveal="up">
+      Which leaves the question of where the switch lives. The reader has two states, and the
+      switch belongs to the second one.
+    </p>
+
     <div class="bk-skim__pair">
       <div class="bk-shot" data-reveal="up">
         <PhoneFrame>
-          <Image src={fastSkimToggle} alt="Fast Skim Mode toggle under a page of bolded text" widths={[320, 640]} formats={['webp']} />
+          <Image src={readingPage} alt="A full-screen page of Fast Skim text, no controls in sight" widths={[320, 640]} formats={['webp']} />
         </PhoneFrame>
-        <p class="bk-shot__note">
-          The switch lives at the foot of the page rather than three levels into a settings screen,
-          because the whole point is trying it mid-paragraph.
-        </p>
+        <div class="bk-shot__body">
+          <p class="bk-shot__name">Default</p>
+          <p class="bk-shot__note">
+            The page and nothing else. Tap the edge and it curls over to the next one. No bar, no
+            progress ring, nothing sitting on top of the book.
+          </p>
+        </div>
       </div>
       <div class="bk-shot" data-reveal="up" style="--i: 1">
         <PhoneFrame>
-          <Image src={amoled} alt="A page of Fast Skim text on the true-black AMOLED theme" widths={[320, 640]} formats={['webp']} />
+          <Image src={fastSkimToggle} alt="The same page with the reader controls and the Fast Skim switch raised" widths={[320, 640]} formats={['webp']} />
         </PhoneFrame>
-        <p class="bk-shot__note">
-          The same page on the true-black theme, which turns the pixels off rather than painting
-          them dark grey. Warm type on black for reading at night.
-        </p>
+        <div class="bk-shot__body">
+          <p class="bk-shot__name">Tap the page</p>
+          <p class="bk-shot__note">
+            The controls rise: search, type, background, bookmarks, the table of contents — and the
+            Fast Skim switch at the foot, one tap from the paragraph you are testing it on rather
+            than three levels into a settings screen. Tap again and they are gone.
+          </p>
+        </div>
       </div>
     </div>
   </section>
@@ -326,6 +346,21 @@ const quiet = [
     grid-template-columns: u(260) 1fr;
     gap: u(28);
     align-items: center;
+  }
+
+  .bk-shot__body {
+    display: flex;
+    flex-direction: column;
+    gap: u(10);
+  }
+
+  // Names the state rather than captioning it — the note does the explaining.
+  .bk-shot__name {
+    font-size: u(15);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--forest);
   }
 
   .bk-shot__note {
@@ -505,6 +540,10 @@ const quiet = [
       grid-template-columns: 42% 1fr;
       gap: 16px;
       align-items: start;
+    }
+
+    .bk-shot__name {
+      font-size: 12px;
     }
 
     .bk-shot__note,
