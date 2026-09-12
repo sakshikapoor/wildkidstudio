@@ -9,6 +9,7 @@ import PicturePlaceholder from '../../components/PicturePlaceholder.astro';
 import InstaSupply from '../../components/casestudy/InstaSupply.astro';
 import Allenati from '../../components/casestudy/Allenati.astro';
 import Asci from '../../components/casestudy/Asci.astro';
+import BookSkim from '../../components/casestudy/BookSkim.astro';
 import { projects } from '../../data/projects';
 
 // One route for every project, driven by the same data as the homepage
@@ -31,7 +32,12 @@ const liveLabel =
 
 // Projects with a written-up case study render their own component in place of
 // the generic rows below. The rest still get the placeholder structure.
-const caseStudies: Record<string, boolean> = { instasupply: true, allenati: true, asci: true };
+const caseStudies: Record<string, boolean> = {
+  instasupply: true,
+  allenati: true,
+  asci: true,
+  bookskim: true,
+};
 const hasCaseStudy = caseStudies[project.slug] === true;
 
 // Generic rows for a project without its own case-study component. Each
@@ -86,6 +92,8 @@ const sections = [
             <InstaSupply />
           ) : project.slug === 'allenati' ? (
             <Allenati />
+          ) : project.slug === 'bookskim' ? (
+            <BookSkim />
           ) : (
             <Asci />
           )

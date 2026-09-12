@@ -1,0 +1,555 @@
+---
+import { Image } from 'astro:assets';
+
+import PhoneFrame from '../PhoneFrame.astro';
+
+import fastSkimToggle from '../../assets/work/bookskim/fast-skim-toggle.png';
+import amoled from '../../assets/work/bookskim/amoled.png';
+import libraryCovers from '../../assets/work/bookskim/library-covers.png';
+import librarySearch from '../../assets/work/bookskim/library-search.png';
+import dictionary from '../../assets/work/bookskim/dictionary.png';
+import readerOptions from '../../assets/work/bookskim/reader-options.png';
+import streak from '../../assets/work/bookskim/streak.png';
+
+const facts = [
+  { label: 'Platform', value: 'Android' },
+  { label: 'Scope', value: 'Product design, Android app development' },
+  { label: 'Format', value: 'EPUB, from your own files' },
+  { label: 'Price', value: 'Free. No account, no ads' },
+];
+
+// Fast Skim bolds the head of every word so the eye has a fixed point to land
+// on. The rule is proportional — roughly the first two fifths — which is why
+// one-letter words are left alone.
+function skim(text: string) {
+  return text.split(/(\s+)/).map((token) => {
+    if (!token.trim()) return { lead: '', rest: token };
+    const letters = token.replace(/[^\p{L}]/gu, '').length;
+    const cut = letters < 2 ? 0 : Math.round(letters * 0.4);
+    return { lead: token.slice(0, cut), rest: token.slice(cut) };
+  });
+}
+
+const demo = skim(
+  'On an exceptionally hot evening early in July a young man came out of the garret in which he lodged in S. Place and walked slowly, as though in hesitation, towards K. bridge.',
+);
+
+// The ordinary parts of a reader — the ones you actually spend the evening in.
+const screens = [
+  {
+    name: 'The library',
+    note: 'Covers first, progress under each one. Nothing to buy and nothing recommended — these are books you already own.',
+    src: libraryCovers,
+    alt: 'BookSkim library, cover carousel with reading progress',
+  },
+  {
+    name: 'Search the shelf',
+    note: 'The same shelf as a list, with how far along you are on every title, so a half-finished book is never hidden behind a cover.',
+    src: librarySearch,
+    alt: 'BookSkim library as a searchable list of books',
+  },
+  {
+    name: 'Long-press for a definition',
+    note: 'The meaning comes up over the page, with the senses stacked and an example under each. No browser, no tab to close, no lost place.',
+    src: dictionary,
+    alt: 'Dictionary sheet defining the word “inevitable” over a page of text',
+  },
+  {
+    name: 'Reader options',
+    note: 'Four themes, two faces, six sizes — one sheet, all of it one tap from the page you were on.',
+    src: readerOptions,
+    alt: 'Reader options sheet with theme, font size and font style controls',
+  },
+  {
+    name: 'A streak, and nothing built on it',
+    note: 'Days read and time spent. No leaderboard, no feed, nobody else can see it.',
+    src: streak,
+    alt: 'Two day reading streak overlay with a week of markers',
+  },
+];
+
+const quiet = [
+  {
+    label: 'No account',
+    body: 'No email, no password, no profile. Install it and read.',
+  },
+  {
+    label: 'No ads, ever',
+    body: 'Not a banner, not an interstitial, not a sponsored recommendation.',
+  },
+  {
+    label: 'No tracking',
+    body: 'No analytics and no behavioural profiling. Nobody knows what you read, including us.',
+  },
+  {
+    label: 'Offline by default',
+    body: 'The app reaches the internet only when you tap a word or send a bug report. Books, highlights and stats live on the phone.',
+  },
+];
+---
+
+<article class="bk">
+  <section class="bk-brief">
+    <p class="eyebrow" data-reveal="up">[1] THE BRIEF</p>
+    <div class="bk-brief__body">
+      <p class="bk-lede" data-reveal="up" style="--i: 1">
+        Most people have a folder of EPUBs and a phone that will not open them nicely. BookSkim is
+        the reader for that folder — and it carries one idea of its own: turn on Fast Skim and the
+        start of every word goes bold, so your eye has something to land on and stops sliding back
+        over the line you just read. The promise on the box is a sentence, not a feature list:
+        finish the books you start.
+      </p>
+      <dl class="bk-facts">
+        {
+          facts.map((fact, i) => (
+            <div class="bk-fact" data-reveal="up" style={`--i: ${i}`}>
+              <dt>{fact.label}</dt>
+              <dd>{fact.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <section class="bk-skim">
+    <div class="bk-skim__head">
+      <p class="eyebrow" data-reveal="up">[2] FAST SKIM</p>
+      <h2 class="section-title" data-reveal="up" style="--i: 1">A FIXED POINT<br />ON EVERY WORD</h2>
+      <p class="bk-skim__note" data-reveal="up" style="--i: 2">
+        It reads faster for some people and does nothing for others, which is exactly why it ships
+        as a switch and not as the default. Off for poetry, on for textbooks — and the setting is
+        remembered per book, so the decision is made once and never asked again.
+      </p>
+    </div>
+
+    <figure class="bk-demo" data-reveal="up">
+      <p class="bk-demo__text">
+        {demo.map((word) => (word.lead ? <><b>{word.lead}</b>{word.rest}</> : word.rest))}
+      </p>
+      <figcaption class="bk-demo__caption">
+        Crime and Punishment, chapter one — set the way Fast Skim sets it
+      </figcaption>
+    </figure>
+
+    <div class="bk-skim__pair">
+      <div class="bk-shot" data-reveal="up">
+        <PhoneFrame>
+          <Image src={fastSkimToggle} alt="Fast Skim Mode toggle under a page of bolded text" widths={[320, 640]} formats={['webp']} />
+        </PhoneFrame>
+        <p class="bk-shot__note">
+          The switch lives at the foot of the page rather than three levels into a settings screen,
+          because the whole point is trying it mid-paragraph.
+        </p>
+      </div>
+      <div class="bk-shot" data-reveal="up" style="--i: 1">
+        <PhoneFrame>
+          <Image src={amoled} alt="A page of Fast Skim text on the true-black AMOLED theme" widths={[320, 640]} formats={['webp']} />
+        </PhoneFrame>
+        <p class="bk-shot__note">
+          The same page on the true-black theme, which turns the pixels off rather than painting
+          them dark grey. Warm type on black for reading at night.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bk-rest">
+    <div class="bk-rest__head">
+      <p class="eyebrow" data-reveal="up">[3] EVERYTHING ELSE IT DOES</p>
+      <p class="bk-rest__note" data-reveal="up" style="--i: 1">
+        One idea is not a product. You spend most of an evening in the ordinary parts of a reader —
+        the shelf, the page, the word you did not know — so those had to be at least as considered
+        as the thing the app is named for.
+      </p>
+    </div>
+
+    <div class="bk-rest__grid">
+      {
+        screens.map((screen, i) => (
+          <figure class="bk-screen" data-reveal="up" style={`--i: ${i % 3}`}>
+            <PhoneFrame>
+              <Image src={screen.src} alt={screen.alt} widths={[300, 600]} formats={['webp']} />
+            </PhoneFrame>
+            <figcaption class="bk-screen__caption">
+              <p class="bk-screen__name">{screen.name}</p>
+              <p class="bk-screen__note">{screen.note}</p>
+            </figcaption>
+          </figure>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="bk-quiet">
+    <div class="bk-quiet__head">
+      <p class="eyebrow" data-reveal="up">[4] WHY IT STAYS QUIET</p>
+      <h2 class="section-title" data-reveal="up" style="--i: 1">IT WON’T ASK YOU<br />FOR ANYTHING</h2>
+    </div>
+    <dl class="bk-quiet__list">
+      {
+        quiet.map((item, i) => (
+          <div class="bk-quiet__row" data-reveal="up" style={`--i: ${i}`}>
+            <dt>{item.label}</dt>
+            <dd>{item.body}</dd>
+          </div>
+        ))
+      }
+    </dl>
+    <p class="bk-quiet__close" data-reveal="up">
+      Free. Offline. Yours. You already have the books — this opens them.
+    </p>
+  </section>
+</article>
+
+<style lang="scss">
+  @use "../../styles/util" as *;
+
+  .bk section {
+    position: relative;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    gap: u(50);
+    align-items: flex-start;
+    padding: u(100);
+  }
+
+  // --- Brief ------------------------------------------------------------
+  .bk-brief {
+    padding-top: u(70);
+  }
+
+  .bk-brief__body {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: u(80);
+    width: 100%;
+  }
+
+  .bk-lede {
+    width: u(680);
+    font-size: u(20);
+    line-height: 1.3;
+    color: var(--body);
+  }
+
+  .bk-facts {
+    display: flex;
+    flex-direction: column;
+    gap: u(24);
+    width: u(400);
+  }
+
+  .bk-fact {
+    display: flex;
+    flex-direction: column;
+    gap: u(4);
+    font-size: u(20);
+    line-height: 1.3;
+
+    dt {
+      font-weight: 600;
+      color: var(--sage);
+    }
+
+    dd {
+      margin: 0;
+      color: var(--ink);
+    }
+  }
+
+  // --- Fast Skim --------------------------------------------------------
+  .bk-skim {
+    gap: u(60);
+    background: var(--showreel);
+  }
+
+  .bk-skim__head {
+    display: flex;
+    flex-direction: column;
+    gap: u(20);
+  }
+
+  .bk-skim__note {
+    width: u(680);
+    font-size: u(18);
+    line-height: 1.35;
+    color: var(--body);
+  }
+
+  // The effect demonstrated rather than described: the same rule the app
+  // applies, run over a paragraph of the book it ships its screenshots from.
+  .bk-demo {
+    width: 100%;
+    margin: 0;
+    padding: u(40) u(48) u(28);
+    border: var(--rule);
+    border-radius: u(12);
+    background: var(--paper);
+  }
+
+  .bk-demo__text {
+    max-width: u(900);
+    font-size: u(28);
+    font-weight: 400;
+    line-height: 1.45;
+    color: var(--ink);
+    text-wrap: pretty;
+
+    b {
+      font-weight: 700;
+    }
+  }
+
+  .bk-demo__caption {
+    margin-top: u(24);
+    padding-top: u(12);
+    border-top: var(--rule);
+    font-size: u(15);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--sage);
+  }
+
+  .bk-skim__pair {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: u(60);
+    width: 100%;
+  }
+
+  .bk-shot {
+    display: grid;
+    grid-template-columns: u(260) 1fr;
+    gap: u(28);
+    align-items: center;
+  }
+
+  .bk-shot__note {
+    font-size: u(17);
+    line-height: 1.35;
+    color: var(--body);
+  }
+
+  // --- The rest of the reader -------------------------------------------
+  .bk-rest {
+    gap: u(60);
+  }
+
+  .bk-rest__head {
+    display: flex;
+    flex-direction: column;
+    gap: u(20);
+  }
+
+  .bk-rest__note {
+    width: u(680);
+    font-size: u(18);
+    line-height: 1.35;
+    color: var(--body);
+  }
+
+  .bk-rest__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: u(60) u(50);
+    width: 100%;
+  }
+
+  // A 9:20 handset filling a third of the frame is taller than the browser
+  // window, so the phone keeps a fixed width inside its cell.
+  .bk-screen {
+    display: flex;
+    flex-direction: column;
+    gap: u(20);
+    margin: 0;
+
+    :global(.phone) {
+      width: u(250);
+    }
+  }
+
+  .bk-screen__caption {
+    display: flex;
+    flex-direction: column;
+    gap: u(8);
+    padding-top: u(14);
+    border-top: var(--rule);
+  }
+
+  .bk-screen__name {
+    font-size: u(15);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--forest);
+  }
+
+  .bk-screen__note {
+    font-size: u(17);
+    line-height: 1.35;
+    color: var(--body);
+  }
+
+  // --- The quiet promises -----------------------------------------------
+  .bk-quiet {
+    gap: u(50);
+    background: var(--showreel);
+  }
+
+  .bk-quiet__head {
+    display: flex;
+    flex-direction: column;
+    gap: u(20);
+  }
+
+  .bk-quiet__list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .bk-quiet__row {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    column-gap: u(24);
+    align-items: baseline;
+    padding: u(24) 0 u(28);
+    border-top: var(--rule);
+
+    &:last-child {
+      border-bottom: var(--rule);
+    }
+
+    dt {
+      grid-column: 1 / span 4;
+      font-size: u(15);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    dd {
+      grid-column: 6 / span 7;
+      max-width: 48ch;
+      margin: 0;
+      font-size: u(24);
+      font-weight: 500;
+      line-height: 1.3;
+      text-wrap: pretty;
+    }
+  }
+
+  .bk-quiet__close {
+    width: u(680);
+    font-size: u(18);
+    line-height: 1.35;
+    color: var(--body);
+  }
+
+  @media (max-width: 900px) {
+    .bk section {
+      gap: 32px;
+      padding: 56px 24px;
+    }
+
+    .bk-brief__body {
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .bk-lede,
+    .bk-facts,
+    .bk-skim__note,
+    .bk-rest__note,
+    .bk-quiet__close {
+      width: 100%;
+    }
+
+    .bk-lede {
+      font-size: 16px;
+    }
+
+    .bk-fact,
+    .bk-skim__note,
+    .bk-rest__note,
+    .bk-quiet__close {
+      font-size: 15px;
+    }
+
+    .bk-demo {
+      padding: 20px 20px 16px;
+      border-radius: 8px;
+    }
+
+    .bk-demo__text {
+      font-size: 18px;
+    }
+
+    .bk-demo__caption {
+      margin-top: 16px;
+      font-size: 11px;
+    }
+
+    .bk-skim__pair {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    // The screenshot keeps a column of its own rather than going full width —
+    // a 9:20 phone at 100% of a handset is taller than the screen it is on.
+    .bk-shot {
+      grid-template-columns: 42% 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .bk-shot__note,
+    .bk-screen__note {
+      font-size: 15px;
+    }
+
+    .bk-rest__grid {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    // Same reason: phone on the left, its caption alongside.
+    .bk-screen {
+      display: grid;
+      grid-template-columns: 42% 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .bk-screen :global(.phone) {
+      width: 100%;
+    }
+
+    .bk-screen__caption {
+      padding-top: 10px;
+    }
+
+    .bk-screen__name {
+      font-size: 12px;
+    }
+
+    .bk-quiet__row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 16px 0 20px;
+
+      dt {
+        font-size: 12px;
+      }
+
+      dd {
+        font-size: 18px;
+      }
+    }
+  }
+</style>

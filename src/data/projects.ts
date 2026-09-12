@@ -3,7 +3,6 @@ import type { ImageMetadata } from 'astro';
 import instasupply from '../assets/instasupply_cover.png';
 import allenati from '../assets/work/allenati.png';
 import asci from '../assets/work/asci.png';
-import admitspot from '../assets/admitspot_cover.png';
 import richapi from '../assets/richapi_cover.png';
 import bookskim from '../assets/Bookskim_cover.png';
 
@@ -33,8 +32,8 @@ export interface Project {
 
 // Order is the order of the plates on the homepage.
 export const projects: Project[] = [
-  // Not yet written up: richapi, bookskim, admitspot. Fill in disciplines,
-  // summary, year and role as each one is ready; nothing else needs to change.
+  // Not yet written up: richapi. Fill in disciplines, summary, year and role
+  // as it is ready; nothing else needs to change.
   {
     slug: 'richapi',
     name: 'RichAPI',
@@ -46,10 +45,15 @@ export const projects: Project[] = [
   {
     slug: 'bookskim',
     name: 'BookSkim',
-    disciplines: 'Case study coming soon',
+    disciplines: 'Product Design, Android App Development',
     cover: bookskim,
     coverAlt: 'BookSkim app open on a phone at a desk',
-    summary: 'Case study coming soon.',
+    summary:
+      'An EPUB reader for the folder of books you already have. One idea of its own — Fast Skim, which bolds the head of every word so your eye stops sliding back over the line — wrapped in a reader that asks you for nothing.',
+    year: '2026',
+    role: 'Product Design, Android App Development',
+    liveUrl: 'https://play.google.com/store/apps/details?id=com.wildkidstudio.bookskim',
+    liveLabel: 'Get it on Google Play',
   },
   {
     slug: 'allenati',
@@ -87,13 +91,5 @@ export const projects: Project[] = [
     year: '2025',
     role: 'Website Design',
     liveUrl: 'https://asci.co.in',
-  },
-  {
-    slug: 'admitspot',
-    name: 'AdmitSpot',
-    disciplines: 'Case study coming soon',
-    cover: admitspot,
-    coverAlt: 'AdmitSpot webinar page on a laptop',
-    summary: 'Case study coming soon.',
   },
 ];

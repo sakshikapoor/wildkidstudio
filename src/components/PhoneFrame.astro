@@ -1,0 +1,73 @@
+---
+// A handset drawn in the catalogue's one ink: a hairline outline with a
+// power key on the right edge, nothing else. It sits *around* a screenshot
+// rather than over it, so the app's own status bar stays readable.
+interface Props {
+  /** Sizing class from the caller — the frame itself has no width of its own. */
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<div class:list={['phone', className]}>
+  <div class="phone__screen">
+    <slot />
+  </div>
+</div>
+
+<style lang="scss">
+  @use "../styles/util" as *;
+
+  .phone {
+    position: relative;
+    padding: u(7);
+    border: var(--rule);
+    border-radius: u(42);
+    background: var(--paper);
+  }
+
+  // The power key. Drawn outside the outline so it reads as a side view of
+  // the same pen stroke.
+  .phone::after {
+    content: "";
+    position: absolute;
+    top: 22%;
+    right: u(-3);
+    width: u(3);
+    height: u(60);
+    border-radius: 0 u(3) u(3) 0;
+    background: var(--ink);
+  }
+
+  .phone__screen {
+    overflow: hidden;
+    border-radius: u(35);
+    // Android screenshots are 9:20 and every one of these is edge to edge,
+    // so the screen box takes its height from the image.
+    background: var(--tint);
+  }
+
+  .phone__screen :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  @media (max-width: 900px) {
+    .phone {
+      padding: 5px;
+      border-radius: 28px;
+    }
+
+    .phone::after {
+      right: -2px;
+      width: 2px;
+      height: 44px;
+    }
+
+    .phone__screen {
+      border-radius: 24px;
+    }
+  }
+</style>
