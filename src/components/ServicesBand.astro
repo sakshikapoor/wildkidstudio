@@ -172,6 +172,18 @@ const services = [
 
     .index__name {
       font-size: 24px;
+
+      // The row marker is tapped rather than hovered here, so it needs to
+      // read as a deliberate mark at a glance, not a speck.
+      &::before {
+        left: -18px;
+        width: 8px;
+        height: 8px;
+      }
+    }
+
+    .index__row:hover .index__name {
+      transform: translateX(20px);
     }
   }
 </style>

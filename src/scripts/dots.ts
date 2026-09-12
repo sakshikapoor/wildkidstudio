@@ -16,6 +16,9 @@
 /** How close to the pointer, as a fraction of the reach, a dot turns accent. */
 const ACCENT_CORE = 0.78;
 
+/** The darkest a dot goes at the heart of the pointer's dent. */
+const DENT_ALPHA = 0.5;
+
 interface Field {
   host: HTMLElement;
   canvas: HTMLCanvasElement;
@@ -82,7 +85,7 @@ function draw(field: Field, seconds: number) {
       let y = originY + j * gap;
       let r = 1.6;
       // A faint breathing wave, so the field is not perfectly still.
-      let alpha = reduced ? 0.33 : 0.28 + 0.1 * Math.sin(seconds * 0.6 + i * 0.35 + j * 0.5);
+      let alpha = reduced ? 0.16 : 0.14 + 0.05 * Math.sin(seconds * 0.6 + i * 0.35 + j * 0.5);
       let colour = field.ink;
 
       const dx = x - px;
@@ -94,7 +97,9 @@ function draw(field: Field, seconds: number) {
         x += (dx / d) * push;
         y += (dy / d) * push;
         r += f * 3.2;
-        alpha += f * (1 - alpha);
+        // The dent brightens the dots it touches, but only up to a half
+        // tone — at full ink it fights the copy sitting over the field.
+        alpha += f * Math.max(0, DENT_ALPHA - alpha);
         if (f > ACCENT_CORE) colour = field.accent;
       }
 

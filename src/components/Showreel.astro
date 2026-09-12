@@ -11,6 +11,7 @@
 // projects in src/data/projects.ts slot into the pattern on their own.
 import { Image } from 'astro:assets';
 import PicturePlaceholder from './PicturePlaceholder.astro';
+import ArrowIcon from './ArrowIcon.astro';
 import { projects } from '../data/projects';
 
 // How wide each plate renders, following the pattern in the styles below,
@@ -59,7 +60,9 @@ const sizesFor = (i: number) => {
           </div>
           <div class="plates__caption">
             <span class="plates__name">{project.name}</span>
-            <span class="plates__arrow" aria-hidden="true">↗</span>
+            <span class="plates__arrow">
+              <ArrowIcon />
+            </span>
           </div>
           <p class="plates__disciplines">{project.disciplines}</p>
         </a>
@@ -151,8 +154,9 @@ const sizesFor = (i: number) => {
 
   // The arrow takes the accent as it moves off, marking the plate you are on.
   .plates__arrow {
-    font-size: u(30);
-    font-weight: 600;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
     transition:
       transform var(--dur-fast) var(--ease-out),
       color var(--dur-fast) var(--ease-out);
@@ -210,10 +214,6 @@ const sizesFor = (i: number) => {
 
     .plates__name {
       font-size: 32px;
-    }
-
-    .plates__arrow {
-      font-size: 22px;
     }
 
     .plates__disciplines {
