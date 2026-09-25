@@ -4,7 +4,6 @@
 // in ballpoint that opens to full colour on hover, like the work below it.
 import { bookingUrl } from '../data/site';
 import PenPlate from './PenPlate.astro';
-import DotField from './DotField.astro';
 
 // Anything bright with a clear subject and real shadows hatches well.
 import coverArt from '../assets/made_in_bengaluru.png';
@@ -14,8 +13,6 @@ const intro =
 ---
 
 <section class="cover">
-  <DotField />
-
   <div class="section-head cover__head cover__enter" style="--i: 0">
     <p class="eyebrow">[0] EST. 2025</p>
     <p class="eyebrow cover__place">[1] BENGALURU, INDIA</p>
@@ -62,11 +59,7 @@ const intro =
 <style lang="scss">
   @use "../styles/util" as *;
 
-  // Positioned and isolated so the dot field can sit behind everything in
-  // the cover without slipping under the page.
   .cover {
-    position: relative;
-    isolation: isolate;
     display: flex;
     flex-direction: column;
     padding: u(56) u(100) u(96);

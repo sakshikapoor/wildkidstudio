@@ -31,6 +31,10 @@ const ogImageUrl = new URL(ogImage, Astro.site);
 
     <meta name="theme-color" content="#f7f7f3" />
 
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
     <!--
       Set before the stylesheet so the reveal system's hidden state applies on
       the first paint. Without scripting the class never lands and every
@@ -39,9 +43,6 @@ const ogImageUrl = new URL(ogImage, Astro.site);
     <script is:inline>
       document.documentElement.classList.add('js');
     </script>
-
-    <link rel="icon" type="image/png" href="/assets/favicon.png" />
-    <link rel="apple-touch-icon" href="/assets/favicon.png" />
 
     <title>{title}</title>
     <meta name="description" content={description} />
