@@ -1,11 +1,13 @@
 ---
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 
 import Layout from '../../layouts/Layout.astro';
 import Nav from '../../components/Nav.astro';
-import PageHeader from '../../components/PageHeader.astro';
-import ContactCta from '../../components/ContactCta.astro';
+import GridFlow from '../../components/grid/GridFlow.astro';
+import GridContact from '../../components/grid/GridContact.astro';
+import { place, rows, blockClass, blockStyle, pad, type Block } from '../../components/grid/grid';
 import PicturePlaceholder from '../../components/PicturePlaceholder.astro';
+import LiveSite from '../../components/LiveSite.astro';
 import InstaSupply from '../../components/casestudy/InstaSupply.astro';
 import Allenati from '../../components/casestudy/Allenati.astro';
 import Asci from '../../components/casestudy/Asci.astro';
@@ -23,6 +25,12 @@ export function getStaticPaths() {
 
 const { project, index } = Astro.props;
 const next = projects[(index + 1) % projects.length];
+
+// The cover, cut to the share-card shape. A project with no cover yet falls
+// back to the studio's own card.
+const ogImage = project.cover
+  ? (await getImage({ src: project.cover, width: 1200, height: 630, fit: 'cover', format: 'jpg' })).src
+  : undefined;
 
 // A domain reads better than a URL on a button, but an app store link needs
 // its own wording — so the project can override it.
@@ -52,69 +60,104 @@ const sections = [
   { label: 'Outcome', body: 'Case study copy and supporting imagery to come.' },
   project.year && { label: 'Year', body: project.year },
 ].filter((section): section is { label: string; body: string } => Boolean(section));
+
+// A few squares of colour around the header, the same on every project.
+const blocks: Block[] = [
+];
 ---
 
 <Layout
   title={`${project.name} — WildKid Studio`}
   description={project.summary}
+  ogImage={ogImage}
 >
   <div class="page">
     <Nav />
-    <main>
-      <PageHeader
-        eyebrow={`[2] WORK / ${String(index + 1).padStart(2, '0')}`}
-        title={project.name}
-        meta={project.disciplines}
-        liveUrl={project.liveUrl}
-        liveLabel={liveLabel}
-      />
+    <main class="g">
+      <section class="g__sec" style={rows(21, 16)}>
+        <p class="g__label" style={place([2, 1, 6, 1], [1, 1, 6, 1])}>
+          <span>Work</span><span>{pad(index + 1)} / {pad(projects.length)}</span>
+        </p>
 
-      <div class="project__cover" data-reveal="mask">
+        <h1 class="g__title project__title" style={place([2, 2, 14, 3], [1, 2, 8, 2])}>
+          <span>{project.name}</span>
+        </h1>
+
+        <div class="g__panel g__card project__meta" style={place([16, 3, 8, 2], [1, 5, 8, 3])}>
+          {project.year && <p class="g__card-meta">{project.year}</p>}
+          <p>{project.disciplines}</p>
+        </div>
+
         {
-          project.cover ? (
-            <Image
-              src={project.cover}
-              alt={project.coverAlt ?? ''}
-              width={1312}
-              height={795}
-              densities={[1, 2]}
-              formats={['webp']}
-            />
-          ) : (
-            <PicturePlaceholder aspect="1312 / 795" />
+          project.liveUrl && (
+            <a class="g__cta" href={project.liveUrl} target="_blank" rel="noopener" style={place([16, 5, 6, 1], [1, 8, 7, 1])}>
+              {liveLabel} <span aria-hidden="true">↗</span>
+            </a>
           )
         }
-      </div>
 
-      {
-        hasCaseStudy ? (
-          project.slug === 'instasupply' ? (
-            <InstaSupply />
-          ) : project.slug === 'allenati' ? (
-            <Allenati />
-          ) : project.slug === 'bookskim' ? (
-            <BookSkim />
+        <div class="g__cover-img" style={place([2, 7, 22, 13], [1, 10, 8, 5])}>
+          {
+            project.cover ? (
+              <Image
+                src={project.cover}
+                alt={project.coverAlt ?? ''}
+                widths={[760, 1400, 2200]}
+                sizes="(max-width: 900px) 100vw, 92vw"
+                format="webp"
+                loading="eager"
+              />
+            ) : (
+              <PicturePlaceholder />
+            )
+          }
+        </div>
+
+        {blocks.map((b, i) => <span class:list={[...blockClass(b), 'g__pop']} style={blockStyle(b, i)} aria-hidden="true" />)}
+      </section>
+
+      <GridFlow>
+        {
+          hasCaseStudy ? (
+            project.slug === 'instasupply' ? (
+              <InstaSupply />
+            ) : project.slug === 'allenati' ? (
+              <Allenati />
+            ) : project.slug === 'bookskim' ? (
+              <BookSkim />
+            ) : (
+              <Asci />
+            )
           ) : (
-            <Asci />
+            <section class="project">
+              {project.livePreview && project.liveUrl && (
+                <div class="project__live">
+                  <LiveSite url={project.liveUrl} title={`${project.name}, the live site`} />
+                </div>
+              )}
+              {sections.map((section, i) => (
+                <div class="project__row" data-reveal="up" style={`--i: ${i}`}>
+                  <h2 class="project__label">{section.label}</h2>
+                  <p class="project__body">{section.body}</p>
+                </div>
+              ))}
+            </section>
           )
-        ) : (
-          <section class="project">
-            {sections.map((section, i) => (
-              <div class="project__row" data-reveal="up" style={`--i: ${i}`}>
-                <h2 class="project__label">{section.label}</h2>
-                <p class="project__body">{section.body}</p>
-              </div>
-            ))}
-          </section>
-        )
-      }
+        }
+      </GridFlow>
 
-      <a class="project__next" href={`/work/${next.slug}`} data-reveal="up">
-        <span class="project__next-label">Next project</span>
-        <span class="project__next-name">{next.name}</span>
-      </a>
+      <section class="g__sec" style={rows(6, 6)}>
+        <p class="g__label" style={place([2, 2, 5, 1], [1, 2, 5, 1])}>
+          <span>Next project</span><span>{pad(((index + 1) % projects.length) + 1)}</span>
+        </p>
+        <a class="g__panel g__display project__next" href={`/work/${next.slug}`} style={place([2, 3, 14, 2], [1, 3, 8, 2])}>
+          <span>{next.name}</span>
+          <span class="project__next-arrow" aria-hidden="true">→</span>
+        </a>
+        <span class="g__block g__block--fill" style={`${place([17, 4, 1, 1])}; --c: var(--g-pink)`} aria-hidden="true" data-reveal="scale" />
+      </section>
 
-      <ContactCta />
+      <GridContact />
     </main>
   </div>
 </Layout>
@@ -122,28 +165,24 @@ const sections = [
 <style lang="scss">
   @use "../../styles/util" as *;
 
-  // The sources have different native aspect ratios, so the frame is pinned
-  // to one ratio and the image is cropped into it. Without this each project
-  // page gets a different height.
-  .project__cover {
-    padding: 0 u(100);
-
-    img {
-      display: block;
-      width: 100%;
-      height: auto;
-      aspect-ratio: 1312 / 795;
-      object-fit: cover;
-      background: var(--tint);
-    }
+  // A project's name on one line, sized to fit the longest of them.
+  .project__meta {
+    justify-content: center;
+    font-size: calc(var(--cell) * 0.28);
   }
 
-  // The generic write-up: ruled rows, label on the left, copy on the right —
-  // the same catalogue entry as the principles on the homepage.
+  // The generic write-up, for a project without its own case study: ruled
+  // rows, label on the left, copy on the right.
   .project {
     display: flex;
     flex-direction: column;
-    padding: u(80) u(100) u(40);
+    padding: u(64) u(64) u(40);
+  }
+
+  // The live site, when a project shows one, above its rows. It runs out to
+  // the sheet's edges, the full width the cover above it has.
+  .project__live {
+    margin: u(-64) u(-64) u(64);
   }
 
   .project__row {
@@ -176,77 +215,47 @@ const sections = [
     text-wrap: pretty;
   }
 
+  // The next project's name, sliding its arrow along on hover.
   .project__next {
     display: flex;
-    flex-direction: column;
-    gap: u(10);
-    align-items: flex-start;
-    // The case studies end on a full-bleed section, so the link needs room of
-    // its own rather than sitting straight under the last screen.
-    margin-top: u(60);
-    padding: 0 u(100) u(150);
-    text-decoration: none;
+    align-items: center;
+    gap: calc(var(--cell) * 0.4);
+    padding: 0 calc(var(--cell) * 0.3);
     color: var(--ink);
+    text-decoration: none;
+    transform: none;
   }
 
-  // An accent dot pops in beside the label on hover — the same finger on
-  // the index as the nav links.
-  .project__next-label {
-    position: relative;
-    font-size: u(15);
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-
-    &::before {
-      content: "";
-      position: absolute;
-      left: u(-14);
-      top: 50%;
-      width: u(7);
-      height: u(7);
-      border-radius: 50%;
-      background: var(--dot);
-      transform: translateY(-50%) scale(0);
-      transition: transform var(--dur-fast) cubic-bezier(0.3, 1.6, 0.5, 1);
-    }
+  .project__next-arrow {
+    transition: transform 300ms var(--ease-out);
   }
 
-  .project__next:hover .project__next-label::before,
-  .project__next:focus-visible .project__next-label::before {
-    transform: translateY(-50%) scale(1);
-  }
-
-  .project__next-name {
-    font-size: u(120);
-    font-weight: var(--weight-display);
-    font-stretch: 90%;
-    letter-spacing: -0.03em;
-    line-height: 0.95;
-    transition: transform var(--dur-fast) var(--ease-out);
-  }
-
-  .project__next:hover .project__next-name {
-    transform: translateX(u(16));
+  .project__next:hover .project__next-arrow,
+  .project__next:focus-visible .project__next-arrow {
+    transform: translateX(calc(var(--cell) * 0.5));
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .project__next-name {
+    .project__next-arrow {
       transition: none;
-    }
-
-    .project__next:hover .project__next-name {
-      transform: none;
     }
   }
 
   @media (max-width: 900px) {
-    .project__cover {
-      padding: 0 24px;
+    .project__title {
+      font-size: calc(var(--cell) * 0.85);
+    }
+
+    .project__meta {
+      font-size: 15px;
     }
 
     .project {
-      padding: 40px 24px 24px;
+      padding: 32px 16px 16px;
+    }
+
+    .project__live {
+      margin: -32px -16px 32px;
     }
 
     .project__row {
@@ -265,16 +274,7 @@ const sections = [
     }
 
     .project__next {
-      margin-top: 32px;
-      padding: 0 24px 80px;
-    }
-
-    .project__next-label {
-      font-size: 12px;
-    }
-
-    .project__next-name {
-      font-size: 48px;
+      padding: 0 14px;
     }
   }
 </style>

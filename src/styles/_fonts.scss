@@ -1,20 +1,18 @@
-// Bricolage Grotesque, self-hosted from public/fonts/. It is a variable font
-// on three axes, and handing each range to the browser is what lets any
-// weight, width or optical size the CSS asks for be interpolated from the one
-// file:
+// Two faces, self-hosted from public/fonts/:
 //
-//   wght  200–800   `font-weight`
-//   wdth   75–100   `font-stretch`
-//   opsz   12–96    follows the font size automatically (font-optical-sizing)
+//   Inter Tight  headings — the name, display lines, titles    wght 100–900
+//   Inter        everything else                               wght 100–900,
+//                                                              opsz 14–32
 //
-// Split by script the way Google Fonts serves it, so a page in plain English
-// only ever downloads the latin file.
+// Both are variable, so any weight the CSS asks for comes from the one file;
+// Inter's optical size follows the font size on its own. Split by script the
+// way Google Fonts serves them, so a page in plain English only ever
+// downloads the latin files.
 
 @font-face {
-    font-family: "Bricolage Grotesque";
-    src: url("/fonts/BricolageGrotesque-Variable-latin.woff2") format("woff2");
-    font-weight: 200 800;
-    font-stretch: 75% 100%;
+    font-family: "Inter Tight";
+    src: url("/fonts/InterTight-Variable-latin.woff2") format("woff2");
+    font-weight: 100 900;
     font-style: normal;
     font-display: swap;
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
@@ -23,10 +21,31 @@
 }
 
 @font-face {
-    font-family: "Bricolage Grotesque";
-    src: url("/fonts/BricolageGrotesque-Variable-latin-ext.woff2") format("woff2");
-    font-weight: 200 800;
-    font-stretch: 75% 100%;
+    font-family: "Inter Tight";
+    src: url("/fonts/InterTight-Variable-latin-ext.woff2") format("woff2");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+        U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+        U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+    font-family: "Inter";
+    src: url("/fonts/Inter-Variable-latin.woff2") format("woff2");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+        U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191,
+        U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: "Inter";
+    src: url("/fonts/Inter-Variable-latin-ext.woff2") format("woff2");
+    font-weight: 100 900;
     font-style: normal;
     font-display: swap;
     unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,

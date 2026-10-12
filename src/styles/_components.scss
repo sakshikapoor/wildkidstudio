@@ -145,25 +145,3 @@
         font-size: 15px;
     }
 }
-
-// The line under a plate: its number on the left, what it is on the right,
-// in the running-head voice.
-.plate-caption {
-    display: flex;
-    justify-content: space-between;
-    gap: u(16);
-    margin-top: u(12);
-    font-size: u(13);
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    line-height: 1.2;
-    color: var(--ink);
-}
-
-@media (max-width: 900px) {
-    .plate-caption {
-        margin-top: 8px;
-        font-size: 11px;
-    }
-}

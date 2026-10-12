@@ -1,0 +1,30 @@
+---
+// The closing section on every page: the ask, the terms, and two ways in.
+import { bookingUrl } from '../../data/site';
+import { place, rows, blockClass, blockStyle, type Block } from './grid';
+
+const blocks: Block[] = [
+  { d: [19, 2, 1, 1], m: [1, 6, 1, 1], kind: 'fill', c: 'ink' },
+  { d: [21, 3, 1, 1], m: [3, 6, 1, 1], kind: 'stripes', c: 'blue', c2: 'pink' },
+  { d: [20, 5, 1, 1], m: [6, 6, 1, 1], kind: 'fill', c: 'yellow' },
+  { d: [22, 6, 1, 1], m: [8, 6, 1, 1], kind: 'fill', c: 'orange' },
+];
+---
+
+<section class="g__sec" id="contact" style={rows(12, 14)}>
+  <h2 class="g__display" style={place([2, 2, 16, 4], [1, 2, 8, 3])}>Tell us what you’re building</h2>
+
+  <p class="g__panel g__points" style={place([2, 7, 9, 2], [1, 8, 8, 3])}>
+    Fixed-scope engagements. Transparent pricing. Weekly working sessions. You see the work in progress, not just
+    the polished reveal.
+  </p>
+
+  <a class="g__cta" href={bookingUrl} target="_blank" rel="noopener" style={place([2, 10, 4, 1], [1, 12, 5, 1])}>
+    Book intro call <span aria-hidden="true">↗</span>
+  </a>
+  <a class="g__panel g__email" href="mailto:hello@wildkidstudio.in" style={place([7, 10, 6, 1], [1, 13, 8, 1])}>
+    hello@wildkidstudio.in
+  </a>
+
+  {blocks.map((b, i) => <span class:list={blockClass(b)} style={blockStyle(b, i)} aria-hidden="true" data-reveal="scale" />)}
+</section>

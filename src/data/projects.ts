@@ -28,6 +28,11 @@ export interface Project {
   liveUrl?: string;
   /** Button label for it. Defaults to "Visit <domain>". */
   liveLabel?: string;
+  /**
+   * Show the live product in a browser window on the project page. Only for a
+   * site that allows itself to be framed.
+   */
+  livePreview?: boolean;
 }
 
 // Order is the order of the plates on the homepage.
@@ -41,6 +46,8 @@ export const projects: Project[] = [
     cover: richapi,
     coverAlt: 'RichAPI homepage on a laptop',
     summary: 'Case study coming soon.',
+    liveUrl: 'https://richapi.ai',
+    livePreview: true,
   },
   {
     slug: 'bookskim',

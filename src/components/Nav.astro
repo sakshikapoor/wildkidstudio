@@ -12,7 +12,7 @@ const links = [
   <nav class="nav__links" aria-label="Primary">
     {links.map((link) => <a href={link.href}>{link.label}</a>)}
   </nav>
-  <a class="btn btn--dark nav__email" href="mailto:hello@wildkidstudio.in">
+  <a class="nav__cta nav__email" href="mailto:hello@wildkidstudio.in">
     hello@wildkidstudio.in
   </a>
 
@@ -42,7 +42,7 @@ const links = [
     <nav class="nav__menu-links" aria-label="Menu">
       {links.map((link) => <a href={link.href}>{link.label}</a>)}
     </nav>
-    <a class="btn btn--dark nav__menu-email" href="mailto:hello@wildkidstudio.in">
+    <a class="nav__cta nav__menu-email" href="mailto:hello@wildkidstudio.in">
       hello@wildkidstudio.in
     </a>
   </div>
@@ -55,9 +55,11 @@ const links = [
     position: sticky;
     top: 0;
     z-index: 10;
-    display: flex;
+    // The mark and the button share what the links leave over, so the links
+    // land dead centre whatever either of them measures.
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    justify-content: space-between;
     gap: u(24);
     padding: u(22) u(100);
     background: var(--paper);
@@ -75,9 +77,8 @@ const links = [
     box-shadow: 0 var(--rule-w) 0 0 var(--ink);
   }
 
-  // Matched to the email button's width so the links land dead centre.
   .nav__logo {
-    width: u(247);
+    justify-self: start;
     font-size: u(30);
     font-weight: 800;
     font-stretch: 80%;
@@ -96,29 +97,47 @@ const links = [
     line-height: normal;
     color: var(--ink);
 
-    // A dot of the accent pops in beside the link on hover — a finger on
-    // the catalogue's index.
+    // Underlined in the accent on hover, like the links on the page.
     a {
-      position: relative;
-      text-decoration: none;
+      text-decoration: underline transparent;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 5px;
+      transition: text-decoration-color var(--dur-fast) var(--ease-out);
 
-      &::before {
-        content: "";
-        position: absolute;
-        left: u(-14);
-        top: 50%;
-        width: u(7);
-        height: u(7);
-        border-radius: 50%;
-        background: var(--dot);
-        transform: translateY(-50%) scale(0);
-        transition: transform var(--dur-fast) cubic-bezier(0.3, 1.6, 0.5, 1);
-      }
-
-      &:hover::before {
-        transform: translateY(-50%) scale(1);
+      &:hover,
+      &:focus-visible {
+        text-decoration-color: var(--g-orange);
       }
     }
+  }
+
+  // The same black tile as the buttons on the page: orange on hover.
+  .nav__cta {
+    display: inline-flex;
+    align-items: center;
+    padding: u(15) u(18);
+    font-size: u(13);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    color: var(--paper);
+    background: var(--ink);
+    transition:
+      background-color 200ms var(--ease-out),
+      color 200ms var(--ease-out);
+
+    &:hover,
+    &:focus-visible {
+      color: var(--ink);
+      background: var(--g-orange);
+    }
+  }
+
+  .nav__email {
+    justify-self: end;
   }
 
   // --- The handset menu -------------------------------------------------
@@ -237,7 +256,8 @@ const links = [
 
   @media (prefers-reduced-motion: reduce) {
     .nav,
-    .nav__links a::before,
+    .nav__links a,
+    .nav__cta,
     .nav__toggle-bars span,
     .nav__menu {
       transition: none;
@@ -246,13 +266,19 @@ const links = [
 
   @media (max-width: 900px) {
     .nav {
+      display: flex;
+      justify-content: space-between;
       gap: 16px;
       padding: 16px 24px;
     }
 
     .nav__logo {
-      width: auto;
       font-size: 26px;
+    }
+
+    .nav__cta {
+      padding: 15px 14px;
+      font-size: 13px;
     }
 
     // With scripting, the bar is the mark and the toggle; the links and the

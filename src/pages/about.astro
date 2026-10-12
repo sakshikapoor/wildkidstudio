@@ -1,20 +1,20 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Nav from '../components/Nav.astro';
-import PageHeader from '../components/PageHeader.astro';
-import ContactCta from '../components/ContactCta.astro';
+import GridContact from '../components/grid/GridContact.astro';
+import { place, rows, blockClass, blockStyle, type Block, type Colour } from '../components/grid/grid';
 
 // Deliberately short: the work pages carry the detail, so this page only has
 // to say who is behind them and where else to find her.
-const facts = [
-  { label: 'Founded', value: '2025' },
-  { label: 'Based in', value: 'Bengaluru, India' },
+const facts: { label: string; value: string; href?: string; c: Colour }[] = [
+  { label: 'Founded', value: '2025', c: 'ink' },
+  { label: 'Based in', value: 'Bengaluru, India', c: 'orange' },
+  { label: 'Portfolio', value: 'sakshikapoor.com', href: 'https://sakshikapoor.com', c: 'blue' },
+  { label: 'LinkedIn', value: '/in/sakshire', href: 'https://linkedin.com/in/sakshire', c: 'yellow' },
+  { label: 'Social', value: '@sakshire', href: 'https://instagram.com/sakshire', c: 'pink' },
 ];
 
-const links = [
-  { label: 'Portfolio', value: 'sakshikapoor.com', href: 'https://sakshikapoor.com' },
-  { label: 'LinkedIn', value: '/in/sakshire', href: 'https://linkedin.com/in/sakshire' },
-  { label: 'Social', value: '@sakshire', href: 'https://instagram.com/sakshire' },
+const blocks: Block[] = [
 ];
 ---
 
@@ -24,157 +24,96 @@ const links = [
 >
   <div class="page">
     <Nav />
-    <main>
-      <PageHeader eyebrow="[6] ABOUT" title="THE STUDIO" meta="Independent since 2025" />
+    <main class="g">
+      <section class="g__sec" style={rows(14, 19)}>
+        <p class="g__label" style={place([2, 1, 6, 1], [1, 1, 6, 1])}>
+          <span>About</span><span>Est. 2025</span>
+        </p>
 
-      <section class="about">
-        <div class="about__intro">
-          <p data-reveal="up">
-            An independent design studio in Bengaluru, run by Sakshi Kapoor. Eight years in: she
-            started out in frontend engineering, moved across into design, and now does both —
-            which is why the design and the code tend to arrive together rather than in a handoff.
+        <h1 class="g__title" style={place([2, 2, 12, 6], [1, 2, 8, 4])}>
+          <span>The</span>
+          <span class="g__title-indent">Studio</span>
+        </h1>
+
+        <div class="g__panel g__intro about__intro" style={place([15, 3, 9, 8], [1, 7, 8, 6])}>
+          <p>
+            An independent design studio in Bengaluru, run by Sakshi Kapoor. Eight years in: she started out in
+            frontend engineering, moved across into design, and now does both — which is why the design and the
+            code tend to arrive together rather than in a handoff.
           </p>
-          <p data-reveal="up" style="--i: 1">
-            She also illustrates, and is broadly in the business of acquiring every space that
-            will hold something creative. If you want to think an idea through out loud — or hear
-            an unprompted case for one of her obsessions, and against one of her dislikes — she is
-            always up for it.
+          <p>
+            She also illustrates, and is broadly in the business of acquiring every space that will hold something
+            creative. If you want to think an idea through out loud — or hear an unprompted case for one of her
+            obsessions, and against one of her dislikes — she is always up for it.
           </p>
         </div>
 
-        <dl class="about__meta">
+        <ul class="g__list">
           {
             facts.map((fact, i) => (
-              <div class="about__row" data-reveal="left" style={`--i: ${i}`}>
-                <dt>{fact.label}</dt>
-                <dd>{fact.value}</dd>
-              </div>
-            ))
-          }
-          {
-            links.map((link, i) => (
-              <div class="about__row" data-reveal="left" style={`--i: ${i + 2}`}>
-                <dt>{link.label}</dt>
-                <dd>
-                  <a class="about__link" href={link.href} target="_blank" rel="noopener">
-                    {link.value}
+              <li class="g__list-row">
+                <span
+                  class:list={['g__block', 'g__block--fill', 'g__no', `g__no--${fact.c}`]}
+                  style={`${place([3, 9 + i, 1, 1], [1, 14 + i, 1, 1])}; --c: var(--g-${fact.c})`}
+                  aria-hidden="true"
+                />
+                {fact.href ? (
+                  <a
+                    class="g__panel g__row about__link"
+                    href={fact.href}
+                    target="_blank"
+                    rel="noopener"
+                    style={place([4, 9 + i, 9, 1], [2, 14 + i, 7, 1])}
+                  >
+                    <span>{fact.label}</span>
+                    <span class="g__row-end">{fact.value} ↗</span>
                   </a>
-                </dd>
-              </div>
+                ) : (
+                  <p class="g__panel g__row" style={place([4, 9 + i, 9, 1], [2, 14 + i, 7, 1])}>
+                    <span>{fact.label}</span>
+                    <span class="g__row-end">{fact.value}</span>
+                  </p>
+                )}
+              </li>
             ))
           }
-        </dl>
+        </ul>
+
+        {blocks.map((b, i) => <span class:list={[...blockClass(b), 'g__pop']} style={blockStyle(b, i)} aria-hidden="true" />)}
       </section>
 
-      <ContactCta />
+      <GridContact />
     </main>
   </div>
 </Layout>
 
 <style lang="scss">
-  @use "../styles/util" as *;
-
-  .about {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: u(80);
-    padding: 0 u(100) u(120);
-  }
-
   .about__intro {
     display: flex;
     flex-direction: column;
-    gap: u(20);
-    width: u(680);
-    font-size: u(20);
-    line-height: 1.35;
-    color: var(--body);
+    gap: 0.9em;
+    font-size: calc(var(--cell) * 0.29);
   }
 
-  .about__meta {
-    display: flex;
-    flex-direction: column;
-    gap: u(20);
-    width: u(400);
-  }
-
-  .about__row {
-    display: flex;
-    gap: u(20);
-    font-size: u(18);
-    line-height: 1.3;
-
-    dt {
-      width: u(110);
-      flex-shrink: 0;
-      font-weight: 600;
-      color: var(--sage);
-    }
-
-    dd {
-      margin: 0;
-      color: var(--ink);
-    }
-  }
-
-  // Same rule-wipe as the nav links, so an outbound link behaves like every
-  // other link on the site.
   .about__link {
-    position: relative;
+    color: var(--ink);
     text-decoration: none;
 
-    &::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: u(-3);
-      width: 100%;
-      height: 1px;
-      background: currentColor;
-      transform: scaleX(1);
-      transform-origin: left center;
-      transition: transform var(--dur-fast) var(--ease-inout);
+    .g__row-end {
+      color: var(--ink);
+      text-decoration: underline;
+      text-decoration-thickness: 1.5px;
+      text-underline-offset: 4px;
     }
 
-    &:hover::after {
-      transform: scaleX(0);
-      transform-origin: right center;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .about__link::after {
-      transition: none;
+    &:hover .g__row-end {
+      text-decoration-color: var(--g-orange);
     }
   }
 
   @media (max-width: 900px) {
-    .about {
-      flex-direction: column;
-      gap: 28px;
-      padding: 0 24px 72px;
-    }
-
-    .about__intro,
-    .about__meta {
-      width: 100%;
-    }
-
     .about__intro {
-      gap: 16px;
       font-size: 16px;
-    }
-
-    .about__row {
-      font-size: 16px;
-
-
-      dt {
-        width: 92px;
-        font-size: 16px;
-  
-      }
     }
   }
 </style>

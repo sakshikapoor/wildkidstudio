@@ -12,14 +12,28 @@ interface Props {
 }
 
 const {
-  title = 'WildKid Studio',
-  description = 'A two person studio. We design and build MVPs, internal tools and AI systems.',
+  title = 'WildKid Studio — Independent design studio in Bengaluru',
+  description = 'An independent design studio in Bengaluru building considered websites and brand systems for companies that want to stand apart, not fit in.',
   ogImage = '/assets/ogimage.png',
 } = Astro.props;
 
 // Absolute URLs — social scrapers do not resolve relative paths.
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImageUrl = new URL(ogImage, Astro.site);
+
+// Who the site belongs to, for search engines.
+const studio = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: 'WildKid Studio',
+  url: Astro.site,
+  logo: new URL('/favicon.png', Astro.site),
+  image: new URL('/assets/ogimage.png', Astro.site),
+  description:
+    'An independent design studio in Bengaluru building considered websites and brand systems for companies that want to stand apart, not fit in.',
+  email: 'hello@wildkidstudio.in',
+  address: { '@type': 'PostalAddress', addressLocality: 'Bengaluru', addressCountry: 'IN' },
+};
 ---
 
 <!DOCTYPE html>
@@ -29,7 +43,7 @@ const ogImageUrl = new URL(ogImage, Astro.site);
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <meta name="theme-color" content="#f7f7f3" />
+    <meta name="theme-color" content="#fcfcfa" />
 
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
@@ -51,34 +65,34 @@ const ogImageUrl = new URL(ogImage, Astro.site);
     <!-- Open Graph (Facebook, LinkedIn, Slack, iMessage) -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="WildKid Studio" />
+    <meta property="og:locale" content="en_IN" />
     <meta property="og:url" content={canonical} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImageUrl} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="WildKid Studio" />
+    <meta property="og:image:alt" content={title} />
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
+    <meta name="twitter:image:alt" content={title} />
+
+    <link rel="sitemap" href="/sitemap.xml" />
+    <script type="application/ld+json" set:html={JSON.stringify(studio)} />
 
     <!--
-      The face is self-hosted from public/fonts/ and declared in
+      Both faces are self-hosted from public/fonts/ and declared in
       src/styles/_fonts.scss — no webfont CDN is involved. Preloaded because
-      the @font-face rule sits inside the stylesheet, so the browser would
-      otherwise only discover it after the CSS has parsed. Only the latin
-      file: the latin-ext one is fetched on demand if a page ever needs it.
+      the @font-face rules sit inside the stylesheet, so the browser would
+      otherwise only discover them after the CSS has parsed. Only the latin
+      files: the latin-ext ones are fetched on demand if a page ever needs them.
     -->
-    <link
-      rel="preload"
-      href="/fonts/BricolageGrotesque-Variable-latin.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
+    <link rel="preload" href="/fonts/InterTight-Variable-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/Inter-Variable-latin.woff2" as="font" type="font/woff2" crossorigin />
   </head>
 
   <body>

@@ -1,55 +1,31 @@
 ---
 import { Image } from 'astro:assets';
 
-// Sections sliced out of the v2.0 desktop frame, plus the mobile hero.
-import hero from '../../assets/work/asci/hero.png';
-import stats from '../../assets/work/asci/stats.png';
-import spine from '../../assets/work/asci/spine.png';
-import neosar from '../../assets/work/asci/neosar.png';
-import floodiq from '../../assets/work/asci/floodiq.png';
-import climatica from '../../assets/work/asci/climatica.png';
-import industries from '../../assets/work/asci/industries.png';
-import proof from '../../assets/work/asci/proof.png';
-import contact from '../../assets/work/asci/contact.png';
-import mobile from '../../assets/work/asci/mobile.png';
+// The v2.0 desktop homepage, top to bottom, as one picture. The design is
+// 1280 wide; the picture carries it at 76% of its width, with each section's
+// own edge colour run out to either side, the way the page sits on a screen
+// wider than it was drawn for. So the window can be large without the type
+// inside it being large too.
+import homepage from '../../assets/work/asci/homepage-desktop.png';
+
+// Where the page's own sections begin and end, in the design's pixels. The
+// picture is one file; these only say which stretch of it each band shows, so
+// the sections can arrive one at a time the way they do on the live site.
+const PAGE_H = 9988.3;
+const cuts = [0, 100, 573, 1373, 2398, 3639, 4673, 5783, 7380, 8727, 9508, PAGE_H];
+const bands = cuts.slice(0, -1).map((top, i) => ({
+  top: (top / PAGE_H) * 100,
+  height: ((cuts[i + 1] - top) / PAGE_H) * 100,
+}));
+
+const pageAlt =
+  'The full ASCI homepage at desktop width: hero, flood-loss figures, hydrological risks, the NeoSar, FloodIQ and Climatica products, industries, articles, testimonials, contact form and footer';
 
 const facts = [
   { label: 'Client', value: 'ASCI, Applied Science Innovations' },
   { label: 'Field', value: 'Physics-aware AI for flood risk' },
   { label: 'Scope', value: 'Website design' },
   { label: 'Products', value: 'NeoSar, FloodIQ, Climatica' },
-];
-
-// Figures the site itself puts on the page, before any product is named.
-const stakes = [
-  { figure: '60%', label: 'of India’s annual disaster losses are floods' },
-  { figure: '90%', label: 'of disaster exposure in India is uninsured' },
-  { figure: '$388B', label: 'average annual loss from floods and extreme rainfall' },
-  { figure: '$370B', label: 'global insurance protection gap from natural disasters' },
-];
-
-const products = [
-  {
-    verb: 'Plan',
-    name: 'NeoSar',
-    promise: 'Ground deformation and levee stability, tracked before failure.',
-    src: neosar,
-    alt: 'NeoSar product section on the ASCI homepage',
-  },
-  {
-    verb: 'Predict',
-    name: 'FloodIQ',
-    promise: 'Historical patterns and climate forecasts, mapped to individual assets.',
-    src: floodiq,
-    alt: 'FloodIQ product section on the ASCI homepage',
-  },
-  {
-    verb: 'Protect',
-    name: 'Climatica',
-    promise: 'Parametric insurance contracts priced on objective hydrological triggers.',
-    src: climatica,
-    alt: 'Climatica product section on the ASCI homepage',
-  },
 ];
 ---
 
@@ -74,94 +50,39 @@ const products = [
         }
       </dl>
     </div>
-    <div class="as-shot as-shot--wide" data-reveal="mask">
-      <Image src={hero} alt="ASCI homepage hero" widths={[640, 1280]} formats={['webp']} />
-    </div>
   </section>
 
-  <section class="as-stakes">
-    <div class="as-stakes__head">
-      <p class="eyebrow eyebrow--light" data-reveal="up">[2] STAKES BEFORE PITCH</p>
-    </div>
-    <dl class="as-figures">
-      {
-        stakes.map((stat, i) => (
-          <div class="as-figure" data-reveal="up" style={`--i: ${i}`}>
-            <dt>{stat.figure}</dt>
-            <dd>{stat.label}</dd>
-          </div>
-        ))
-      }
-    </dl>
-    <div class="as-shot" data-reveal="mask">
-      <Image src={stats} alt="Statistics band on the ASCI homepage" widths={[640, 1280]} formats={['webp']} />
-    </div>
-  </section>
 
-  <section class="as-spine">
-    <div class="as-spine__head">
-      <p class="eyebrow" data-reveal="up">[3] ONE SENTENCE, THREE PRODUCTS</p>
-      <p class="as-spine__note" data-reveal="up" style="--i: 1">
-        NeoSar, FloodIQ and Climatica arrived as three separate stories. Giving each one a verb —
-        plan, predict, protect — turned a catalogue into a sequence, and gave every later section
-        a slot to sit in.
-      </p>
-    </div>
-    <div class="as-shot" data-reveal="mask">
-      <Image src={spine} alt="Plan. Predict. Protect. section" widths={[640, 1280]} formats={['webp']} />
-    </div>
-
-    <div class="as-products">
-      {
-        products.map((product, i) => (
-          <div class="as-product" data-reveal="up" style={`--i: ${i % 2}`}>
-            <div class="as-product__head">
-              <span class="as-product__verb">{product.verb}</span>
-             
-                <h3 class="as-product__name">{product.name}</h3>
-                <p class="as-product__promise">{product.promise}</p>
-             
-      
-            </div>
-            <div class="as-shot as-shot--tall">
-              <Image src={product.src} alt={product.alt} widths={[720, 1440]} formats={['webp']} />
-            </div>
-          </div>
-        ))
-      }
-    </div>
-  </section>
-
-  <section class="as-language">
-    <div class="as-language__row">
-      <div class="as-language__head">
-        <p class="eyebrow" data-reveal="up">[4] THE BUYER’S WORDS</p>
+  <section class="as-page">
+    <p class="eyebrow" data-reveal="up">[2] THE HOMEPAGE</p>
+    <div class="as-window" data-reveal="up" data-asci-window>
+      <div class="as-window__bar">
+        <span class="as-window__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="as-window__url">asci.co.in</span>
+        <span class="as-window__progress" aria-hidden="true"></span>
       </div>
-      <div class="as-shot" data-reveal="up">
-        <Image
-          src={industries}
-          alt="Industry bands for energy, real estate and insurance"
-          widths={[640, 1280]}
-          formats={['webp']}
-        />
+      {/* Focusable so the page inside can be scrolled from the keyboard too. */}
+      <div class="as-window__view" tabindex="0" role="region" aria-label="ASCI homepage, scrollable">
+        <div class="as-window__page" style={`aspect-ratio: ${homepage.width} / ${homepage.height}`}>
+          {
+            bands.map((band, i) => (
+              <div class="as-band" style={`top: ${band.top}%; height: calc(${band.height}% + 1px)`}>
+                <Image
+                  src={homepage}
+                  alt={i === 0 ? pageAlt : ''}
+                  aria-hidden={i === 0 ? undefined : 'true'}
+                  style={`transform: translateY(-${band.top}%)`}
+                  widths={[760, 1400, 2400]}
+                  sizes="(max-width: 900px) 120vw, 78vw"
+                  format="webp"
+                  loading="eager"
+                />
+              </div>
+            ))
+          }
+        </div>
       </div>
-    </div>
-  </section>
-
-  <section class="as-close">
-    <div class="as-close__head">
-      <p class="eyebrow" data-reveal="up">[5] PROOF, THEN ASK</p>
-    </div>
-    <div class="as-close__grid">
-      <div class="as-shot as-shot--full" data-reveal="up">
-        <Image src={proof} alt="Testimonials and client logos" widths={[720, 1440]} formats={['webp']} />
-      </div>
-      <div class="as-shot" data-reveal="up">
-        <Image src={contact} alt="Contact form and footer" widths={[640, 1280]} formats={['webp']} />
-      </div>
-      <div class="as-shot as-shot--phone" data-reveal="up" style="--i: 1">
-        <Image src={mobile} alt="The same page at mobile width" widths={[300, 600]} formats={['webp']} />
-      </div>
+      <span class="as-window__hint" aria-hidden="true">Scroll <span>↓</span></span>
     </div>
   </section>
 </article>
@@ -179,23 +100,8 @@ const products = [
     padding: u(100);
   }
 
-  // Page stills share one frame: a hairline and a soft shadow, so a flat
-  // screenshot reads as a screen rather than an image.
-  .as-shot {
-    width: 100%;
-    overflow: hidden;
-    background: var(--white);
-    box-shadow: 0 u(2) u(20) rgba(10, 10, 10, 0.14);
-
-    img {
-      display: block;
-      width: 100%;
-      height: auto;
-    }
-  }
-
   // --- Brief ------------------------------------------------------------
-  .as-brief {
+  .as .as-brief {
     padding-top: u(70);
   }
 
@@ -239,173 +145,164 @@ const products = [
     }
   }
 
-  // --- Stakes -----------------------------------------------------------
-  .as-stakes {
+  // --- The homepage ------------------------------------------------------
+  .as .as-page {
+    padding-top: 0;
+  }
+
+  // A browser window with the whole page inside it: a black bar, then a
+  // desktop-shaped opening the page scrolls behind.
+  .as-window {
+    position: relative;
+    width: 100%;
+    border: 1px solid var(--ink);
+    background: var(--white);
+  }
+
+  .as-window__bar {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: u(14) u(20);
+    font-size: u(13);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--paper);
     background: var(--ink);
   }
 
-  .as-stakes__head {
+  // The window's three buttons, as squares of the site's own colours.
+  .as-window__dots {
     display: flex;
-    flex-direction: column;
-    gap: u(20);
-  }
+    gap: u(6);
 
-  .eyebrow--light {
-    color: var(--white);
-  }
-
-  .as-figures {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: u(30);
-    width: 100%;
-  }
-
-  .as-figure {
-    display: flex;
-    flex-direction: column;
-    gap: u(8);
-
-    dt {
-      font-family: var(--font-display);
-      font-size: u(40);
-      font-weight: var(--weight-display);
-      line-height: normal;
-      color: var(--white);
+    i {
+      width: u(10);
+      height: u(10);
+      background: var(--g-orange);
     }
 
-    dd {
-      margin: 0;
-      font-size: u(16);
-      line-height: 1.3;
-      color: var(--mint-soft);
+    i:nth-child(2) {
+      background: var(--g-yellow);
+    }
+
+    i:nth-child(3) {
+      background: var(--g-blue);
     }
   }
 
-  // --- Spine and products -----------------------------------------------
-  .as-spine {
-    gap: u(70);
+  // How far down the page the reader is, drawn along the foot of the bar.
+  // --p is set by the script below, 0 at the top and 1 at the bottom.
+  .as-window__progress {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: u(3);
+    background: var(--g-orange);
+    transform: scaleX(var(--p, 0));
+    transform-origin: left center;
   }
 
-  .as-spine__head {
-    display: flex;
-    flex-direction: column;
-    gap: u(20);
-  }
-
-  .as-spine__note {
-    width: u(680);
-    font-size: u(18);
-    line-height: 1.35;
-    color: var(--body);
-  }
-
-  // Stacked rather than side by side: the products are built on one template,
-  // and three identical blocks in sequence make that point at a size where the
-  // page is still readable.
-  .as-products {
-    display: flex;
-    flex-direction: column;
-    gap: u(60);
+  .as-window__view {
+    aspect-ratio: 16 / 10;
+    max-height: 78vh;
     width: 100%;
+    overflow-y: auto;
+    overscroll-behavior: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ink) transparent;
+
+    &:focus-visible {
+      outline: 2px solid var(--g-orange);
+      outline-offset: -2px;
+    }
+
   }
 
-  .as-product {
-    display: flex;
-    flex-direction: column;
-    gap: u(20);
-  }
-
-  .as-product__head {
-    align-items: baseline;
-    gap: u(20);
-    flex-wrap: wrap;
-  }
-
-  .as-product__verb {
-    font-family: var(--font-body);
-    font-size: u(14);
-    font-weight: 700;
-    text-transform: uppercase;
-    color: var(--sage);
-  }
-
-  .as-product__name {
-    font-family: var(--font-display);
-    font-size: u(32);
-    font-weight: var(--weight-display);
-    line-height: normal;
-    color: var(--forest);
-  }
-
-  .as-product__promise {
-    flex: 1 1 u(400);
-    font-size: u(20);
-    line-height: 1.35;
-    color: var(--body);
-  }
-
-  // Product stills run their full height — a cropped one cuts the capability
-  // list in half, which is the part that shows the template repeating.
-  .as-shot--tall img {
-    height: auto;
-  }
-
-  // --- Buyer's words ----------------------------------------------------
-  .as-language {
-    background: var(--showreel);
-  }
-
-  .as-language__head,
-  .as-close__head {
-    display: flex;
-    flex-direction: column;
-    gap: u(20);
-  }
-
-  // The heading sits beside the bands rather than above them, so the three
-  // industries read as one column of cards.
-  .as-language__row {
-    display: grid;
-    grid-template-columns: u(400) 1fr;
-    gap: u(60);
+  // The page, as bands of one picture laid end to end. Each band is a window
+  // onto the same file, shifted up to its own stretch, and a pixel taller
+  // than it needs to be so no hairline shows between it and the next.
+  .as-window__page {
+    position: relative;
     width: 100%;
-    align-items: start;
+    overflow: hidden;
   }
 
-  // --- Close ------------------------------------------------------------
-  .as-close {
-    gap: u(70);
-  }
-
-  // A bento: proof across the top, then the contact page and the same page at
-  // phone width sharing one row height.
-  .as-close__grid {
-    display: grid;
-    grid-template-columns: 1fr u(300);
-    grid-template-rows: auto u(620);
-    gap: u(40);
-    width: 100%;
-  }
-
-  .as-shot--full {
-    grid-column: 1 / -1;
-  }
-
-  // One radius across the bento, so the three panels read as a set.
-  .as-close__grid .as-shot {
-    border-radius: u(20);
-  }
-
-  // Both panels in the lower row fill the row, so their tops and bottoms line
-  // up whatever the source proportions are.
-  .as-close__grid .as-shot:not(.as-shot--full) {
-    height: 100%;
+  .as-band {
+    position: absolute;
+    left: 0;
+    right: 0;
+    overflow: hidden;
 
     img {
-      height: 100%;
-      object-fit: cover;
-      object-position: top center;
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  // Sections fade up as the page inside is scrolled to them. `is-in` is set
+  // by the script below.
+  :global(.js) .as-band {
+    opacity: 0;
+    translate: 0 u(14);
+    transition:
+      opacity 800ms var(--ease-out),
+      translate 800ms var(--ease-out);
+  }
+
+  :global(.js) .as-band.is-in {
+    opacity: 1;
+    translate: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.js) .as-band {
+      opacity: 1;
+      translate: none;
+      transition: none;
+    }
+  }
+
+  // A nudge that the window scrolls. It bobs until the page inside has
+  // moved, then goes.
+  @keyframes as-bob {
+    50% {
+      transform: translateY(u(4));
+    }
+  }
+
+  .as-window__hint {
+    position: absolute;
+    right: u(28);
+    bottom: u(20);
+    display: flex;
+    gap: u(8);
+    padding: u(10) u(14);
+    font-size: u(12);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--paper);
+    background: var(--ink);
+    pointer-events: none;
+    transition: opacity var(--dur-base) var(--ease-out);
+
+    span {
+      animation: as-bob 1600ms var(--ease-inout) infinite;
+    }
+  }
+
+  .as-window.is-scrolled .as-window__hint {
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .as-window__hint span {
+      animation: none;
     }
   }
 
@@ -415,17 +312,52 @@ const products = [
       padding: 56px 24px;
     }
 
-     .as-product__verb {
-      display: none;
-     }
+    .as .as-page {
+      padding: 0 12px 40px;
+    }
 
-      .as-product__name {
-        font-size: 16px;   
-      }
+    .as-page .eyebrow {
+      padding: 0 12px;
+    }
 
-      .as-product__promise {
-        font-size: 16px;   
+    // No room for the page's side margins at this width: the picture is
+    // widened until they fall outside the window.
+    .as-window__view {
+      overflow-x: hidden;
+    }
+
+    .as-window__page {
+      width: 131.6%;
+      margin-left: -15.8%;
+    }
+
+    .as-window__bar {
+      padding: 10px 12px;
+      font-size: 10px;
+    }
+
+    .as-window__dots {
+      gap: 4px;
+
+      i {
+        width: 7px;
+        height: 7px;
       }
+    }
+
+    // Taller than a desktop screen here, so more than a sliver of the page
+    // shows at this width.
+    .as-window__view {
+      aspect-ratio: 4 / 5;
+    }
+
+    .as-window__hint {
+      right: 12px;
+      bottom: 12px;
+      gap: 6px;
+      padding: 8px 10px;
+      font-size: 10px;
+    }
 
     .as-brief__body {
       flex-direction: column;
@@ -433,8 +365,7 @@ const products = [
     }
 
     .as-lede,
-    .as-facts,
-    .as-spine__note {
+    .as-facts {
       width: 100%;
     }
 
@@ -442,58 +373,53 @@ const products = [
       font-size: 17px;
     }
 
-    .as-fact,
-    .as-spine__note {
+    .as-fact {
       font-size: 15px;
-    }
-
-    .as-figures {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-    }
-
-    .as-figure dt {
-      font-size: 26px;
-    }
-
-    .as-figure dd {
-      font-size: 16px;
-    }
-
-    .as-language__row {
-      grid-template-columns: 1fr;
-      gap: 24px;
-    }
-
-    .as-close__grid {
-      grid-template-columns: 1fr;
-      grid-template-rows: auto;
-      gap: 24px;
-    }
-
-    .as-close__grid .as-shot {
-      border-radius: 14px;
-    }
-
-    .as-close__grid .as-shot:not(.as-shot--full) img {
-      height: 420px;
-    }
-
-    .as-products {
-      gap: 32px;
-    }
-
-    .as-product__head {
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .as-shot--tall img {
-      height: 280px;
-    }
-
-    .as-shot--phone {
-      max-width: 260px;
     }
   }
 </style>
+
+<script>
+  // The window's scroll position, handed to CSS: --p drives the progress
+  // line, and the first movement retires the hint.
+  document.querySelectorAll<HTMLElement>('[data-asci-window]').forEach((frame) => {
+    const view = frame.querySelector<HTMLElement>('.as-window__view');
+    if (!view) return;
+
+    view.addEventListener(
+      'scroll',
+      () => {
+        const max = view.scrollHeight - view.clientHeight;
+        frame.style.setProperty('--p', max > 0 ? String(view.scrollTop / max) : '0');
+        frame.classList.toggle('is-scrolled', view.scrollTop > 8);
+      },
+      { passive: true },
+    );
+
+    // The page's sections arrive as they are scrolled to inside the window.
+    // Nothing starts until the window itself has arrived, so the first screen
+    // is seen coming in.
+    const bands = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add('is-in');
+          bands.unobserve(entry.target);
+        }
+      },
+      { root: view, rootMargin: '0px 0px -8% 0px' },
+    );
+    const start = () => frame.querySelectorAll('.as-band').forEach((band) => bands.observe(band));
+
+    if (frame.hasAttribute('data-revealed')) {
+      start();
+    } else {
+      const arrived = new MutationObserver(() => {
+        if (!frame.hasAttribute('data-revealed')) return;
+        arrived.disconnect();
+        start();
+      });
+      arrived.observe(frame, { attributes: true, attributeFilter: ['data-revealed'] });
+    }
+  });
+</script>

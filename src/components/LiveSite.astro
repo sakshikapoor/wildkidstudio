@@ -1,0 +1,193 @@
+---
+// A live site in a browser window: the real page, loaded in a frame, to
+// scroll and click through where it sits. On a wide screen the frame is laid
+// out 1440 across and scaled to fit, so the site shows its desktop layout at
+// a size in keeping with the page; on a handset it is left at its own width
+// and shows its handset one.
+interface Props {
+  /** The site to load. It has to allow being framed. */
+  url: string;
+  /** What the frame is, for screen readers. */
+  title: string;
+}
+
+const { url, title } = Astro.props;
+const domain = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+---
+
+<div class="live" data-reveal="up" data-live-site>
+  <div class="live__bar">
+    <span class="live__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="live__url">{domain}</span>
+    <a class="live__open" href={url} target="_blank" rel="noopener">
+      <i class="live__light" aria-hidden="true"></i>Live <span aria-hidden="true">↗</span>
+    </a>
+  </div>
+  <div class="live__view">
+    <iframe
+      src={url}
+      title={title}
+      loading="lazy"
+      referrerpolicy="no-referrer"
+      sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+  </div>
+</div>
+
+<style lang="scss">
+  @use "../styles/util" as *;
+
+  .live {
+    width: 100%;
+    border: 1px solid var(--ink);
+    background: var(--white);
+  }
+
+  .live__bar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: u(14) u(20);
+    font-size: u(13);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--paper);
+    background: var(--ink);
+  }
+
+  // The window's three buttons, as squares of the site's own colours.
+  .live__dots {
+    display: flex;
+    gap: u(6);
+
+    i {
+      width: u(10);
+      height: u(10);
+      background: var(--g-orange);
+    }
+
+    i:nth-child(2) {
+      background: var(--g-yellow);
+    }
+
+    i:nth-child(3) {
+      background: var(--g-blue);
+    }
+  }
+
+  .live__open {
+    display: inline-flex;
+    align-items: center;
+    gap: u(8);
+    justify-self: end;
+    color: inherit;
+    text-decoration: underline transparent;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 5px;
+    transition: text-decoration-color var(--dur-fast) var(--ease-out);
+
+    &:hover,
+    &:focus-visible {
+      text-decoration-color: var(--g-orange);
+    }
+  }
+
+  // A green light beside "Live", blinking slowly: the site in the window is
+  // the real one, running now.
+  @keyframes live-blink {
+    50% {
+      opacity: 0.25;
+    }
+  }
+
+  .live__light {
+    width: u(8);
+    height: u(8);
+    border-radius: 50%;
+    background: #2fd36b;
+    animation: live-blink 1400ms var(--ease-inout) infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .live__light {
+      animation: none;
+    }
+  }
+
+  // --w and --s come from the script below: the width the site is laid out
+  // at, and how far that is scaled down to fit. Without them the frame is
+  // simply as wide as the window.
+  .live__view {
+    position: relative;
+    // Stated, not left to stretch: with an automatic width, the height limit
+    // below is carried through the aspect ratio and narrows the box as well.
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    max-height: 78vh;
+    overflow: hidden;
+    background: var(--tint);
+
+    iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: var(--w, 100%);
+      height: calc(100% / var(--s, 1));
+      border: 0;
+      transform: scale(var(--s, 1));
+      transform-origin: top left;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .live__bar {
+      padding: 10px 12px;
+      font-size: 10px;
+    }
+
+    .live__open {
+      gap: 6px;
+    }
+
+    .live__light {
+      width: 6px;
+      height: 6px;
+    }
+
+    .live__dots {
+      gap: 4px;
+
+      i {
+        width: 7px;
+        height: 7px;
+      }
+    }
+
+    .live__view {
+      aspect-ratio: 4 / 5;
+    }
+  }
+</style>
+
+<script>
+  // Lay the site out at desktop width and scale it to the window. Below
+  // HANDSET the window is narrow enough that the site's own handset layout is
+  // the better thing to show, so it is left alone.
+  const DESKTOP = 1440;
+  const HANDSET = 700;
+
+  document.querySelectorAll<HTMLElement>('[data-live-site]').forEach((frame) => {
+    const view = frame.querySelector<HTMLElement>('.live__view');
+    if (!view) return;
+
+    const fit = () => {
+      const width = view.clientWidth;
+      const scaled = width >= HANDSET && width < DESKTOP;
+      view.style.setProperty('--w', scaled ? `${DESKTOP}px` : '100%');
+      view.style.setProperty('--s', scaled ? String(width / DESKTOP) : '1');
+    };
+
+    new ResizeObserver(fit).observe(view);
+    fit();
+  });
+</script>

@@ -1,0 +1,437 @@
+// The page grid.
+//
+// Every page is ruled into squares, and what sits on it spans a whole number
+// of them: pictures, white panels of text, black labels and buttons, and the
+// odd single square of colour. Placement comes from the helpers in
+// src/components/grid/grid.ts, which set --d (desktop) and --m (handset) on
+// each item; this file is everything those items share.
+//
+// Type is sized in squares, so at any desktop width text keeps the same
+// proportion to the panel it sits in. Handsets switch to px (see the end).
+
+// The frame is measured once, and each section derives the square from it.
+.g {
+    container-type: inline-size;
+    color: var(--ink);
+}
+
+// One square, rounded to a whole pixel so the drawn lines stay crisp and land
+// exactly on the track edges. The few pixels it leaves over sit at the right
+// edge, where the lines simply carry on.
+.g__sec {
+    --cols: 24;
+    --cell: round(down, 100cqw / var(--cols), 1px);
+    display: grid;
+    grid-template-columns: repeat(var(--cols), var(--cell));
+    grid-template-rows: repeat(var(--rows), var(--cell));
+    background-color: var(--paper);
+    background-image:
+        linear-gradient(to right, var(--g-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--g-line) 1px, transparent 1px);
+    background-size: var(--cell) var(--cell);
+    scroll-margin-top: calc(var(--cell) * 1.5);
+
+    > * {
+        grid-area: var(--d);
+        min-width: 0;
+        margin: 0;
+    }
+}
+
+// A section whose content sets its own height — a case study, say. It sits in
+// one white sheet, and the script in GridFlow.astro sizes the sheet and the
+// section to whole numbers of squares so the grid lines up again below it.
+.g__sec--flow {
+    grid-template-rows: auto;
+    align-items: start;
+    // One empty row of squares above the sheet; the script leaves one below.
+    padding-top: var(--cell);
+
+    > .g__sheet {
+        grid-area: 1 / 2 / auto / span 22;
+    }
+}
+
+.g__sheet {
+    margin: 1px 0 0 1px;
+    background: var(--paper);
+}
+
+// A list whose rows are placed on the grid like any other item.
+.g__list {
+    display: contents;
+
+    li {
+        display: contents;
+    }
+
+    .g__list-row > * {
+        grid-area: var(--d);
+    }
+}
+
+// Anything set on white stops a pixel short at its top and left, so the grid
+// line on its edge still shows.
+.g__panel,
+.g__cover-img,
+.g__label--plain {
+    margin: 1px 0 0 1px;
+}
+
+.g__panel {
+    background: var(--paper);
+}
+
+// --- Blocks -------------------------------------------------------------
+.g__block {
+    --c: var(--g-ink);
+    display: block;
+}
+
+.g__block--fill {
+    background: var(--c);
+}
+
+.g__block--stripes {
+    background: repeating-linear-gradient(-45deg, var(--c) 0 7px, var(--c2) 7px 14px);
+}
+
+// A page's first blocks drop into place one after another on arrival.
+@keyframes g-pop {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: none;
+    }
+}
+
+.g__pop {
+    animation: g-pop 520ms var(--ease-out) backwards;
+    animation-delay: calc(300ms + var(--i) * 60ms);
+}
+
+// A numbered square: a solid block with a figure in it. Dark figures on the
+// light colours, light on black and orange.
+.g__no {
+    display: grid;
+    place-items: center;
+    font-size: calc(var(--cell) * 0.3);
+    font-weight: 800;
+    color: var(--paper);
+}
+
+.g__no--blue,
+.g__no--yellow,
+.g__no--pink {
+    color: var(--ink);
+}
+
+// --- Type ---------------------------------------------------------------
+// Section labels: a black bar, small caps, a count at the far end.
+.g__label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(var(--cell) * 0.2);
+    padding: 0 calc(var(--cell) * 0.25);
+    font-size: calc(var(--cell) * 0.2);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--paper);
+    background: var(--ink);
+}
+
+.g__label--plain {
+    color: var(--ink);
+    background: none;
+}
+
+.g__label--end {
+    justify-content: flex-end;
+}
+
+// A page's name. Each line is three squares tall, the second set in.
+.g__title {
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-display);
+    font-size: calc(var(--cell) * 1.95);
+    font-weight: 900;
+    line-height: calc(var(--cell) * 3);
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    // Nudged so the letters sit on the line below them, not on the middle.
+    transform: translateY(calc(var(--cell) * 0.12));
+}
+
+.g__title-indent {
+    padding-left: calc(var(--cell) * 4);
+}
+
+// Display lines: two squares to a line.
+.g__display {
+    font-family: var(--font-display);
+    font-size: calc(var(--cell) * 1.5);
+    font-weight: var(--weight-display);
+    line-height: calc(var(--cell) * 2);
+    letter-spacing: -0.03em;
+    transform: translateY(calc(var(--cell) * 0.08));
+    text-wrap: balance;
+}
+
+// Running text in a panel.
+.g__intro,
+.g__points {
+    padding: calc(var(--cell) * 0.35);
+    font-size: calc(var(--cell) * 0.32);
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    text-wrap: pretty;
+}
+
+.g__points {
+    font-size: calc(var(--cell) * 0.28);
+}
+
+// Card text: a heading, a small-caps line, a paragraph.
+.g__card {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--cell) * 0.14);
+    padding: calc(var(--cell) * 0.35);
+    font-size: calc(var(--cell) * 0.26);
+    line-height: 1.5;
+}
+
+.g__card-title {
+    font-family: var(--font-display);
+    font-size: calc(var(--cell) * 0.44);
+    font-weight: var(--weight-display);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+}
+
+.g__card-meta {
+    margin-bottom: calc(var(--cell) * 0.1);
+    font-size: calc(var(--cell) * 0.19);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+}
+
+// A row of a list: one square high, text on white.
+.g__row {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--cell) * 0.3);
+    padding: 0 calc(var(--cell) * 0.3);
+    font-size: calc(var(--cell) * 0.32);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+}
+
+.g__row-end {
+    margin-left: auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+    color: var(--ink-soft);
+}
+
+// Black tile, orange on hover.
+.g__cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(var(--cell) * 0.2);
+    padding: 0 calc(var(--cell) * 0.3);
+    font-size: calc(var(--cell) * 0.22);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    color: var(--paper);
+    background: var(--ink);
+    transition:
+        background-color 200ms var(--ease-out),
+        color 200ms var(--ease-out);
+
+    &:hover,
+    &:focus-visible {
+        color: var(--ink);
+        background: var(--g-orange);
+    }
+}
+
+// An underlined link on a white panel.
+.g__email {
+    display: flex;
+    align-items: center;
+    padding: 0 calc(var(--cell) * 0.3);
+    font-size: calc(var(--cell) * 0.3);
+    font-weight: 600;
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 5px;
+
+    &:hover {
+        text-decoration-color: var(--g-orange);
+    }
+}
+
+// --- Pictures -----------------------------------------------------------
+.g__cover-img {
+    display: block;
+    overflow: hidden;
+    background: var(--tint);
+
+    img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 700ms var(--ease-out);
+    }
+}
+
+a.g__cover-img:hover img,
+a.g__cover-img:focus-visible img {
+    transform: scale(1.04);
+}
+
+// A client's logo, centred on a white panel. --h is its height in squares.
+.g__logo {
+    display: grid;
+    place-items: center;
+
+    img {
+        width: auto;
+        max-width: 80%;
+        height: calc(var(--cell) * var(--h, 0.75));
+        object-fit: contain;
+        filter: grayscale(1);
+        transition: filter 300ms var(--ease-out);
+    }
+
+    // Grey at rest, its own colours under the pointer.
+    &:hover img {
+        filter: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .g__pop {
+        animation: none;
+    }
+
+    .g__cover-img img,
+    .g__logo img,
+    .g__cta {
+        transition: none;
+    }
+}
+
+// --- Handsets -----------------------------------------------------------
+// Eight squares across, and every item moves to its handset area. Type is set
+// in px here: at this size the square no longer sets a good reading size on
+// its own.
+@media (max-width: 900px) {
+    .g__sec {
+        --cols: 8;
+        grid-template-rows: repeat(var(--mrows), var(--cell));
+
+        > *,
+        .g__list-row > * {
+            grid-area: var(--m);
+        }
+
+        > .g--desk {
+            display: none;
+        }
+    }
+
+    .g__sec--flow {
+        grid-template-rows: auto;
+
+        > .g__sheet {
+            grid-area: 1 / 1 / auto / span 8;
+        }
+    }
+
+    .g__label {
+        font-size: 11px;
+    }
+
+    .g__title {
+        font-size: calc(var(--cell) * 1.3);
+        line-height: calc(var(--cell) * 2);
+        transform: translateY(calc(var(--cell) * 0.08));
+    }
+
+    .g__title-indent {
+        padding-left: var(--cell);
+    }
+
+    // Off the screen edge, which the grid otherwise runs right up to.
+    .g__title,
+    .g__display {
+        padding-left: 8px;
+    }
+
+    .g__display {
+        font-size: calc(var(--cell) * 0.95);
+        line-height: calc(var(--cell) * 1);
+    }
+
+    .g__intro {
+        padding: 16px;
+        font-size: 16px;
+    }
+
+    .g__points {
+        padding: 16px;
+        font-size: 15px;
+    }
+
+    .g__card {
+        gap: 6px;
+        padding: 16px;
+        font-size: 15px;
+    }
+
+    .g__card-title {
+        font-size: 22px;
+    }
+
+    .g__card-meta {
+        font-size: 11px;
+    }
+
+    .g__row {
+        gap: 12px;
+        padding: 0 14px;
+        font-size: 16px;
+    }
+
+    .g__no {
+        font-size: 15px;
+    }
+
+    .g__cta {
+        padding: 0 14px;
+        font-size: 13px;
+    }
+
+    .g__email {
+        padding: 0 14px;
+        font-size: 16px;
+    }
+}

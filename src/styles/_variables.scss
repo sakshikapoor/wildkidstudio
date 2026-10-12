@@ -1,19 +1,24 @@
-// Design tokens — "Catalogue No. 01".
+// Design tokens — the grid.
 //
-// The site is printed in one ink on one stock: ultramarine ballpoint blue on
-// an off-white paper. Every piece of type, every rule and every pen plate is
-// the same blue, so hierarchy comes from size, weight and space rather than
-// from a second colour. The one exception is --dot, a small hot accent kept
-// for markers (nav hover, list bullets, the email underline, text selection)
-// and never for text — it only reaches 3.1:1 on paper.
+// White paper ruled into squares, black ink, and four colours that only ever
+// appear as whole squares: solid, or striped in two of them. Type and rules
+// are black; colour is kept for the blocks, list markers and hover states.
 :root {
     // Stock and ink
-    --paper: #f7f7f3;
-    --ink: #1f2be0; // 7.9:1 on paper
-    --ink-soft: #4b53e3; // secondary lines — 5.4:1 on paper
-    --ink-deep: #0e1580; // pressed / hover state on blue fills
-    --tint: #dde0fa; // empty plates, quiet fills — ink on it is 6.5:1
+    --paper: #fcfcfa;
+    --ink: #111111;
+    --ink-soft: #5c5c58; // secondary lines — 6.5:1 on paper
+    --ink-deep: #000000; // pressed / hover state on black fills
+    --tint: #ecebe6; // empty picture boxes, quiet fills
     --dot: #ff4a1c;
+
+    // The grid: the ruling, and the block colours. --g-ink is the black block.
+    --g-line: #e9e8e3;
+    --g-ink: var(--ink);
+    --g-orange: #ff4a1c;
+    --g-blue: #5cc2f2;
+    --g-yellow: #ffe57a;
+    --g-pink: #ff9fcb;
 
     // Rule weight for every hairline on the page: section heads, list rows,
     // plate frames. One value so the grid reads as one hand.
@@ -34,14 +39,13 @@
 
     // Type
     //
-    // One variable face across three axes — weight, width and optical size —
-    // so the display voice (heavy, narrow, tightly set) and the reading voice
-    // (regular, full width, small optical size) come from the same file.
-    --font-body: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
-    --font-display: var(--font-body);
+    // Inter Tight for headings, Inter for reading. Neither has a width axis,
+    // so the `font-stretch` values older components still set are ignored.
+    --font-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+    --font-display: "Inter Tight", "Helvetica Neue", Arial, sans-serif;
 
     // One knob so the whole display voice moves together.
-    --weight-display: 720;
+    --weight-display: 800;
 
     // One design pixel. See _util.scss.
     --u: 1px;

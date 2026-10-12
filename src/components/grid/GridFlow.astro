@@ -1,0 +1,42 @@
+---
+// A section whose content sets its own height, on a white sheet cut into the
+// grid. The sheet's height is rounded up to a whole number of squares, so the
+// section after it starts on a grid line and its items land on the squares.
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<section class="g__sec g__sec--flow" data-grid-flow>
+  <div class:list={['g__sheet', className]}>
+    <div data-grid-flow-content>
+      <slot />
+    </div>
+  </div>
+</section>
+
+<script>
+  // Measured rather than set in CSS: nothing in CSS rounds a content height up
+  // to a multiple of another length. The content is observed rather than the
+  // sheet, so setting the sheet's height never triggers another measurement;
+  // it re-runs as images arrive, fonts swap or the viewport turns.
+  document.querySelectorAll<HTMLElement>('[data-grid-flow]').forEach((section) => {
+    const sheet = section.firstElementChild as HTMLElement;
+    const content = sheet.firstElementChild as HTMLElement;
+
+    const snap = () => {
+      const cell = parseFloat(getComputedStyle(section).gridTemplateColumns);
+      if (!cell) return;
+      // The sheet starts a pixel down (the grid line above it shows), so it is
+      // a pixel short of its squares; one empty row of squares follows it.
+      const squares = Math.ceil((content.offsetHeight + 1) / cell);
+      sheet.style.height = `${squares * cell - 1}px`;
+      section.style.height = `${(squares + 2) * cell}px`;
+    };
+
+    new ResizeObserver(snap).observe(content);
+    window.addEventListener('resize', snap);
+  });
+</script>
