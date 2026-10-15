@@ -20,10 +20,13 @@
     --g-yellow: #ffe57a;
     --g-pink: #ff9fcb;
 
-    // Rule weight for every hairline on the page: section heads, list rows,
-    // plate frames. One value so the grid reads as one hand.
+    // Rule weight for the firm lines on the page: frames, outlines, the nav.
+    // One value so the grid reads as one hand.
     --rule-w: 1.5px;
     --rule: var(--rule-w) solid var(--ink);
+    // Dividers between rows of text — list rows, captions, section heads.
+    // Light and thin, so the content leads and the frames stay the firm line.
+    --hairline: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
 
     // Older token names, still used by the case-study pages. Each points at
     // its role in the new palette, so those pages pick up the rebrand without

@@ -647,10 +647,10 @@ const answers = [
     column-gap: u(24);
     align-items: baseline;
     padding: u(24) 0 u(28);
-    border-top: var(--rule);
+    border-top: var(--hairline);
 
     &:last-child {
-      border-bottom: var(--rule);
+      border-bottom: var(--hairline);
     }
   }
 
@@ -752,12 +752,13 @@ const answers = [
     margin: 0;
   }
 
-  // The four were exported at different sizes; one frame keeps the rows
-  // level, cropped from the top so the hero is what stays.
+  // The four are cropped to the page itself at 9:5, so the rows stay level.
+  // Only the top corners round, the way a browser window's do; the page runs
+  // on past the bottom edge.
   .ra-dir__img {
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 9 / 5;
     overflow: hidden;
-    border: 1px solid var(--ink);
+    border-radius: u(20) u(20) 0 0;
     background: var(--tint);
 
     img {
@@ -779,8 +780,6 @@ const answers = [
     display: flex;
     flex-direction: column;
     gap: u(8);
-    padding-top: u(14);
-    border-top: var(--rule);
   }
 
   .ra-dir__name {
@@ -822,10 +821,10 @@ const answers = [
     column-gap: u(24);
     align-items: baseline;
     padding: u(24) 0 u(28);
-    border-top: var(--rule);
+    border-top: var(--hairline);
 
     &:last-child {
-      border-bottom: var(--rule);
+      border-bottom: var(--hairline);
     }
 
     dt {
