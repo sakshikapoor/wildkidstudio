@@ -1,0 +1,1024 @@
+---
+import { Image } from 'astro:assets';
+
+import LiveSite from '../LiveSite.astro';
+
+import original from '../../assets/work/richapi/original-homepage.png';
+import rails from '../../assets/work/richapi/direction-rails.png';
+import circuit from '../../assets/work/richapi/direction-circuit.png';
+import sky from '../../assets/work/richapi/direction-sky.png';
+import grid from '../../assets/work/richapi/direction-grid.png';
+
+const facts = [
+  { label: 'Client', value: 'RichAPI, a TexAu product' },
+  { label: 'Product', value: 'B2B data API and MCP server' },
+  { label: 'Scope', value: 'Positioning, website design' },
+  { label: 'Year', value: '2026' },
+];
+
+// What the old page said, and what a buyer heard. Taken section by section
+// from the notes on the audited page, in the order the page runs. `box` is
+// the stretch of the original page each note is about — left, top, width,
+// height — as percentages of the picture, so it holds at any size.
+const problems = [
+  {
+    said: '“Verified B2B data, fetched the moment you ask”',
+    heard: 'Fetched from where? It never says the data isn’t RichAPI’s own.',
+    box: [9, 2.5, 37, 5.8],
+  },
+  {
+    said: '“The data you bought is already wrong”',
+    heard: 'Reads as a claim to a better database. RichAPI doesn’t have one.',
+    box: [8, 9, 84, 5.3],
+  },
+  {
+    said: '“Pulled live, the second you ask”',
+    heard: 'No how. It’s live because the providers are — and it’s a side point.',
+    box: [8, 16, 84, 6.3],
+  },
+  {
+    said: '“Charged for misses: never”',
+    heard: 'What counts as a miss, and who decides?',
+    box: [9, 25.8, 82, 4.4],
+  },
+  {
+    said: '“Built for the people who run outbound”',
+    heard: 'No word of providers, so buyers assume every record is verified.',
+    box: [8, 33.8, 84, 7.4],
+  },
+  {
+    said: '“Call it from anywhere”',
+    heard: 'The real answer, buried two-thirds down as a feature grid.',
+    box: [8, 41.8, 84, 13],
+  },
+  {
+    said: 'Frequently asked questions',
+    heard: 'Still doesn’t explain “live” or “verified”.',
+    box: [15, 75.4, 70, 14.2],
+  },
+];
+
+// The page sits in the middle of the audit, the notes in the margins either
+// side of it, alternating. PAGE_X and PAGE_W place the page across the stage,
+// in the same percentages the leader lines are drawn in.
+const PAGE_X = 24;
+const PAGE_W = 52;
+const notes = problems.map((item, i) => {
+  const [x, y, w] = item.box;
+  const side = i % 2 === 0 ? 'left' : 'right';
+  // A leader runs level from the note's inside edge to the near side of the box.
+  const from = side === 'left' ? PAGE_X - 1.5 : PAGE_X + PAGE_W + 1.5;
+  const to = side === 'left' ? PAGE_X + (x * PAGE_W) / 100 : PAGE_X + ((x + w) * PAGE_W) / 100;
+  return { ...item, side, y, from, to, num: String(i + 1).padStart(2, '0') };
+});
+
+const directions = [
+  {
+    name: 'Friendly, product-led',
+    note: 'Soft white cards, rounded corners, one confident blue. Provider logos ride transit lines into a price card. Approachable and clear about money, but it read as a pricing page before it read as a product.',
+    src: rails,
+    alt: 'Light hero with provider logos on rail lines and a $0.02 per credit card',
+  },
+  {
+    name: 'Technical, playful',
+    note: 'Monospace tags and bright dots on a dashed wiring diagram — a developer’s sketchbook. It showed routing with some wit, and lost the providers, the one thing the story now depended on.',
+    src: circuit,
+    alt: 'Grey hero with category tags joined by dashed lines and coloured nodes',
+  },
+  {
+    name: 'Dreamy, calm',
+    note: 'An illustrated sky and open field, the mark at the centre of rings with the categories in orbit. The warmest and most human of the four — and the landscape said nothing at all about data.',
+    src: sky,
+    alt: 'Hero with an illustrated sky and field, category labels orbiting the RichAPI mark',
+  },
+  {
+    name: 'Premium, editorial',
+    note: 'Near-black, a fine grid, a serif headline with an italic turn. Serious enough for a data buyer, and the providers sit right at the top — the first thing you see is who RichAPI talks to.',
+    src: grid,
+    alt: 'Dark hero with provider app icons on a grid above a serif headline and category pills',
+    chosen: true,
+  },
+];
+
+// Each problem from the audit, and where the shipped site answers it.
+const answers = [
+  {
+    label: 'Who answers',
+    body: 'The providers sit above the headline, with one line under them: RichAPI routes each lookup across these and others, 40+ in total. Familiar names do the trust-building — someone who has used Apollo already half-trusts the product sitting on top of it.',
+  },
+  {
+    label: 'Live, explained',
+    body: 'Live contact, company, social and signal data from licensed providers. “Live” stopped being a claim about RichAPI’s database and became a description of how a lookup works.',
+  },
+  {
+    label: 'Misses, defined',
+    body: 'Email and phone lookups that find nothing cost nothing. A result counts as verified only when the waterfall returns a positive deliverability or reachable signal.',
+  },
+  {
+    label: 'A receipt',
+    body: 'Every waterfall call returns an execution log: which providers were tried, which one answered, what was billed. The hidden cost the old page complained about, shown instead.',
+  },
+  {
+    label: 'The markup, asked out loud',
+    body: '“Do you mark up the underlying providers? Partly, yes.” The objection the old page stepped around is the first question in the FAQ, answered plainly.',
+  },
+  {
+    label: 'Usage up front',
+    body: 'REST, MCP, Clay, HubSpot, Claude — the second section, with the call itself on screen, rather than a grid two-thirds of the way down.',
+  },
+];
+---
+
+<article class="ra">
+  <section class="ra-brief">
+    <p class="eyebrow" data-reveal="up">[1] THE BRIEF</p>
+    <div class="ra-brief__body">
+      <p class="ra-lede" data-reveal="up" style="--i: 1">
+        RichAPI is a B2B data API and MCP server: one key, one credit pool, and contact, company,
+        social and signal data from more than forty licensed providers. The site it came to us with
+        was well made and said the wrong thing. It sold RichAPI as a fresher database — “verified
+        B2B data, fetched the moment you ask” — when what RichAPI does is route each lookup to
+        providers people already know. The story had to be fixed before the page could be.
+      </p>
+      <dl class="ra-facts">
+        {
+          facts.map((fact, i) => (
+            <div class="ra-fact" data-reveal="up" style={`--i: ${i}`}>
+              <dt>{fact.label}</dt>
+              <dd>{fact.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <section class="ra-before">
+    <div class="ra-head">
+      <p class="eyebrow" data-reveal="up">[2] WHERE IT STARTED</p>
+      <h2 class="section-title" data-reveal="up" style="--i: 1">ONE CLAIM,<br />THE WHOLE PAGE</h2>
+      <p class="ra-note" data-reveal="up" style="--i: 2">
+        Long, earnest, and built on a single word: live. Every section after the hero tried to
+        prove it — the data you bought is already wrong, pulled live the second you ask, fresh is
+        only worth it if it’s accurate. Read top to bottom, it describes a company that owns a
+        database and keeps it fresher than its rivals do. RichAPI owns no database.
+      </p>
+    </div>
+
+    <div class="ra-window" data-reveal="up" data-ra-window>
+      <div class="ra-window__bar">
+        <span class="ra-window__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>richapi.ai — before</span>
+        <span class="ra-window__progress" aria-hidden="true"></span>
+      </div>
+      <div class="ra-window__view" tabindex="0" role="region" aria-label="The original RichAPI homepage, scrollable">
+        <Image
+          src={original}
+          alt="The original RichAPI homepage, top to bottom: a hero promising verified data fetched live, sections on stale data, live pulling, pricing against enrichment platforms, outbound teams, endpoints, testimonials and an FAQ"
+          width={2000}
+          widths={[760, 1400, 2000]}
+          sizes="(max-width: 900px) 100vw, 78vw"
+          format="webp"
+        />
+      </div>
+      <span class="ra-window__hint" aria-hidden="true">Scroll <span>↓</span></span>
+    </div>
+  </section>
+
+  <section class="ra-audit">
+    <div class="ra-head">
+      <p class="eyebrow" data-reveal="up">[3] READING IT AS A BUYER</p>
+      <h2 class="section-title" data-reveal="up" style="--i: 1">WHAT IT SAID,<br />WHAT IT MEANT</h2>
+      <p class="ra-note" data-reveal="up" style="--i: 2">
+        The page read as a data buyer would. Almost every question led back to one missing line:
+        where the data comes from.
+      </p>
+    </div>
+
+    <div class="ra-window" data-reveal="up" data-ra-window>
+      <div class="ra-window__bar">
+        <span class="ra-window__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>The audit, annotated</span>
+        <span class="ra-window__progress" aria-hidden="true"></span>
+      </div>
+      <div class="ra-window__view" tabindex="0" role="region" aria-label="The original homepage, annotated, scrollable">
+        {/* The original page down the middle, an outline over each stretch a note is about, and the notes in the margins, joined by a leader. */}
+        <div class="ra-stage" style={`--page-x: ${PAGE_X}%; --page-w: ${PAGE_W}%`}>
+          <div class="ra-stage__page">
+            <Image
+              src={original}
+              alt="The original RichAPI homepage, with seven sections outlined"
+              width={2000}
+              widths={[760, 1400, 2000]}
+              sizes="(max-width: 900px) 100vw, 42vw"
+              format="webp"
+            />
+            {
+              notes.map((note) => (
+                <span
+                  class="ra-stage__box"
+                  style={`left: ${note.box[0]}%; top: ${note.box[1]}%; width: ${note.box[2]}%; height: ${note.box[3]}%`}
+                  aria-hidden="true"
+                >
+                  <b>{note.num}</b>
+                </span>
+              ))
+            }
+          </div>
+          <svg class="ra-stage__leaders" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            {notes.map((note) => <line x1={note.from} x2={note.to} y1={note.y + 0.35} y2={note.y + 0.35} />)}
+          </svg>
+          <ol class="ra-stage__notes">
+            {
+              notes.map((note) => (
+                <li class:list={['ra-stage__note', `is-${note.side}`]} style={`top: ${note.y}%`}>
+                  <span class="ra-stage__num">{note.num}</span>
+                  <p class="ra-stage__said">{note.said}</p>
+                  <p class="ra-stage__heard">{note.heard}</p>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      </div>
+      <span class="ra-window__hint" aria-hidden="true">Scroll <span>↓</span></span>
+    </div>
+
+    {/* On a handset there are no margins to write in, so the notes follow the page as a list. */}
+    <ol class="ra-list">
+      {
+        notes.map((note) => (
+          <li class="ra-row">
+            <span class="ra-row__num">{note.num}</span>
+            <p class="ra-row__said">{note.said}</p>
+            <p class="ra-row__heard">{note.heard}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section class="ra-reframe">
+    <div class="ra-head">
+      <p class="eyebrow" data-reveal="up">[4] THE REFRAME</p>
+      <h2 class="section-title" data-reveal="up" style="--i: 1">NOT A BETTER<br />DATABASE. A ROUTE<br />TO THE ONES YOU TRUST</h2>
+    </div>
+
+    <div class="ra-pair">
+      <div class="ra-pair__side" data-reveal="up">
+        <p class="ra-pair__label">Before</p>
+        <p class="ra-pair__line">RichAPI has fresher data than the database you bought.</p>
+        <p class="ra-pair__note">
+          A claim nobody can check, against competitors the buyer may be happy with — and not
+          what the product does.
+        </p>
+      </div>
+      <div class="ra-pair__side ra-pair__side--after" data-reveal="up" style="--i: 1">
+        <p class="ra-pair__label">After</p>
+        <p class="ra-pair__line">RichAPI reaches the providers you already know, through one key, at one price.</p>
+        <p class="ra-pair__note">
+          True, checkable, and it borrows the trust those names have already earned. “Live” falls
+          out of it for free: the providers keep their data current, RichAPI asks them the moment
+          you call.
+        </p>
+      </div>
+    </div>
+
+    <p class="ra-note" data-reveal="up">
+      Putting Apollo or People Data Labs on your own homepage looks, at first, like advertising
+      someone else. Here it does the opposite: for anyone who has used either, one row of logos is
+      association and social proof at once.
+    </p>
+  </section>
+
+  <section class="ra-directions">
+    <div class="ra-head">
+      <p class="eyebrow" data-reveal="up">[5] FOUR WAYS TO SAY IT</p>
+      <p class="ra-note" data-reveal="up" style="--i: 1">
+        The same headline and the same copy, four ways. Each had to put the new idea — many
+        providers, one route — on the first screen without a paragraph to explain it.
+      </p>
+    </div>
+
+    <div class="ra-grid">
+      {
+        directions.map((d, i) => (
+          <figure class:list={['ra-dir', { 'is-chosen': d.chosen }]} data-reveal="up" style={`--i: ${i % 2}`}>
+            <div class="ra-dir__img">
+              <Image src={d.src} alt={d.alt} widths={[700, 1400]} sizes="(max-width: 900px) 100vw, 40vw" format="webp" />
+            </div>
+            <figcaption class="ra-dir__caption">
+              <p class="ra-dir__name">
+                <span>{String.fromCharCode(65 + i)} — {d.name}</span>
+                {d.chosen && <span class="ra-dir__tag">Taken forward</span>}
+              </p>
+              <p class="ra-dir__note">{d.note}</p>
+            </figcaption>
+          </figure>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="ra-shipped">
+    <div class="ra-head">
+      <p class="eyebrow" data-reveal="up">[6] WHAT SHIPPED</p>
+      <h2 class="section-title" data-reveal="up" style="--i: 1">EVERY QUESTION,<br />ANSWERED ON THE PAGE</h2>
+      <p class="ra-note" data-reveal="up" style="--i: 2">
+        The live site, running below. Each question from the audit has an answer somewhere on it.
+      </p>
+    </div>
+
+    <LiveSite url="https://richapi.ai" title="RichAPI, the live site" />
+
+    <dl class="ra-answers">
+      {
+        answers.map((item, i) => (
+          <div class="ra-answer" data-reveal="up" style={`--i: ${i}`}>
+            <dt>{item.label}</dt>
+            <dd>{item.body}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </section>
+</article>
+
+<style lang="scss">
+  @use "../../styles/util" as *;
+
+  .ra section {
+    position: relative;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    gap: u(50);
+    align-items: flex-start;
+    padding: u(100);
+  }
+
+  .ra-head {
+    display: flex;
+    flex-direction: column;
+    gap: u(20);
+  }
+
+  .ra-note {
+    width: u(680);
+    font-size: u(18);
+    line-height: 1.35;
+    color: var(--body);
+  }
+
+  // --- Brief ------------------------------------------------------------
+  .ra .ra-brief {
+    padding-top: u(70);
+  }
+
+  .ra-brief__body {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: u(80);
+    width: 100%;
+  }
+
+  .ra-lede {
+    width: u(680);
+    font-size: u(20);
+    line-height: 1.3;
+    color: var(--body);
+  }
+
+  .ra-facts {
+    display: flex;
+    flex-direction: column;
+    gap: u(24);
+    width: u(400);
+  }
+
+  .ra-fact {
+    display: flex;
+    flex-direction: column;
+    gap: u(4);
+    font-size: u(20);
+    line-height: 1.3;
+
+    dt {
+      font-weight: 600;
+      color: var(--sage);
+    }
+
+    dd {
+      margin: 0;
+      color: var(--ink);
+    }
+  }
+
+  // --- Before -----------------------------------------------------------
+  .ra-before {
+    background: var(--showreel);
+  }
+
+  // A browser window with a whole page in it, to be scrolled where it sits.
+  .ra-window {
+    position: relative;
+    width: 100%;
+    border: 1px solid var(--ink);
+    background: var(--white);
+  }
+
+  .ra-window__bar {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: u(14) u(20);
+    font-size: u(13);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--paper);
+    background: var(--ink);
+  }
+
+  .ra-window__dots {
+    display: flex;
+    gap: u(6);
+
+    i {
+      width: u(10);
+      height: u(10);
+      background: var(--g-orange);
+    }
+
+    i:nth-child(2) {
+      background: var(--g-yellow);
+    }
+
+    i:nth-child(3) {
+      background: var(--g-blue);
+    }
+  }
+
+  // How far down the page the reader is, set from the script below.
+  .ra-window__progress {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: u(3);
+    background: var(--g-orange);
+    transform: scaleX(var(--p, 0));
+    transform-origin: left center;
+  }
+
+  .ra-window__view {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    max-height: 78vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ink) transparent;
+
+    &:focus-visible {
+      outline: 2px solid var(--g-orange);
+      outline-offset: -2px;
+    }
+
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  @keyframes ra-bob {
+    50% {
+      transform: translateY(u(4));
+    }
+  }
+
+  .ra-window__hint {
+    position: absolute;
+    right: u(28);
+    bottom: u(20);
+    display: flex;
+    gap: u(8);
+    padding: u(10) u(14);
+    font-size: u(12);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--paper);
+    background: var(--ink);
+    pointer-events: none;
+    transition: opacity var(--dur-base) var(--ease-out);
+
+    span {
+      animation: ra-bob 1600ms var(--ease-inout) infinite;
+    }
+  }
+
+  .ra-window.is-scrolled .ra-window__hint {
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ra-window__hint span {
+      animation: none;
+    }
+  }
+
+  // --- Audit ------------------------------------------------------------
+  // The page down the middle of the stage; the notes are placed against it
+  // in the margins, at the height of the stretch they are about.
+  .ra-stage {
+    position: relative;
+    padding: 0 calc(100% - var(--page-x) - var(--page-w)) 0 var(--page-x);
+    background: var(--tint);
+  }
+
+  .ra-stage__page {
+    position: relative;
+    box-shadow: 0 0 0 1px var(--ink);
+
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  .ra-stage__box {
+    position: absolute;
+    border: u(2) solid var(--g-orange);
+
+    b {
+      position: absolute;
+      top: u(-12);
+      left: u(-12);
+      display: grid;
+      place-items: center;
+      width: u(24);
+      height: u(24);
+      font-size: u(11);
+      font-weight: 700;
+      color: var(--paper);
+      background: var(--g-orange);
+    }
+  }
+
+  .ra-stage__leaders {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+
+    line {
+      stroke: var(--g-orange);
+      stroke-width: 1.5;
+      stroke-dasharray: 4 3;
+      vector-effect: non-scaling-stroke;
+    }
+  }
+
+  .ra-stage__notes {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ra-stage__note {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: u(6);
+    width: calc(var(--page-x) - 4%);
+    padding: u(12) u(14) u(14);
+    border: 1px solid var(--ink);
+    background: var(--paper);
+
+    &.is-left {
+      left: 2%;
+    }
+
+    &.is-right {
+      right: 2%;
+    }
+  }
+
+  .ra-stage__num {
+    font-size: u(11);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--g-orange);
+  }
+
+  .ra-stage__said {
+    font-size: u(13);
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .ra-stage__heard {
+    font-size: u(13);
+    line-height: 1.35;
+    color: var(--body);
+  }
+
+  // Only needed where the margins are not.
+  .ra-list {
+    display: none;
+  }
+
+  .ra-list {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  // Number, the line as the page had it, and what a buyer took from it.
+  .ra-row {
+    display: grid;
+    grid-template-columns: u(60) 1fr 1.4fr;
+    column-gap: u(24);
+    align-items: baseline;
+    padding: u(24) 0 u(28);
+    border-top: var(--rule);
+
+    &:last-child {
+      border-bottom: var(--rule);
+    }
+  }
+
+  .ra-row__num {
+    font-size: u(15);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--g-orange);
+  }
+
+  .ra-row__said {
+    font-size: u(22);
+    font-weight: 600;
+    line-height: 1.25;
+    text-wrap: pretty;
+  }
+
+  .ra-row__heard {
+    max-width: 52ch;
+    font-size: u(17);
+    line-height: 1.4;
+    color: var(--body);
+    text-wrap: pretty;
+  }
+
+  // --- Reframe ----------------------------------------------------------
+  .ra-reframe {
+    background: var(--showreel);
+  }
+
+  .ra-pair {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+    border: var(--rule);
+  }
+
+  .ra-pair__side {
+    display: flex;
+    flex-direction: column;
+    gap: u(16);
+    padding: u(36) u(40) u(40);
+    background: var(--paper);
+
+    & + & {
+      border-left: var(--rule);
+    }
+  }
+
+  .ra-pair__side--after {
+    color: var(--paper);
+    background: var(--ink);
+
+    .ra-pair__label {
+      color: var(--g-yellow);
+    }
+
+    .ra-pair__note {
+      color: var(--paper);
+    }
+  }
+
+  .ra-pair__label {
+    font-size: u(15);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--sage);
+  }
+
+  .ra-pair__line {
+    font-family: var(--font-display);
+    font-size: u(36);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  .ra-pair__note {
+    max-width: 44ch;
+    font-size: u(17);
+    line-height: 1.4;
+    color: var(--body);
+  }
+
+  // --- Directions -------------------------------------------------------
+  .ra-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: u(60) u(50);
+    width: 100%;
+  }
+
+  .ra-dir {
+    display: flex;
+    flex-direction: column;
+    gap: u(20);
+    margin: 0;
+  }
+
+  // The four were exported at different sizes; one frame keeps the rows
+  // level, cropped from the top so the hero is what stays.
+  .ra-dir__img {
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border: 1px solid var(--ink);
+    background: var(--tint);
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+    }
+  }
+
+  // The direction that went on to ship, picked out with a heavier frame.
+  .ra-dir.is-chosen .ra-dir__img {
+    outline: u(4) solid var(--g-orange);
+    outline-offset: u(6);
+  }
+
+  .ra-dir__caption {
+    display: flex;
+    flex-direction: column;
+    gap: u(8);
+    padding-top: u(14);
+    border-top: var(--rule);
+  }
+
+  .ra-dir__name {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: u(12);
+    font-size: u(15);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--forest);
+  }
+
+  .ra-dir__tag {
+    padding: u(4) u(8);
+    font-size: u(12);
+    color: var(--paper);
+    background: var(--g-orange);
+  }
+
+  .ra-dir__note {
+    max-width: 52ch;
+    font-size: u(17);
+    line-height: 1.35;
+    color: var(--body);
+  }
+
+  // --- Shipped ----------------------------------------------------------
+  .ra-answers {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .ra-answer {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    column-gap: u(24);
+    align-items: baseline;
+    padding: u(24) 0 u(28);
+    border-top: var(--rule);
+
+    &:last-child {
+      border-bottom: var(--rule);
+    }
+
+    dt {
+      grid-column: 1 / span 4;
+      font-size: u(15);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    dd {
+      grid-column: 6 / span 7;
+      max-width: 52ch;
+      margin: 0;
+      font-size: u(20);
+      font-weight: 500;
+      line-height: 1.35;
+      text-wrap: pretty;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .ra section {
+      gap: 32px;
+      padding: 56px 24px;
+    }
+
+    .ra-brief__body {
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .ra-lede,
+    .ra-facts,
+    .ra-note {
+      width: 100%;
+    }
+
+    .ra-lede {
+      font-size: 16px;
+    }
+
+    .ra-fact,
+    .ra-note {
+      font-size: 15px;
+    }
+
+    .ra-window__bar {
+      padding: 10px 12px;
+      font-size: 10px;
+    }
+
+    .ra-window__dots {
+      gap: 4px;
+
+      i {
+        width: 7px;
+        height: 7px;
+      }
+    }
+
+    .ra-window__view {
+      aspect-ratio: 4 / 5;
+    }
+
+    .ra-window__hint {
+      right: 12px;
+      bottom: 12px;
+      gap: 6px;
+      padding: 8px 10px;
+      font-size: 10px;
+    }
+
+    .ra-stage {
+      padding: 0;
+    }
+
+    .ra-stage__box {
+      border-width: 2px;
+
+      b {
+        top: -9px;
+        left: -9px;
+        width: 18px;
+        height: 18px;
+        font-size: 9px;
+      }
+    }
+
+    .ra-stage__leaders,
+    .ra-stage__notes {
+      display: none;
+    }
+
+    .ra-list {
+      display: block;
+    }
+
+    .ra-row {
+      grid-template-columns: 32px 1fr;
+      row-gap: 8px;
+      padding: 16px 0 20px;
+    }
+
+    .ra-row__num {
+      font-size: 12px;
+    }
+
+    .ra-row__said {
+      font-size: 17px;
+    }
+
+    .ra-row__heard {
+      grid-column: 2;
+      font-size: 15px;
+    }
+
+    .ra-pair {
+      grid-template-columns: 1fr;
+    }
+
+    .ra-pair__side {
+      padding: 24px 20px;
+
+      & + & {
+        border-left: 0;
+        border-top: var(--rule);
+      }
+    }
+
+    .ra-pair__label {
+      font-size: 12px;
+    }
+
+    .ra-pair__line {
+      font-size: 24px;
+    }
+
+    .ra-pair__note,
+    .ra-dir__note {
+      font-size: 15px;
+    }
+
+    .ra-grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    .ra-dir.is-chosen .ra-dir__img {
+      outline-width: 3px;
+      outline-offset: 4px;
+    }
+
+    .ra-dir__name {
+      font-size: 12px;
+    }
+
+    .ra-dir__tag {
+      font-size: 10px;
+    }
+
+    .ra-answer {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 16px 0 20px;
+
+      dt {
+        font-size: 12px;
+      }
+
+      dd {
+        font-size: 17px;
+      }
+    }
+  }
+</style>
+
+<script>
+  // The window's scroll position, handed to CSS: --p drives the progress
+  // line, and the first movement retires the hint.
+  document.querySelectorAll<HTMLElement>('[data-ra-window]').forEach((frame) => {
+    const view = frame.querySelector<HTMLElement>('.ra-window__view');
+    if (!view) return;
+
+    view.addEventListener(
+      'scroll',
+      () => {
+        const max = view.scrollHeight - view.clientHeight;
+        frame.style.setProperty('--p', max > 0 ? String(view.scrollTop / max) : '0');
+        frame.classList.toggle('is-scrolled', view.scrollTop > 8);
+      },
+      { passive: true },
+    );
+  });
+</script>

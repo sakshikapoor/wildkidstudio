@@ -12,6 +12,7 @@ import InstaSupply from '../../components/casestudy/InstaSupply.astro';
 import Allenati from '../../components/casestudy/Allenati.astro';
 import Asci from '../../components/casestudy/Asci.astro';
 import BookSkim from '../../components/casestudy/BookSkim.astro';
+import RichAPI from '../../components/casestudy/RichAPI.astro';
 import { projects } from '../../data/projects';
 
 // One route for every project, driven by the same data as the homepage
@@ -45,6 +46,7 @@ const caseStudies: Record<string, boolean> = {
   allenati: true,
   asci: true,
   bookskim: true,
+  richapi: true,
 };
 const hasCaseStudy = caseStudies[project.slug] === true;
 
@@ -125,6 +127,8 @@ const blocks: Block[] = [
               <Allenati />
             ) : project.slug === 'bookskim' ? (
               <BookSkim />
+            ) : project.slug === 'richapi' ? (
+              <RichAPI />
             ) : (
               <Asci />
             )

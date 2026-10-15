@@ -37,17 +37,17 @@ export interface Project {
 
 // Order is the order of the plates on the homepage.
 export const projects: Project[] = [
-  // Not yet written up: richapi. Fill in disciplines, summary, year and role
-  // as it is ready; nothing else needs to change.
   {
     slug: 'richapi',
     name: 'RichAPI',
-    disciplines: 'Case study coming soon',
+    disciplines: 'Positioning, Website Design',
     cover: richapi,
     coverAlt: 'RichAPI homepage on a laptop',
-    summary: 'Case study coming soon.',
+    summary:
+      'A B2B data API whose website sold it as a fresher database — when what it does is route each lookup to providers people already trust. We fixed the story first, then designed the page around it.',
+    year: '2026',
+    role: 'Positioning, Website Design',
     liveUrl: 'https://richapi.ai',
-    livePreview: true,
   },
   {
     slug: 'bookskim',
