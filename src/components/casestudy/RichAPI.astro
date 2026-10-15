@@ -685,7 +685,6 @@ const answers = [
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     width: 100%;
-    border: var(--rule);
   }
 
   .ra-pair__side {
@@ -694,10 +693,6 @@ const answers = [
     gap: u(16);
     padding: u(36) u(40) u(40);
     background: var(--paper);
-
-    & + & {
-      border-left: var(--rule);
-    }
   }
 
   .ra-pair__side--after {
@@ -948,11 +943,6 @@ const answers = [
 
     .ra-pair__side {
       padding: 24px 20px;
-
-      & + & {
-        border-left: 0;
-        border-top: var(--rule);
-      }
     }
 
     .ra-pair__label {
